@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Win7AeroTheme.Gallery/Win7AeroTheme.Gallery.csproj" />
+  <Project Path="Win7AeroTheme.Tests/Win7AeroTheme.Tests.csproj" />
+  <Project Path="Win7AeroTheme/Win7AeroTheme.csproj" />
+</Solution>

@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Inter and JetBrains Mono are embedded (SIL OFL 1.1, see Fonts/*-OFL.txt), with system fallbacks. -->
+  <FontFamily x:Key="DbConnect.FontFamily.UI">avares://DbConnectTheme/Fonts#Inter, Segoe UI, sans-serif</FontFamily>
+  <!-- Monospace for SQL and DDL previews; the app replaces it with the editor font from Preferences. -->
+  <FontFamily x:Key="DbConnect.FontFamily.Code">avares://DbConnectTheme/Fonts#JetBrains Mono, Consolas, Menlo, monospace</FontFamily>
+
+  <!-- DbConnect type ramp. Text uses only these four sizes. -->
+  <x:Double x:Key="DbConnect.FontSize.Caption">11</x:Double>
+  <x:Double x:Key="DbConnect.FontSize.Body">12</x:Double>
+  <x:Double x:Key="DbConnect.FontSize.Subheading">13</x:Double>
+  <x:Double x:Key="DbConnect.FontSize.Heading">16</x:Double>
+  <FontWeight x:Key="DbConnect.FontWeight.Subheading">SemiBold</FontWeight>
+  <FontWeight x:Key="DbConnect.FontWeight.Heading">SemiBold</FontWeight>
+</ResourceDictionary>

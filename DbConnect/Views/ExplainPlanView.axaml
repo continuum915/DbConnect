@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             x:Class="DbConnect.Views.ExplainPlanView"
+             x:DataType="vm:ExplainPlanViewModel">
+
+    <Grid>
+        <!-- Structured tree view when plan is available -->
+        <TreeView ItemsSource="{Binding RootNodes}"
+                  IsVisible="{Binding HasStructuredPlan}">
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate x:DataType="models:ExplainPlanNode"
+                                  ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+                        <TextBlock Classes="caption muted" Text="{Binding Details}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+        <!-- Raw text fallback when no structured plan -->
+        <TextBox IsVisible="{Binding !HasStructuredPlan}"
+                 Text="{Binding RawText}"
+                 IsReadOnly="True"
+                 Classes="code"
+                 AcceptsReturn="True"
+                 TextWrapping="NoWrap"/>
+    </Grid>
+</UserControl>
+

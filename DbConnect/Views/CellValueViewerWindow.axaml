@@ -1,0 +1,102 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:ae="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:fi="using:FluentIcons.Avalonia"
+        x:Class="DbConnect.Views.CellValueViewerWindow"
+        x:DataType="vm:CellValueViewerViewModel"
+        Title="{Binding Title}"
+        Width="820" Height="600"
+        MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+
+        <!-- Copy and Save act on the value; Close is both the default and the cancel button. -->
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <DockPanel>
+                <StackPanel Classes="start">
+                    <Button Name="CopyButton" Content="Copy value" Click="OnCopyClicked"/>
+                    <Button Name="SaveButton" Content="Save to file…" Click="OnSaveClicked"/>
+                </StackPanel>
+                <StackPanel>
+                    <Button Classes="primary" Content="Close" IsDefault="True" IsCancel="True" Click="OnCloseClicked"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid RowDefinitions="Auto,Auto,*">
+
+            <!-- View toggle and text options -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                <RadioButton Name="TreeViewButton" GroupName="CellViewerMode" Content="Tree"
+                             IsChecked="{Binding IsTreeView, Mode=OneWay}"
+                             IsEnabled="{Binding CanShowTree}"
+                             Command="{Binding ShowTreeCommand}"/>
+                <RadioButton Name="TextViewButton" GroupName="CellViewerMode" Content="Text"
+                             IsChecked="{Binding IsTextView, Mode=OneWay}"
+                             Command="{Binding ShowTextCommand}"/>
+                <CheckBox Content="Format" IsChecked="{Binding FormatJson}"
+                          IsVisible="{Binding CanFormat}" IsEnabled="{Binding IsTextView}" Margin="8,0,0,0"/>
+                <CheckBox Content="Word wrap" IsChecked="{Binding WordWrap}"
+                          IsEnabled="{Binding CanChangeWordWrap}"/>
+            </StackPanel>
+
+            <!-- Banners -->
+            <StackPanel Grid.Row="1" Spacing="4">
+                <Border Classes="banner warning" Margin="0,0,0,4"
+                        IsVisible="{Binding ParseBanner, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <TextBlock Name="ParseBannerText" Text="{Binding ParseBanner}"/>
+                </Border>
+                <Border Classes="banner warning" Margin="0,0,0,4"
+                        IsVisible="{Binding SizeBanner, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <TextBlock Text="{Binding SizeBanner}" TextWrapping="Wrap"/>
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,4" IsVisible="{Binding IsShowingString}">
+                    <TextBlock VerticalAlignment="Center" Classes="muted"
+                               Text="{Binding ShownStringLabel, StringFormat='Showing the string {0}'}"/>
+                    <Button Content="Show whole value" Command="{Binding ShowWholeValueCommand}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Content -->
+            <Border Grid.Row="2" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="1" CornerRadius="4">
+                <Grid>
+                    <TextBlock Text="Parsing…" IsVisible="{Binding IsParsing}" Classes="muted"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Grid IsVisible="{Binding !IsParsing}">
+                        <ListBox Name="TreeList" ItemsSource="{Binding Tree.Rows}" IsVisible="{Binding IsTreeView}"
+                                 Background="{DynamicResource DbConnectCodeBgBrush}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:JsonTreeRow">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <Border Width="{Binding Indent}"/>
+                                        <Panel Width="{DynamicResource DbConnect.Size.ControlMinHeight}">
+                                            <Button Classes="toolbar icon" Command="{Binding ToggleCommand}"
+                                                    IsVisible="{Binding IsExpandable}"
+                                                    ToolTip.Tip="Expand or collapse">
+                                                <Panel>
+                                                    <fi:SymbolIcon Symbol="ChevronDown" IsVisible="{Binding IsExpanded}"/>
+                                                    <fi:SymbolIcon Symbol="ChevronRight" IsVisible="{Binding !IsExpanded}"/>
+                                                </Panel>
+                                            </Button>
+                                        </Panel>
+                                        <TextBlock Text="{Binding Label}" FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}" VerticalAlignment="Center"/>
+                                        <TextBlock Classes="code" Text="{Binding Value}" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource DbConnectCodeFgBrush}"/>
+                                        <Button Classes="link" Content="Open full string" Command="{Binding OpenFullStringCommand}"
+                                                IsVisible="{Binding IsTruncated}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <ae:TextEditor Name="Editor" Classes="code" IsVisible="{Binding IsTextView}" IsReadOnly="True"
+                                       ShowLineNumbers="True" WordWrap="{Binding WordWrap}"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </DockPanel>
+</Window>

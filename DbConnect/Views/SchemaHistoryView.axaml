@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.SchemaHistoryView"
+             x:DataType="vm:SchemaHistoryViewModel">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Take a snapshot | compare two -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal" ItemSpacing="4" LineSpacing="4">
+                <TextBlock Text="Snapshot Label:" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding SnapshotLabel}" Width="200" Watermark="Optional label"/>
+                <Button Classes="toolbar" Command="{Binding TakeSnapshotCommand}" IsEnabled="{Binding !IsTaking}"
+                        ToolTip.Tip="Record the current schema">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Camera"/>
+                        <TextBlock Text="Take Snapshot"/>
+                    </StackPanel>
+                </Button>
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsTaking}" Width="80" Height="4" VerticalAlignment="Center"/>
+                <Separator/>
+                <TextBlock Text="Compare A:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Snapshots}" SelectedItem="{Binding SnapshotA}" Width="200">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:SchemaSnapshot">
+                            <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="vs B:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Snapshots}" SelectedItem="{Binding SnapshotB}" Width="200">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:SchemaSnapshot">
+                            <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Classes="toolbar" Command="{Binding CompareSnapshotsCommand}" ToolTip.Tip="Compare snapshot A with B">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="BranchCompare"/>
+                        <TextBlock Text="Compare"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- Snapshots Grid -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Snapshots}" IsReadOnly="True"
+                  AutoGenerateColumns="False" GridLinesVisibility="All" BorderBrush="{DynamicResource DbConnectBorderBrush}" BorderThickness="1" CanUserResizeColumns="True"
+                  Margin="4">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="180"/>
+                <DataGridTextColumn Header="Label" Binding="{Binding Label}" Width="*"/>
+                <DataGridTextColumn Header="Objects" Binding="{Binding ObjectCount}" Width="SizeToHeader" MinWidth="80"/>
+                <DataGridTemplateColumn Header="Actions" Width="SizeToHeader" MinWidth="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:SchemaSnapshot">
+                            <StackPanel Orientation="Horizontal" Spacing="2">
+                                <Button Classes="toolbar icon" Command="{Binding $parent[UserControl].((vm:SchemaHistoryViewModel)DataContext).ExportSnapshotCommand}" CommandParameter="{Binding}"
+                                        ToolTip.Tip="Export this snapshot">
+                                    <fi:SymbolIcon Symbol="ArrowExportUp"/>
+                                </Button>
+                                <Button Classes="toolbar icon" Command="{Binding $parent[UserControl].((vm:SchemaHistoryViewModel)DataContext).DeleteSnapshotCommand}" CommandParameter="{Binding}"
+                                        ToolTip.Tip="Delete this snapshot">
+                                    <fi:SymbolIcon Symbol="Delete" Foreground="{DynamicResource DbConnectDangerBrush}"/>
+                                </Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <views:EmptyState Grid.Row="1" Icon="History" Title="No snapshots yet"
+                          Message="Take a snapshot now; take another after a change and compare the two."
+                          ActionText="Take Snapshot" ActionCommand="{Binding TakeSnapshotCommand}"
+                          IsVisible="{Binding !Snapshots.Count}"/>
+
+        <!-- Status -->
+        <Border Grid.Row="2" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</UserControl>

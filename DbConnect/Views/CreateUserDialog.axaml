@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.CreateUserDialog"
+        Title="Create User"
+        Width="420" Height="240" MinWidth="360" MinHeight="220"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="Create" Click="Create_Click" IsDefault="True"/>
+                <Button Content="Cancel" Click="Cancel_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+            <TextBlock Text="Username:"/>
+            <TextBox Grid.Column="1" Name="UsernameBox" Watermark="Enter username"/>
+            <TextBlock Grid.Row="1" Text="Password:"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Name="PasswordBox" PasswordChar="•" Watermark="Enter password"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Name="PreviewText" Classes="code caption muted" TextWrapping="Wrap"/>
+        </Grid>
+    </DockPanel>
+</Window>

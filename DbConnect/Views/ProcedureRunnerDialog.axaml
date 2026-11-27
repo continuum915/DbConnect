@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:models="using:DbConnect.Models"
+        xmlns:views="using:DbConnect.Views"
+        x:Class="DbConnect.Views.ProcedureRunnerDialog"
+        x:DataType="vm:ProcedureRunnerViewModel"
+        Title="Run Routine"
+        Width="900" Height="700" MinWidth="600" MinHeight="480"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <DockPanel>
+                <TextBlock Classes="muted" Text="{Binding StatusMessage}"/>
+                <StackPanel>
+                    <TextBlock Classes="caption muted" Text="{Binding ExecutionTime, StringFormat='Time: {0}'}" VerticalAlignment="Center"/>
+                    <Button Classes="primary" Content="Execute" Command="{Binding ExecuteCommand}" IsDefault="True"
+                            IsEnabled="{Binding !IsBusy}"/>
+                    <Button Content="Close" Click="Close_Click" IsCancel="True"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid RowDefinitions="*,Auto,2*">
+            <!-- Parameters -->
+            <DockPanel Grid.Row="0">
+                <TextBlock DockPanel.Dock="Top" Classes="section-header" Text="Parameters"/>
+                <DataGrid ItemsSource="{Binding Parameters}"
+                          AutoGenerateColumns="False" IsReadOnly="False"
+                          GridLinesVisibility="All" BorderThickness="1" BorderBrush="{DynamicResource DbConnectDividerBrush}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="*"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding DataType}" IsReadOnly="True" Width="100"/>
+                        <DataGridTextColumn Header="Direction" Binding="{Binding DirectionLabel}" IsReadOnly="True" Width="100"/>
+                        <DataGridTemplateColumn Header="Value" Width="2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:ParameterInputRow">
+                                    <TextBox Text="{Binding Value, Mode=TwoWay}" BorderThickness="0" Background="Transparent" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+
+            <GridSplitter Grid.Row="1" ResizeDirection="Rows" Margin="0,4"/>
+            <ProgressBar Grid.Row="1" IsIndeterminate="True" VerticalAlignment="Top" IsVisible="{Binding IsBusy}"/>
+
+            <!-- Results -->
+            <TabControl Grid.Row="2">
+                <TabItem Header="Result Sets">
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding ResultSets}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:QueryResult">
+                                    <Expander Header="{Binding TabLabel}" IsExpanded="True" Margin="0,0,0,8">
+                                        <views:QueryResultView DataContext="{Binding}" MinHeight="200" MaxHeight="500"/>
+                                    </Expander>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Messages">
+                    <ListBox ItemsSource="{Binding Messages}" Background="{DynamicResource DbConnectCodeBgBrush}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Classes="code" Text="{Binding}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </TabItem>
+                <TabItem Header="Output Parameters">
+                    <DataGrid ItemsSource="{Binding OutputParameters}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Parameter" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTemplateColumn Header="Value" Width="2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ParameterOutputRow">
+                                        <TextBox Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

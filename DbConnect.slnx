@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="DbConnect.PerformanceTests/DbConnect.PerformanceTests.csproj" />
+  <Project Path="DbConnect.DatabaseScaffolder/DbConnect.DatabaseScaffolder.csproj" />
+  <Project Path="DbConnect.Tests/DbConnect.Tests.csproj" />
+  <Project Path="DbConnect/DbConnect.csproj" />
+  <Project Path="Theme/DbConnectTheme/DbConnectTheme.csproj" />
+  <Project Path="Theme/Win7AeroTheme/Win7AeroTheme.csproj" />
+  <Project Path="ThirdParty/AvaloniaEdit.TextMate/AvaloniaEdit.TextMate.csproj" />
+  <Project Path="ThirdParty/TextMateSharp/TextMateSharp.csproj" />
+</Solution>

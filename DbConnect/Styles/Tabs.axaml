@@ -1,0 +1,45 @@
+<!-- The document tab strip (Navicat/dbForge behaviour): one row of tabs that scrolls sideways, with an overflow
+     button listing every tab. Add the class "document-tabs" to a TabControl. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fi="using:FluentIcons.Avalonia"
+        xmlns:views="using:DbConnect.Views">
+
+    <Style Selector="TabControl.document-tabs">
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}" Background="{TemplateBinding Background}">
+                    <DockPanel>
+                        <Border Name="PART_Strip" DockPanel.Dock="Top">
+                        <DockPanel Name="PART_StripRow">
+                            <Button Name="PART_Overflow" DockPanel.Dock="Right" Classes="toolbar icon"
+                                    views:TabOverflowMenu.IsEnabled="True"
+                                    ToolTip.Tip="All tabs" AutomationProperties.Name="All tabs"
+                                    VerticalAlignment="Center">
+                                <fi:SymbolIcon Symbol="ChevronDown"/>
+                            </Button>
+                            <ScrollViewer Name="PART_StripScroll"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                          views:TabOverflowMenu.ScrollsWithWheel="True">
+                                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" VerticalAlignment="Bottom"/>
+                            </ScrollViewer>
+                        </DockPanel>
+                        </Border>
+                        <ContentPresenter Name="PART_SelectedContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding SelectedContent}"
+                                          ContentTemplate="{TemplateBinding SelectedContentTemplate}"/>
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

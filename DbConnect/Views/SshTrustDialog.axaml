@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.SshTrustDialog"
+        x:DataType="vm:SshTrustPromptViewModel"
+        Title="SSH host verification"
+        Width="620" Height="380" MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <!-- Decline is both default and cancel: an unverified key is never trusted by pressing Enter. -->
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Content="Trust once" Command="{Binding TrustOnceCommand}" IsVisible="{Binding IsUnknown}"/>
+                <Button Content="Trust always" Command="{Binding TrustAlwaysCommand}" IsVisible="{Binding IsUnknown}"/>
+                <Button Classes="danger" Content="Replace trusted key" Command="{Binding ReplaceTrustedKeyCommand}" IsVisible="{Binding IsMismatch}"/>
+                <Button Content="Decline" Command="{Binding DeclineCommand}" IsDefault="True" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer>
+            <StackPanel Spacing="8">
+                <TextBlock Classes="heading" Text="{Binding Heading}" Foreground="{DynamicResource DbConnectDangerBrush}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Warning}" TextWrapping="Wrap"/>
+                <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+                    <TextBlock Text="Host:"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Endpoint}" FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}"/>
+                    <TextBlock Grid.Row="1" Text="Key type:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Algorithm}"/>
+                    <TextBlock Grid.Row="2" Text="SHA-256 fingerprint:"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Classes="code" Text="{Binding Fingerprint}" TextWrapping="Wrap"/>
+                </Grid>
+                <StackPanel IsVisible="{Binding IsMismatch}" Spacing="4">
+                    <TextBlock Classes="section-header" Text="Previously trusted key"/>
+                    <TextBlock Text="{Binding OldAlgorithm}"/>
+                    <TextBlock Classes="code" Text="{Binding OldFingerprint}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

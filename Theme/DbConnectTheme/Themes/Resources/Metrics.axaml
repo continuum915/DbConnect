@@ -1,0 +1,63 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Flat corners: 2 px on controls, 3 px on panels and cards. -->
+  <CornerRadius x:Key="DbConnect.CornerRadius.Control">2</CornerRadius>
+  <CornerRadius x:Key="DbConnect.CornerRadius.Panel">3</CornerRadius>
+  <Thickness x:Key="DbConnect.Thickness.ControlPadding">14,3</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.CompactPadding">7,0</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.InputPadding">6,2</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.FocusBorder">1</Thickness>
+  <!-- One control row: buttons, check box and radio rows, expander headers. -->
+  <x:Double x:Key="DbConnect.Size.ControlMinHeight">24</x:Double>
+  <!-- Text boxes, combo boxes and spinners: 22 in panels and toolbars, 24 in dialog forms. -->
+  <x:Double x:Key="DbConnect.Size.InputHeight">22</x:Double>
+  <x:Double x:Key="DbConnect.Size.DialogInputHeight">24</x:Double>
+  <!-- Dialog footer buttons. -->
+  <x:Double x:Key="DbConnect.Size.DialogButtonHeight">26</x:Double>
+  <x:Double x:Key="DbConnect.Size.DialogButtonMinWidth">84</x:Double>
+  <!-- Icon-only buttons (.icon): 24 wide, 22 high. -->
+  <x:Double x:Key="DbConnect.Size.IconButtonWidth">24</x:Double>
+  <x:Double x:Key="DbConnect.Size.IconButtonHeight">22</x:Double>
+  <!-- Tab heights: document tabs (in the 29 px strip), sub-tabs and dialog tabs. -->
+  <x:Double x:Key="DbConnect.Size.DocumentTab">26</x:Double>
+  <x:Double x:Key="DbConnect.Size.SubTab">24</x:Double>
+  <x:Double x:Key="DbConnect.Size.DialogTab">26</x:Double>
+
+  <!-- DbConnect layout tokens: every margin, padding and spacing is a combination of this scale. -->
+  <x:Double x:Key="DbConnect.Space.XS">2</x:Double>
+  <x:Double x:Key="DbConnect.Space.S">4</x:Double>
+  <x:Double x:Key="DbConnect.Space.M">8</x:Double>
+  <x:Double x:Key="DbConnect.Space.L">12</x:Double>
+  <x:Double x:Key="DbConnect.Space.XL">16</x:Double>
+  <Thickness x:Key="DbConnect.Thickness.Toolbar">6,3</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.Dialog">16</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.Section">8</Thickness>
+
+  <!-- Icon sizes (FontSize of a SymbolIcon). Tile is the main toolbar's icon over a label. -->
+  <x:Double x:Key="DbConnect.Icon.Inline">14</x:Double>
+  <x:Double x:Key="DbConnect.Icon.Toolbar">16</x:Double>
+  <x:Double x:Key="DbConnect.Icon.Tile">26</x:Double>
+  <x:Double x:Key="DbConnect.Icon.Caret">8</x:Double>
+  <!-- Navigator row icons. -->
+  <x:Double x:Key="DbConnect.Icon.Node">15</x:Double>
+  <!-- The Information pane's object icon. -->
+  <x:Double x:Key="DbConnect.Icon.Subject">30</x:Double>
+  <x:Double x:Key="DbConnect.Icon.EmptyState">40</x:Double>
+
+  <!-- Density: tree, list and grid rows; grid header; toolbar buttons; document tab strip; status bar. -->
+  <x:Double x:Key="DbConnect.Size.RowHeight">22</x:Double>
+  <x:Double x:Key="DbConnect.Size.GridHeader">24</x:Double>
+  <x:Double x:Key="DbConnect.Size.ToolbarButtonHeight">24</x:Double>
+  <x:Double x:Key="DbConnect.Size.TabStrip">29</x:Double>
+  <x:Double x:Key="DbConnect.Size.StatusBar">24</x:Double>
+  <!-- Main toolbar tiles (icon over a caption label) are square. -->
+  <x:Double x:Key="DbConnect.Size.ToolTile">58</x:Double>
+  <!-- Main toolbar buttons (icon over a caption label) share this width until the tiles replace them. -->
+  <x:Double x:Key="DbConnect.Size.ToolbarButton">80</x:Double>
+
+  <!-- Form field widths: short for ports and timeouts, standard for the other fixed-width fields. -->
+  <x:Double x:Key="DbConnect.Size.FieldShort">120</x:Double>
+  <x:Double x:Key="DbConnect.Size.Field">200</x:Double>
+  <!-- Small status and label-colour dots. -->
+  <x:Double x:Key="DbConnect.Size.Dot">8</x:Double>
+</ResourceDictionary>

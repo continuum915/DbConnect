@@ -1,0 +1,19 @@
+<!-- Inputs: 22 px, input border, 2 px corners; focus is an accent border (FluentOverrides.axaml), no glow. -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="TextBox">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.InputHeight}" />
+    <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.InputPadding}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource DbConnect.Brush.Selection}" />
+    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource DbConnect.Brush.Text}" />
+  </Style>
+  <Style Selector="TextBox[AcceptsReturn=True]">
+    <Setter Property="VerticalContentAlignment" Value="Top" />
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.InputHeight}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+  </Style>
+</Styles>

@@ -1,0 +1,40 @@
+<!-- The status bar (the design's StatusBar artboard): connection dot and "<connection> · <server version> · <encoding>",
+     the production badge and the open-transaction chip; then the breadcrumb of the active object; then context (query
+     status, errors); then the app version. Segments are divided by border lines. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             x:Class="DbConnect.Views.StatusBarView"
+             x:DataType="vm:MainWindowViewModel">
+    <Border Classes="status-bar">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+            <StackPanel Grid.Column="0" Name="ConnectionSegment" Classes="status-lead" Orientation="Horizontal">
+                <Border Classes="status-dot connection" Classes.connected="{Binding Frame.StatusBar.IsConnected}"/>
+                <TextBlock Name="ConnectionText" Text="{Binding Frame.StatusBar.ConnectionText}"/>
+                <Border Name="ProductionBadge" Classes="badge production" IsVisible="{Binding IsProductionActive}"
+                        ToolTip.Tip="This connection's environment is Production">
+                    <TextBlock Text="PRODUCTION"/>
+                </Border>
+                <Border Name="TransactionChip" Classes="chip dirty" IsVisible="{Binding Frame.StatusBar.HasOpenTransaction}"
+                        ToolTip.Tip="{Binding StatusTransactionText}">
+                    <TextBlock Text="Manual commit · transaction open"/>
+                </Border>
+            </StackPanel>
+            <Border Grid.Column="1" Classes="status-segment">
+                <TextBlock Name="Breadcrumb" Text="{Binding Frame.StatusBar.Breadcrumb}" TextTrimming="CharacterEllipsis"/>
+            </Border>
+            <Border Grid.Column="2" Classes="status-segment">
+                <StackPanel Orientation="Horizontal">
+                    <Border Classes="badge danger" IsVisible="{Binding StatusHasError}">
+                        <TextBlock Text="{Binding StatusErrorText}"/>
+                    </Border>
+                    <TextBlock Name="ContextText" Text="{Binding StatusQueryText}" IsVisible="{Binding !Frame.StatusBar.HasCaretText}"/>
+                    <TextBlock Name="CaretText" Text="{Binding Frame.StatusBar.CaretText}" IsVisible="{Binding Frame.StatusBar.HasCaretText}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Classes="status-segment">
+                <TextBlock Name="VersionLabel"/>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.GroupPickerDialog"
+        Title="Move to Group"
+        Width="380"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+            <TextBlock Text="Group:"/>
+            <ComboBox Grid.Column="1" Name="GroupCombo" IsEditable="True" HorizontalAlignment="Stretch"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="caption muted" Text="Leave empty to ungroup."/>
+        </Grid>
+        <Border Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="Move" Name="OkButton" Click="OkButton_Click" IsDefault="True"/>
+                <Button Content="Cancel" Name="CancelButton" Click="CancelButton_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

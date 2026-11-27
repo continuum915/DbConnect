@@ -1,0 +1,120 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.AutomationView"
+             x:DataType="vm:AutomationViewModel">
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar" Command="{Binding NewJobCommand}" ToolTip.Tip="Create a job">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Add"/>
+                        <TextBlock Text="New"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding EditJobCommand}" ToolTip.Tip="Edit the selected job">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Edit"/>
+                        <TextBlock Text="Edit"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding DeleteJobCommand}" ToolTip.Tip="Delete the selected job">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Delete"/>
+                        <TextBlock Text="Delete"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding RunNowCommand}" ToolTip.Tip="Run the selected job now">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Play"/>
+                        <TextBlock Text="Run Now"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding CancelRunCommand}" ToolTip.Tip="Cancel the running job">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Stop"/>
+                        <TextBlock Text="Cancel"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding LoadJobsCommand}" ToolTip.Tip="Reload the job list">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                        <TextBlock Text="Refresh"/>
+                    </StackPanel>
+                </Button>
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsRunning}" Width="80" Margin="8,0"/>
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="8,0"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- On-demand notice: there is no scheduler yet. -->
+        <Border Grid.Row="1" Classes="banner warning" Margin="8,8,8,0">
+            <TextBlock Name="OnDemandNotice"
+                       Text="{x:Static vm:AutomationViewModel.OnDemandNotice}"
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="250,5,*">
+            <!-- Job List -->
+            <ListBox Grid.Column="0"
+                     ItemsSource="{Binding Jobs}"
+                     SelectedItem="{Binding SelectedJob, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:AutomationJob">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Classes="caption muted" Text="{Binding Type}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <views:EmptyState Grid.Column="0" Icon="TasksApp" Title="No jobs yet"
+                              Message="Create a job to run a query or a backup on demand."
+                              ActionText="New job" ActionCommand="{Binding NewJobCommand}"
+                              IsVisible="{Binding !Jobs.Count}"/>
+
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+
+            <!-- Right Panel -->
+            <Grid Grid.Column="2" RowDefinitions="Auto,*">
+                <StackPanel Grid.Row="0" Margin="8" Spacing="8"
+                            IsVisible="{Binding SelectedJob, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <TextBlock Classes="section-header" Text="Job Details"/>
+                    <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedJob.Name}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Type:"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedJob.Type}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Connection:"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedJob.ConnectionName}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="SQL / path:"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedJob.SqlOrFilePath}"
+                                   TextWrapping="Wrap" MaxLines="4" TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </StackPanel>
+
+                <DataGrid Name="RunHistoryGrid" Grid.Row="1"
+                          ItemsSource="{Binding RunHistory}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="8">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Started" Binding="{Binding StartedAt}" Width="160"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="SizeToHeader" MinWidth="90"/>
+                        <DataGridTextColumn Header="Rows" Binding="{Binding RowsAffected}" Width="SizeToHeader" MinWidth="70"/>
+                        <DataGridTextColumn Header="Error" Binding="{Binding ErrorMessage}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <views:EmptyState Grid.Row="1" Icon="History" Title="No runs yet"
+                                  Message="Select a job and choose Run Now; its runs are listed here."
+                                  IsVisible="{Binding !RunHistory.Count}"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

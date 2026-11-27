@@ -1,0 +1,141 @@
+<!-- The design palette: the .tl (Light) and .td (Dark) rules of the Claude Design canvas
+     "DB Manager UI - Navicat-style (Avalonia)", one colour per role. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <Color x:Key="DbConnect.Color.Desk">#FFE9ECEF</Color>
+      <Color x:Key="DbConnect.Color.Window">#FFF3F4F5</Color>
+      <Color x:Key="DbConnect.Color.Surface">#FFFFFFFF</Color>
+      <Color x:Key="DbConnect.Color.Button">#FFFDFDFD</Color>
+      <Color x:Key="DbConnect.Color.Panel">#FFFAFBFC</Color>
+      <Color x:Key="DbConnect.Color.Toolbar">#FFF7F8F9</Color>
+      <Color x:Key="DbConnect.Color.GridHeader">#FFF5F6F7</Color>
+      <Color x:Key="DbConnect.Color.Chrome">#FFE4E7EA</Color>
+      <Color x:Key="DbConnect.Color.TitleBar">#FFE3E6E9</Color>
+      <Color x:Key="DbConnect.Color.Splitter">#FFE2E5E8</Color>
+      <Color x:Key="DbConnect.Color.Disabled">#FFF1F2F4</Color>
+      <Color x:Key="DbConnect.Color.GridLine">#FFEEF0F2</Color>
+      <Color x:Key="DbConnect.Color.Divider">#FFE6E8EB</Color>
+      <Color x:Key="DbConnect.Color.BorderSoft">#FFDADDE1</Color>
+      <Color x:Key="DbConnect.Color.Separator">#FFCDD1D6</Color>
+      <Color x:Key="DbConnect.Color.Border">#FFC3C8CE</Color>
+      <Color x:Key="DbConnect.Color.FieldBorder">#FFD3D7DC</Color>
+      <Color x:Key="DbConnect.Color.InputBorder">#FFB9BEC5</Color>
+      <Color x:Key="DbConnect.Color.ButtonBorder">#FFA9AFB7</Color>
+      <Color x:Key="DbConnect.Color.DialogBorder">#FF8A9099</Color>
+      <Color x:Key="DbConnect.Color.PressedBg">#FFD5D9DE</Color>
+      <Color x:Key="DbConnect.Color.Text">#FF1F2328</Color>
+      <Color x:Key="DbConnect.Color.TextSecondary">#FF3A4049</Color>
+      <!-- Design #FF5F6670; adjusted so text stays at 4.5:1 on Selection, CurrentRow, DirtyBg and RunBg (SharedClassContrastTests). -->
+      <Color x:Key="DbConnect.Color.TextMuted">#FF5D646E</Color>
+      <!-- Design #FF6B7178; adjusted so text stays at 4.5:1 on Selection, CurrentRow, DirtyBg and RunBg (SharedClassContrastTests). -->
+      <Color x:Key="DbConnect.Color.TextNull">#FF5E636A</Color>
+      <Color x:Key="DbConnect.Color.IconDisabled">#FF9AA0A6</Color>
+      <Color x:Key="DbConnect.Color.IconOffline">#FF7D848C</Color>
+      <Color x:Key="DbConnect.Color.Accent">#FF2F6FB7</Color>
+      <Color x:Key="DbConnect.Color.HoverBg">#FFE3EDF8</Color>
+      <Color x:Key="DbConnect.Color.HoverBorder">#FFAECBEA</Color>
+      <Color x:Key="DbConnect.Color.ButtonHoverBorder">#FF7FA9D8</Color>
+      <Color x:Key="DbConnect.Color.CheckedBg">#FFD6E6F7</Color>
+      <Color x:Key="DbConnect.Color.CheckedBorder">#FF9CC0E6</Color>
+      <Color x:Key="DbConnect.Color.Selection">#FFCFE3F8</Color>
+      <Color x:Key="DbConnect.Color.RowHover">#FFF0F6FC</Color>
+      <Color x:Key="DbConnect.Color.CurrentRow">#FFEAF2FB</Color>
+      <Color x:Key="DbConnect.Color.CurrentLine">#FFF4F8FD</Color>
+      <Color x:Key="DbConnect.Color.TileBorder">#FFC6DAF0</Color>
+      <Color x:Key="DbConnect.Color.DirtyBg">#FFFFF4CC</Color>
+      <Color x:Key="DbConnect.Color.DirtyBorder">#FFE6CF7A</Color>
+      <Color x:Key="DbConnect.Color.NewRowBg">#FFF3FAF4</Color>
+      <Color x:Key="DbConnect.Color.RunBg">#FFE7F3EA</Color>
+      <Color x:Key="DbConnect.Color.RunBorder">#FFA9D3B4</Color>
+      <Color x:Key="DbConnect.Color.RunHoverBg">#FFD4EBDA</Color>
+      <Color x:Key="DbConnect.Color.RunHoverBorder">#FF7FBF90</Color>
+      <Color x:Key="DbConnect.Color.SuccessText">#FF1E6B3C</Color>
+      <Color x:Key="DbConnect.Color.CloseHover">#FFC42B1C</Color>
+      <Color x:Key="DbConnect.Color.IconGreen">#FF2E8B57</Color>
+      <Color x:Key="DbConnect.Color.IconBlue">#FF1E6FC1</Color>
+      <Color x:Key="DbConnect.Color.IconTeal">#FF2A8C8C</Color>
+      <Color x:Key="DbConnect.Color.IconOrange">#FFC25E00</Color>
+      <Color x:Key="DbConnect.Color.IconGold">#FFC08A1E</Color>
+      <Color x:Key="DbConnect.Color.IconRed">#FFB42318</Color>
+      <Color x:Key="DbConnect.Color.IconPurple">#FF7B4FC9</Color>
+      <Color x:Key="DbConnect.Color.IconBrown">#FF8A6D1F</Color>
+      <Color x:Key="DbConnect.Color.IconSlate">#FF55657A</Color>
+      <Color x:Key="DbConnect.Color.IconPink">#FFB03A6A</Color>
+      <Color x:Key="DbConnect.Color.IconLeaf">#FF3C8C3C</Color>
+      <Color x:Key="DbConnect.Color.SqlKeyword">#FF0033B3</Color>
+      <Color x:Key="DbConnect.Color.SqlFunction">#FF7A3E9D</Color>
+      <Color x:Key="DbConnect.Color.SqlString">#FF067D17</Color>
+      <Color x:Key="DbConnect.Color.SqlNumber">#FF1750EB</Color>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="DbConnect.Color.Desk">#FF141517</Color>
+      <Color x:Key="DbConnect.Color.Window">#FF1E1F22</Color>
+      <Color x:Key="DbConnect.Color.Surface">#FF232428</Color>
+      <Color x:Key="DbConnect.Color.Button">#FF2E3035</Color>
+      <Color x:Key="DbConnect.Color.Panel">#FF25272B</Color>
+      <Color x:Key="DbConnect.Color.Toolbar">#FF2A2C30</Color>
+      <Color x:Key="DbConnect.Color.GridHeader">#FF2B2D31</Color>
+      <Color x:Key="DbConnect.Color.Chrome">#FF27292D</Color>
+      <Color x:Key="DbConnect.Color.TitleBar">#FF191A1D</Color>
+      <Color x:Key="DbConnect.Color.Splitter">#FF18191C</Color>
+      <Color x:Key="DbConnect.Color.Disabled">#FF2A2C30</Color>
+      <Color x:Key="DbConnect.Color.GridLine">#FF303237</Color>
+      <Color x:Key="DbConnect.Color.Divider">#FF34363B</Color>
+      <Color x:Key="DbConnect.Color.BorderSoft">#FF383A3F</Color>
+      <Color x:Key="DbConnect.Color.Separator">#FF3E4046</Color>
+      <Color x:Key="DbConnect.Color.Border">#FF43464C</Color>
+      <Color x:Key="DbConnect.Color.FieldBorder">#FF44474D</Color>
+      <Color x:Key="DbConnect.Color.InputBorder">#FF50535A</Color>
+      <Color x:Key="DbConnect.Color.ButtonBorder">#FF555860</Color>
+      <Color x:Key="DbConnect.Color.DialogBorder">#FF5A5E66</Color>
+      <Color x:Key="DbConnect.Color.PressedBg">#FF3A3D42</Color>
+      <Color x:Key="DbConnect.Color.Text">#FFDCDFE4</Color>
+      <Color x:Key="DbConnect.Color.TextSecondary">#FFB8BDC5</Color>
+      <!-- Design #FF9BA1AA; adjusted so text stays at 4.5:1 on Selection, CurrentRow, DirtyBg and RunBg (SharedClassContrastTests). -->
+      <Color x:Key="DbConnect.Color.TextMuted">#FFA2A8B0</Color>
+      <!-- Design #FF8E949C; adjusted so text stays at 4.5:1 on Selection, CurrentRow, DirtyBg and RunBg (SharedClassContrastTests). -->
+      <Color x:Key="DbConnect.Color.TextNull">#FFA3A8AF</Color>
+      <Color x:Key="DbConnect.Color.IconDisabled">#FF6E737B</Color>
+      <Color x:Key="DbConnect.Color.IconOffline">#FF80868E</Color>
+      <Color x:Key="DbConnect.Color.Accent">#FF4C8FE0</Color>
+      <Color x:Key="DbConnect.Color.HoverBg">#FF2C3A4C</Color>
+      <Color x:Key="DbConnect.Color.HoverBorder">#FF3D5B80</Color>
+      <Color x:Key="DbConnect.Color.ButtonHoverBorder">#FF4C78AD</Color>
+      <Color x:Key="DbConnect.Color.CheckedBg">#FF2D4766</Color>
+      <Color x:Key="DbConnect.Color.CheckedBorder">#FF4A73A3</Color>
+      <!-- Design #FF264F78; darkened so muted and null text stay at 4.5:1 on a selected row. -->
+      <Color x:Key="DbConnect.Color.Selection">#FF1E3F60</Color>
+      <Color x:Key="DbConnect.Color.RowHover">#FF2A2F37</Color>
+      <Color x:Key="DbConnect.Color.CurrentRow">#FF24303D</Color>
+      <Color x:Key="DbConnect.Color.CurrentLine">#FF2A2D33</Color>
+      <Color x:Key="DbConnect.Color.TileBorder">#FF3A5170</Color>
+      <!-- Design #FF4A3F1A; darkened so muted and null text stay at 4.5:1 on an edited cell. -->
+      <Color x:Key="DbConnect.Color.DirtyBg">#FF433917</Color>
+      <Color x:Key="DbConnect.Color.DirtyBorder">#FF7A6528</Color>
+      <Color x:Key="DbConnect.Color.NewRowBg">#FF213026</Color>
+      <Color x:Key="DbConnect.Color.RunBg">#FF1F3A28</Color>
+      <Color x:Key="DbConnect.Color.RunBorder">#FF2F6B42</Color>
+      <Color x:Key="DbConnect.Color.RunHoverBg">#FF27482F</Color>
+      <Color x:Key="DbConnect.Color.RunHoverBorder">#FF3F8A55</Color>
+      <Color x:Key="DbConnect.Color.SuccessText">#FF6FCF8E</Color>
+      <Color x:Key="DbConnect.Color.CloseHover">#FFC42B1C</Color>
+      <Color x:Key="DbConnect.Color.IconGreen">#FF4CC384</Color>
+      <Color x:Key="DbConnect.Color.IconBlue">#FF5AA2F0</Color>
+      <Color x:Key="DbConnect.Color.IconTeal">#FF4DBFBF</Color>
+      <Color x:Key="DbConnect.Color.IconOrange">#FFF09A4A</Color>
+      <Color x:Key="DbConnect.Color.IconGold">#FFE0B04A</Color>
+      <Color x:Key="DbConnect.Color.IconRed">#FFF0706A</Color>
+      <Color x:Key="DbConnect.Color.IconPurple">#FFA988F0</Color>
+      <Color x:Key="DbConnect.Color.IconBrown">#FFCFAE5A</Color>
+      <Color x:Key="DbConnect.Color.IconSlate">#FF94A3B8</Color>
+      <Color x:Key="DbConnect.Color.IconPink">#FFE07AA4</Color>
+      <Color x:Key="DbConnect.Color.IconLeaf">#FF6CCB6C</Color>
+      <Color x:Key="DbConnect.Color.SqlKeyword">#FF6CA8FF</Color>
+      <Color x:Key="DbConnect.Color.SqlFunction">#FFC792EA</Color>
+      <Color x:Key="DbConnect.Color.SqlString">#FF8BD18B</Color>
+      <Color x:Key="DbConnect.Color.SqlNumber">#FF79B8FF</Color>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

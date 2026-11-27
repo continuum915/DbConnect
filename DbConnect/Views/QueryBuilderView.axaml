@@ -1,0 +1,309 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             xmlns:views="using:DbConnect.Views"
+             x:Class="DbConnect.Views.QueryBuilderView"
+             x:DataType="vm:QueryBuilderViewModel">
+    <UserControl.Styles>
+        <!-- Table cards and join lines on the canvas are built in code-behind; their look is here so it follows the theme. -->
+        <Style Selector="Border.qb-card">
+            <Setter Property="Width" Value="220"/>
+            <Setter Property="Background" Value="{DynamicResource DbConnectPanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}"/>
+        </Style>
+        <Style Selector="Border.qb-card-header">
+            <Setter Property="Background" Value="{DynamicResource DbConnectToolbarBrush}"/>
+            <Setter Property="Padding" Value="8,2,2,2"/>
+        </Style>
+        <Style Selector="TextBlock.qb-card-title">
+            <Setter Property="FontWeight" Value="{DynamicResource DbConnect.FontWeight.Subheading}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+        <Style Selector="StackPanel.qb-card-body">
+            <Setter Property="Margin" Value="{DynamicResource DbConnect.Thickness.Section}"/>
+            <Setter Property="Spacing" Value="{DynamicResource DbConnect.Space.XS}"/>
+        </Style>
+        <!-- Column rows are join anchors: a transparent background makes the whole row hit-testable. -->
+        <Style Selector="Border.qb-column">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.qb-column Grid">
+            <Setter Property="ColumnSpacing" Value="{DynamicResource DbConnect.Space.S}"/>
+        </Style>
+        <Style Selector="Border.qb-column TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Border.qb-join-label">
+            <Setter Property="Background" Value="{DynamicResource DbConnectPanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+        <Style Selector="Line.qb-join">
+            <Setter Property="StrokeThickness" Value="2"/>
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectJoinInnerBrush}"/>
+        </Style>
+        <Style Selector="Line.qb-join.left">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectJoinLeftBrush}"/>
+        </Style>
+        <Style Selector="Line.qb-join.right">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectJoinRightBrush}"/>
+        </Style>
+        <Style Selector="Line.qb-join.full">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectJoinFullBrush}"/>
+        </Style>
+        <Style Selector="Line.qb-join.cross">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectJoinCrossBrush}"/>
+            <Setter Property="StrokeDashArray" Value="4,4"/>
+        </Style>
+        <Style Selector="Line.qb-join.preview">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnect.Brush.Accent}"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="Session:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableSessions}"
+                          SelectedItem="{Binding Session, Mode=TwoWay}"
+                          DisplayMemberBinding="{Binding DisplayName}"
+                          Width="220"/>
+                <Separator/>
+                <Button Classes="toolbar" Click="AddTable_Click" ToolTip.Tip="Add a table to the query">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="TableAdd"/>
+                        <TextBlock Text="Add Table"/>
+                    </StackPanel>
+                </Button>
+                <ToggleButton Classes="toolbar" IsChecked="{Binding IsDrawJoinMode, Mode=TwoWay}"
+                              ToolTip.Tip="Drag from one column to another to join their tables">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Link"/>
+                        <TextBlock Text="Draw Join"/>
+                    </StackPanel>
+                </ToggleButton>
+                <Separator/>
+                <Button Classes="toolbar" Click="ShowCanvas_Click" ToolTip.Tip="Arrange tables and joins on a canvas">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Organization"/>
+                        <TextBlock Text="Canvas View"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Click="ShowForm_Click" ToolTip.Tip="Pick columns and conditions table by table">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Form"/>
+                        <TextBlock Text="Design View"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding OpenInEditorCommand}" ToolTip.Tip="Open the generated SQL in a query tab">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="WindowNew"/>
+                        <TextBlock Text="Open in Editor"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid x:Name="CanvasViewHost" RowDefinitions="*,Auto,Auto">
+                <Border Grid.Row="0" Margin="8" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="1" CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}">
+                    <Grid>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                            <Border x:Name="CanvasViewport"
+                                    MinWidth="1000"
+                                    MinHeight="520"
+                                    Background="{DynamicResource DbConnectPanelBrush}"
+                                    PointerPressed="CanvasViewport_PointerPressed"
+                                    PointerMoved="CanvasViewport_PointerMoved"
+                                    PointerReleased="CanvasViewport_PointerReleased"
+                                    PointerWheelChanged="CanvasViewport_PointerWheelChanged">
+                                <Canvas x:Name="QueryCanvas" MinWidth="1000" MinHeight="520" ClipToBounds="False"/>
+                            </Border>
+                        </ScrollViewer>
+                        <views:EmptyState Icon="TableAdd" Title="No tables yet"
+                                          Message="Choose Add Table in the toolbar, then tick the columns to select. Draw Join links two tables."
+                                          IsVisible="{Binding !Tables.Count}"/>
+                    </Grid>
+                </Border>
+
+                <TabControl Grid.Row="1" Margin="8,0,8,8" MaxHeight="180">
+                    <TabItem Header="WHERE">
+                        <StackPanel Margin="8" Spacing="8">
+                            <DockPanel LastChildFill="False">
+                                <TextBox x:Name="WhereInput" Watermark="e.g. orders.total &gt; 100" MinWidth="320"/>
+                                <Button Content="Add Condition" Margin="8,0,0,0" Click="AddWhereCondition_Click"/>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding WhereConditions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:WhereCondition">
+                                        <DockPanel Margin="0,2,0,0">
+                                            <Button Classes="toolbar icon delete" Tag="{Binding}" Click="RemoveWhereCondition_Click" DockPanel.Dock="Right"
+                                                    ToolTip.Tip="Remove this condition">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                            <TextBlock Classes="code" Text="{Binding Expression}" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="GROUP BY">
+                        <StackPanel Margin="8" Spacing="8">
+                            <DockPanel LastChildFill="False">
+                                <TextBox x:Name="GroupByInput" Watermark="e.g. orders.customer_id" MinWidth="320"/>
+                                <Button Content="Add Group" Margin="8,0,0,0" Click="AddGroupBy_Click"/>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding GroupByColumns}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:GroupByColumn">
+                                        <DockPanel Margin="0,2,0,0">
+                                            <Button Classes="toolbar icon delete" Tag="{Binding}" Click="RemoveGroupBy_Click" DockPanel.Dock="Right"
+                                                    ToolTip.Tip="Remove this grouping">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                            <TextBlock Classes="code" Text="{Binding Column}" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="ORDER BY">
+                        <StackPanel Margin="8" Spacing="8">
+                            <DockPanel LastChildFill="False">
+                                <TextBox x:Name="OrderByInput" Watermark="e.g. orders.total DESC" MinWidth="320"/>
+                                <Button Content="Add Sort" Margin="8,0,0,0" Click="AddOrderBy_Click"/>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding OrderByColumns}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:OrderByColumn">
+                                        <DockPanel Margin="0,2,0,0">
+                                            <Button Classes="toolbar icon delete" Tag="{Binding}" Click="RemoveOrderBy_Click" DockPanel.Dock="Right"
+                                                    ToolTip.Tip="Remove this sort">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                            <TextBlock Classes="code" Text="{Binding DisplayText}" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="HAVING">
+                        <StackPanel Margin="8" Spacing="8">
+                            <DockPanel LastChildFill="False">
+                                <TextBox x:Name="HavingInput" Watermark="e.g. COUNT(*) &gt; 1" MinWidth="320"/>
+                                <Button Content="Add Having" Margin="8,0,0,0" Click="AddHavingCondition_Click"/>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding HavingConditions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:HavingCondition">
+                                        <DockPanel Margin="0,2,0,0">
+                                            <Button Classes="toolbar icon delete" Tag="{Binding}" Click="RemoveHavingCondition_Click" DockPanel.Dock="Right"
+                                                    ToolTip.Tip="Remove this condition">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                            <TextBlock Classes="code" Text="{Binding Expression}" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+
+                <Border Grid.Row="2" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0" Padding="8">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock Grid.Row="0" Classes="section-header" Text="Generated SQL"/>
+                        <TextBox Grid.Row="1" Classes="code"
+                                 Text="{Binding GeneratedSql}"
+                                 IsReadOnly="True"
+                                 AcceptsReturn="True"
+                                 MinHeight="100"
+                                 MaxHeight="140"/>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Grid x:Name="FormViewHost" RowDefinitions="*,Auto" IsVisible="False">
+                <views:EmptyState Grid.Row="0" Icon="TableAdd" Title="No tables yet"
+                                  Message="Choose Add Table in the toolbar; each table gets a card here to pick its columns and conditions."
+                                  IsVisible="{Binding !Tables.Count}"/>
+                <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Tables}" Margin="8">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="12"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:QueryBuilderTable">
+                                <Border BorderBrush="{DynamicResource DbConnectDividerBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}"
+                                        Padding="8"
+                                        MinWidth="220"
+                                        MaxWidth="280">
+                                    <StackPanel Spacing="4">
+                                        <DockPanel>
+                                            <Button Classes="toolbar icon" Tag="{Binding}" Click="RemoveTable_Click" DockPanel.Dock="Right"
+                                                    ToolTip.Tip="Remove this table">
+                                                <fi:SymbolIcon Symbol="Dismiss"/>
+                                            </Button>
+                                            <TextBlock Text="{Binding TableName}" FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                        <TextBox Text="{Binding Alias, Mode=TwoWay}" Watermark="Alias" LostFocus="FormAlias_LostFocus"/>
+                                        <Button Classes="toolbar" HorizontalAlignment="Left"
+                                                Tag="{Binding}" Click="FormSelectAllColumns_Click"
+                                                ToolTip.Tip="Select every column of this table">
+                                            <StackPanel>
+                                                <fi:SymbolIcon Symbol="SelectAllOn"/>
+                                                <TextBlock Text="Select All"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <ItemsControl ItemsSource="{Binding Columns}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="models:QueryBuilderColumn">
+                                                    <Grid ColumnDefinitions="Auto,*,80" ColumnSpacing="4">
+                                                        <CheckBox Grid.Column="0"
+                                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                                  IsCheckedChanged="FormColumnSelectionChanged"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding ColumnName}" VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="2"
+                                                                 Text="{Binding WhereExpression, Mode=TwoWay}"
+                                                                 Watermark="WHERE"
+                                                                 LostFocus="FormWhereExpression_LostFocus"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Border Grid.Row="1" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0" Padding="8">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock Grid.Row="0" Classes="section-header" Text="Generated SQL"/>
+                        <TextBox Grid.Row="1" Classes="code"
+                                 Text="{Binding GeneratedSql}"
+                                 IsReadOnly="True"
+                                 MinHeight="80"
+                                 MaxHeight="160"
+                                 AcceptsReturn="True"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

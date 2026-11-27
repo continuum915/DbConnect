@@ -1,0 +1,6 @@
+<!-- Scroll bars: neutral thumbs on a panel track (FluentOverrides.axaml). -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="ScrollBar">
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Border}" />
+  </Style>
+</Styles>

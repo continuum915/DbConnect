@@ -1,0 +1,32 @@
+[
+  {
+    "File": "DocumentSnapshot.cs",
+    "Url": "https://raw.githubusercontent.com/AvaloniaUI/AvaloniaEdit/b56a35a5d4838f3c9a9adeba90dd80952f70e774/src/AvaloniaEdit.TextMate/DocumentSnapshot.cs",
+    "UpstreamSha256": "BBE9126D9009E5E78FEC6919B21110F5978EB743ABF60E2761675CC0D2103AA4"
+  },
+  {
+    "File": "TextEditorModel.cs",
+    "Url": "https://raw.githubusercontent.com/AvaloniaUI/AvaloniaEdit/b56a35a5d4838f3c9a9adeba90dd80952f70e774/src/AvaloniaEdit.TextMate/TextEditorModel.cs",
+    "UpstreamSha256": "31B40BD96D87AAAE036E14809611FCAC75BED62D8F18FB990E937A77C0A5032F"
+  },
+  {
+    "File": "TextMate.cs",
+    "Url": "https://raw.githubusercontent.com/AvaloniaUI/AvaloniaEdit/b56a35a5d4838f3c9a9adeba90dd80952f70e774/src/AvaloniaEdit.TextMate/TextMate.cs",
+    "UpstreamSha256": "F18EDF1CCD9B1660F7722E6D3C72C62F5EEC10D276C128609B295DACB802E81A"
+  },
+  {
+    "File": "TextMateColoringTransformer.cs",
+    "Url": "https://raw.githubusercontent.com/AvaloniaUI/AvaloniaEdit/b56a35a5d4838f3c9a9adeba90dd80952f70e774/src/AvaloniaEdit.TextMate/TextMateColoringTransformer.cs",
+    "UpstreamSha256": "823AA3AC821EBC8B5FCE571CF04C936FC257F3A4A8C410EB450778820596BDA4"
+  },
+  {
+    "File": "GenericLineTransformer.cs",
+    "Url": "https://raw.githubusercontent.com/AvaloniaUI/AvaloniaEdit/b56a35a5d4838f3c9a9adeba90dd80952f70e774/src/AvaloniaEdit.TextMate/GenericLineTransformer.cs",
+    "UpstreamSha256": "8E40B99B6A8DEDB7F472CEFB1B888D93D9E16740FAE3425338D4ED273356AA3D"
+  },
+  {
+    "File": "TextTransformation.cs",
+    "Url": "https://raw.githubusercontent.com/AvaloniaUI/AvaloniaEdit/b56a35a5d4838f3c9a9adeba90dd80952f70e774/src/AvaloniaEdit.TextMate/TextTransformation.cs",
+    "UpstreamSha256": "A737B1FE339FCB4EE813EE14403F98664BCA06FA745D21F1C0B74CE8C4822FBC"
+  }
+]

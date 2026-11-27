@@ -1,0 +1,8 @@
+<!-- Tooltips: surface with the dialog border (FluentOverrides.axaml). -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="ToolTip">
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+    <Setter Property="Padding" Value="6,3" />
+  </Style>
+</Styles>

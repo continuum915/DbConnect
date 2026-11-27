@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.CommandPaletteView"
+        x:DataType="vm:CommandPaletteViewModel"
+        Title="Command Palette"
+        Width="500" Height="400" MinWidth="360" MinHeight="240"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+    <!-- No footer: Enter runs the highlighted command and Esc closes (code-behind). -->
+    <Grid RowDefinitions="Auto,*" Margin="{DynamicResource DbConnect.Thickness.Section}" RowSpacing="8">
+        <TextBox Grid.Row="0" Classes="search"
+                 Text="{Binding SearchText}"
+                 Watermark="Search commands…"/>
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding FilteredActions}"
+                 SelectedItem="{Binding SelectedAction, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:CommandPaletteViewModel+PaletteAction">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="caption muted" Text="{Binding Category}"
+                                   Width="80"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>

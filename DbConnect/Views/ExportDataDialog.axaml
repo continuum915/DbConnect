@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:views="using:DbConnect.Views"
+        x:Class="DbConnect.Views.ExportDataDialog"
+        x:DataType="vm:ExportDataViewModel"
+        Title="Export Data"
+        Width="560" Height="520" MinWidth="440" MinHeight="400"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="Export" Command="{Binding ExportCommand}" IsDefault="True"/>
+                <Button Content="Cancel Export" Command="{Binding CancelCommand}" IsVisible="{Binding IsRunning}"/>
+                <Button Content="Close" Click="Close_Click" IsCancel="True" IsEnabled="{Binding !IsRunning}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Format and destination -->
+        <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,8,0,0">
+            <Grid Classes="form" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                <TextBlock Text="Format:"/>
+                <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:ExportDataViewModel.Formats}"
+                          SelectedItem="{Binding Format}" HorizontalAlignment="Stretch"/>
+                <TextBlock Grid.Row="1" Text="Folder:"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Folder}" Watermark="Choose a folder"/>
+                <Button Grid.Row="1" Grid.Column="2" Content="Browse…" Command="{Binding BrowseCommand}"/>
+            </Grid>
+            <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="4" IsVisible="{Binding Options.IsSqlInsert}">
+                <TextBlock Text="Rows per INSERT:" VerticalAlignment="Center"/>
+                <NumericUpDown Name="SqlInsertRowsPerStatement" Value="{Binding Options.RowsPerStatement}"
+                               Minimum="1" Maximum="100000" Increment="1" FormatString="0" Width="120"
+                               ToolTip.Tip="1 writes one INSERT per row; more writes multi-row VALUES lists, capped where the database limits their size"/>
+                <CheckBox Name="SqlInsertColumnList" Content="Column list" IsChecked="{Binding Options.IncludeColumnList}"/>
+                <CheckBox Name="SqlInsertCreateTable" Content="Include CREATE TABLE" IsChecked="{Binding Options.IncludeCreateTable}"
+                          ToolTip.Tip="Write each table's CREATE script before its inserts; a table that cannot be scripted fails with the reason"/>
+                <CheckBox Name="SqlInsertCombinedFile" Content="One combined file" IsChecked="{Binding CombinedFile}"
+                          ToolTip.Tip="Write every ticked table into one file named after the database, referenced tables first; nothing is saved unless every table is written"/>
+            </WrapPanel>
+            <TextBlock Classes="muted" Text="{Binding Operation.Message}" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Tables -->
+        <views:TableChoiceList/>
+    </DockPanel>
+</Window>

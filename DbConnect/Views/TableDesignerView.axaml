@@ -1,0 +1,998 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.TableDesignerView"
+             x:DataType="vm:TableDesignerViewModel">
+
+    <UserControl.Styles>
+        <!-- The "Add …" forms under each grid. -->
+        <Style Selector="Border.add-form">
+            <Setter Property="Background" Value="{DynamicResource DbConnectStatusBarBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="0,1,0,0"/>
+            <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.Section}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Toolbar, then the rename notice for providers whose columns can't be renamed here -->
+        <StackPanel Grid.Row="0">
+            <Border Classes="toolbar">
+                <StackPanel>
+                    <WrapPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Name="SaveButton" Classes="toolbar primary" Command="{Binding SaveCommand}"
+                                    ToolTip.Tip="Apply the pending changes (see SQL Preview) to the database">
+                                <Button.IsEnabled>
+                                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                        <Binding Path="!IsSaving"/>
+                                        <Binding Path="!IsLoading"/>
+                                        <Binding Path="Design.CanSave"/>
+                                        <Binding Path="PlanAllowsSave"/>
+                                    </MultiBinding>
+                                </Button.IsEnabled>
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="Save"/>
+                                    <TextBlock Text="Save"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="SaveCopy"/>
+                                    <TextBlock Text="Save As"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Separator/>
+                            <Button Name="AddFieldButton" Classes="toolbar" Command="{Binding AddColumnCommand}" IsEnabled="{Binding !IsSaving}"
+                                    ToolTip.Tip="Add a field at the end">
+                                <StackPanel>
+                                    <fi:SymbolIcon Classes="role" Tag="IconGreen" Symbol="Add"/>
+                                    <TextBlock Text="Add Field"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="TextAdd"/>
+                                    <TextBlock Text="Insert Field"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Name="DeleteFieldButton" Classes="toolbar" Command="{Binding DropColumnCommand}"
+                                    CommandParameter="{Binding #ColumnGrid.SelectedItem}"
+                                    IsEnabled="{Binding #ColumnGrid.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                    ToolTip.Tip="Delete the selected field">
+                                <StackPanel>
+                                    <fi:SymbolIcon Classes="role" Tag="IconRed" Symbol="Delete"/>
+                                    <TextBlock Text="Delete Field"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True"
+                                    ToolTip.Tip="Tick PK on the field's row to make it part of the primary key. A toolbar toggle is not available yet.">
+                                <StackPanel>
+                                    <fi:SymbolIcon Classes="role" Tag="IconGold" Symbol="Key"/>
+                                    <TextBlock Text="Primary Key"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Separator/>
+                            <Button Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="ArrowUp"/>
+                                    <TextBlock Text="Move Up"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="ArrowDown"/>
+                                    <TextBlock Text="Move Down"/>
+                                </StackPanel>
+                            </Button>
+                            <Separator/>
+                            <Button Name="ToolbarReloadButton" Classes="toolbar" Command="{Binding ReloadCommand}"
+                                    IsVisible="{Binding IsEditingExistingTable}" ToolTip.Tip="Reload the table's design, discarding unsaved changes">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                                    <TextBlock Text="Reload"/>
+                                </StackPanel>
+                            </Button>
+                            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsSaving}" Width="80" VerticalAlignment="Center"/>
+                            <TextBlock Classes="muted" Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Table Name:" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBox Text="{Binding TableName}" Classes="field" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Name="RenameNotice" Classes="banner info" Margin="8,4,8,0"
+                    IsVisible="{Binding !SupportsTableDesignerRenameColumn}">
+                <TextBlock Text="{Binding RenameColumnUnavailableReason}" TextWrapping="Wrap"/>
+            </Border>
+            <!-- Loading the existing table's design (issue 06) -->
+            <Border Name="DesignLoadingBanner" Classes="banner info" Margin="8,4,8,0" IsVisible="{Binding Design.IsLoading}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center"/>
+                    <TextBlock Text="Loading the table design…" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            <Border Name="DesignFailedBanner" Classes="banner error" Margin="8,4,8,0" IsVisible="{Binding Design.IsFailed}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBlock Text="{Binding Design.Error, StringFormat='The table design could not be loaded: {0}'}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    <Button Name="RetryDesignButton" Grid.Column="1" Classes="toolbar" Command="{Binding Design.RetryCommand}"
+                            ToolTip.Tip="Load the table design again">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                            <TextBlock Text="Retry"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+            <Border Name="DesignUnavailableBanner" Classes="banner warning" Margin="8,4,8,0" IsVisible="{Binding Design.IsUnavailable}">
+                <TextBlock Text="This provider cannot read the complete design of existing tables." TextWrapping="Wrap"/>
+            </Border>
+            <Border Name="UnrepresentedBanner" Classes="banner warning" Margin="8,4,8,0" IsVisible="{Binding Design.HasUnrepresented}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="This table has structure the designer cannot show or preserve:" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <ItemsControl ItemsSource="{Binding Design.Unrepresented}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+            <Border Name="SaveBlockedBanner" Classes="banner warning" Margin="8,4,8,0"
+                    IsVisible="{Binding Design.SaveBlockedReason, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding Design.SaveBlockedReason}" TextWrapping="Wrap"/>
+            </Border>
+            <!-- Review before and after Save (issue 08) -->
+            <Border Name="ReloadRequiredBanner" Classes="banner warning" Margin="8,4,8,0" IsVisible="{Binding Review.RequiresReload}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBlock Text="{Binding Review.ReloadReason}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    <Button Name="ReloadButton" Grid.Column="1" Classes="toolbar" Command="{Binding ReloadCommand}"
+                            IsVisible="{Binding IsEditingExistingTable}" ToolTip.Tip="Discard the edits and load the table as it is now">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                            <TextBlock Text="Reload"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+            <Border Name="CommitBoundaryBanner" Classes="banner info" Margin="8,4,8,0"
+                    IsVisible="{Binding Review.CommitBoundary, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Text="{Binding Review.CommitBoundary}" TextWrapping="Wrap"/>
+            </Border>
+            <Border Name="DestructiveBanner" Classes="banner warning" Margin="8,4,8,0" IsVisible="{Binding Review.HasDestructive}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Saving will make changes that can lose data:" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <ItemsControl ItemsSource="{Binding Review.Destructive}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <CheckBox Name="ConfirmDestructive" IsChecked="{Binding Review.DestructiveConfirmed}"
+                              Content="I have reviewed these changes; apply them when I save"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- Tab Content -->
+        <TabControl Grid.Row="1" Margin="4">
+
+            <!-- Tab: Columns -->
+            <TabItem Header="Fields">
+                <Grid RowDefinitions="Auto,*,5,Auto">
+                    <StackPanel Grid.Row="0" Margin="4" Spacing="2">
+                        <TextBlock Name="GenerationNote" Classes="muted" TextWrapping="Wrap" Text="{Binding GenerationSummary}"/>
+                        <TextBlock Name="ColumnPreservedNote" Classes="muted" TextWrapping="Wrap" IsVisible="{Binding IsEditingExistingTable}"
+                                   Text="Identity options (Generator) and other properties of loaded columns: Preserved — editing not available yet."/>
+                        <TextBlock Name="ColumnLimitNote" Classes="muted" TextWrapping="Wrap" Text="{Binding Design.ColumnLimits}"
+                                   IsVisible="{Binding Design.ColumnLimits, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    </StackPanel>
+                    <DataGrid Name="ColumnGrid" Grid.Row="1" ItemsSource="{Binding Columns}" AutoGenerateColumns="False" CanUserResizeColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="140"/>
+
+                            <DataGridTemplateColumn Header="Type" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DataType}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox IsEditable="True"
+                                                  ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).AvailableTypes}"
+                                                  Text="{Binding DataType}"
+                                                  HorizontalAlignment="Stretch"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="SizeToHeader"/>
+                            <DataGridTextColumn Header="Precision" Binding="{Binding Precision}" Width="SizeToHeader"/>
+                            <DataGridTextColumn Header="Scale" Binding="{Binding Scale}" Width="SizeToHeader"/>
+                            <DataGridTextColumn Header="Collation" Binding="{Binding Collation}" Width="SizeToHeader" MinWidth="80"/>
+                            <DataGridCheckBoxColumn Header="Not Null" Binding="{Binding !IsNullable}" Width="SizeToHeader"/>
+                            <DataGridCheckBoxColumn Header="PK" Binding="{Binding IsPrimaryKey}" Width="SizeToHeader" MinWidth="48"/>
+                            <DataGridTextColumn Header="Default" Binding="{Binding DefaultValue}" Width="SizeToHeader" MinWidth="80"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Comment}" Width="SizeToHeader" MinWidth="80"/>
+                            <DataGridTemplateColumn Header="Identity" Width="SizeToHeader" MinWidth="96">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IdentityLabel}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).IdentityKindOptions}"
+                                                  SelectedItem="{Binding IdentityLabel}"
+                                                  IsEnabled="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).IdentityEditable}"
+                                                  ToolTip.Tip="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationSummary}"
+                                                  HorizontalAlignment="Stretch"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Seed" Width="SizeToHeader">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IdentitySeed}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding IdentitySeed}"
+                                                 IsReadOnly="{Binding !$parent[DataGrid].((vm:TableDesignerViewModel)DataContext).SeedAndIncrementEditable}"
+                                                 ToolTip.Tip="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationSummary}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Increment" Width="SizeToHeader">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IdentityIncrement}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding IdentityIncrement}"
+                                                 IsReadOnly="{Binding !$parent[DataGrid].((vm:TableDesignerViewModel)DataContext).SeedAndIncrementEditable}"
+                                                 ToolTip.Tip="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationSummary}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Generated" Width="SizeToHeader" MinWidth="96">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding GeneratedExpression}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding GeneratedExpression}"
+                                                 IsReadOnly="{Binding !$parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationEditable}"
+                                                 ToolTip.Tip="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationSummary}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Storage" Width="SizeToHeader" MinWidth="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding GeneratedStorageLabel}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GeneratedStorageOptions}"
+                                                  SelectedItem="{Binding GeneratedStorageLabel}"
+                                                  IsEnabled="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationEditable}"
+                                                  ToolTip.Tip="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).GenerationSummary}"
+                                                  HorizontalAlignment="Stretch"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Generator" Binding="{Binding GeneratorDisplay}" IsReadOnly="True" Width="SizeToHeader"/>
+                            <DataGridTextColumn Header="Properties" Binding="{Binding PropertiesDisplay}" IsReadOnly="True" Width="SizeToHeader"/>
+
+                            <DataGridTemplateColumn Width="40">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Classes="toolbar icon delete"
+                                                Command="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).DropColumnCommand}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).SupportsTableDesignerDropColumn}"
+                                                ToolTip.Tip="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).DropColumnUnavailableReason}">
+                                            <fi:SymbolIcon Symbol="Delete"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+
+                        <DataGrid.Styles>
+                            <Style Selector="DataGridRow[IsSelected=true]">
+                                 <Setter Property="Background" Value="{DynamicResource DbConnectSelectedRowBrush}"/>
+                            </Style>
+                        </DataGrid.Styles>
+                    </DataGrid>
+
+                    <GridSplitter Grid.Row="2" ResizeDirection="Rows"/>
+                    <!-- Field properties: the selected field's settings (the same values the grid edits). -->
+                    <Border Grid.Row="3" Name="FieldProperties" Classes="field-properties"
+                            DataContext="{Binding #ColumnGrid.SelectedItem}" x:DataType="models:ColumnDefinition"
+                            IsVisible="{Binding #ColumnGrid.SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <StackPanel>
+                            <TextBlock Name="FieldPropertiesTitle" Classes="section-header">
+                                <Run Text="Field properties · "/>
+                                <Run Text="{Binding Name, Mode=OneWay}"/>
+                                <Run Text="{Binding DataType, StringFormat=' ({0})', Mode=OneWay}"/>
+                            </TextBlock>
+                            <Grid Classes="form" ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto">
+                                <TextBlock Text="Default"/>
+                                <TextBox Grid.Column="1" Name="FieldDefault" Classes="code" Text="{Binding DefaultValue}"/>
+                                <TextBlock Grid.Column="2" Text="Collation"/>
+                                <TextBox Grid.Column="3" Name="FieldCollation" Text="{Binding Collation}"/>
+                                <TextBlock Grid.Row="1" Text="Comment"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Name="FieldComment" Text="{Binding Comment}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="Identity"/>
+                                <TextBlock Grid.Row="1" Grid.Column="3" Name="FieldIdentity">
+                                    <Run Text="{Binding IdentityLabel, Mode=OneWay}"/>
+                                    <Run Text="{Binding IdentitySeed, StringFormat=' · seed {0}', Mode=OneWay}"/>
+                                    <Run Text="{Binding IdentityIncrement, StringFormat=' · increment {0}', Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock Grid.Row="2" Text="Generated as"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Name="FieldGenerated" Classes="code" Text="{Binding GeneratedExpression}"
+                                         IsReadOnly="True" ToolTip.Tip="Edit generation in the Generated column of the grid"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="Character set"/>
+                                <TextBlock Grid.Row="2" Grid.Column="3" Text="—" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}"/>
+                            </Grid>
+                            <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                                       Text="On update, Unsigned, Zerofill and Auto increment options are not available yet; Identity and Generated are edited in the grid."/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Loading overlay -->
+                    <Border Grid.Row="1" Background="{DynamicResource DbConnectOverlayBrush}" IsVisible="{Binding IsLoading}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                            <ProgressBar IsIndeterminate="True" Width="200"/>
+                            <TextBlock Classes="muted" Text="Loading table structure…" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab: Indexes -->
+            <TabItem Header="Indexes">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <StackPanel Grid.Row="0" Margin="4" Spacing="4">
+                        <TextBlock Name="IndexNote" Classes="muted" TextWrapping="Wrap" Text="{Binding Indexes.Summary}"/>
+                        <TextBlock Name="IndexLimitNote" Classes="muted" TextWrapping="Wrap" Text="{Binding Design.IndexLimits}"
+                                   IsVisible="{Binding Design.IndexLimits, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        <Button Name="AddIndexButton" Classes="toolbar" Command="{Binding Indexes.AddIndexCommand}" ToolTip.Tip="Add an index"
+                                HorizontalAlignment="Left">
+                            <StackPanel>
+                                <fi:SymbolIcon Symbol="Add"/>
+                                <TextBlock Text="Index"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <DataGrid Name="IndexGrid" Grid.Row="1" ItemsSource="{Binding Indexes.Items}" SelectedItem="{Binding Indexes.Selected}"
+                              AutoGenerateColumns="False" CanUserResizeColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Name" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Name}" IsReadOnly="{Binding IsReadOnly}" Watermark="index name"
+                                                 ToolTip.Tip="The index name; an index backing a key is renamed with the key"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Key parts" Binding="{Binding PartsDisplay}" IsReadOnly="True" Width="*"/>
+                            <DataGridTemplateColumn Header="Unique" Width="SizeToHeader" MinWidth="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsUnique}" IsEnabled="{Binding IsEditable}" HorizontalAlignment="Center"
+                                                  ToolTip.Tip="Values in the key parts must be unique"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Include" Binding="{Binding IncludedDisplay}" IsReadOnly="True" Width="100"/>
+                            <DataGridTextColumn Header="Filter" Binding="{Binding FilterDisplay}" IsReadOnly="True" Width="140"/>
+                            <DataGridTextColumn Header="Method" Binding="{Binding MethodDisplay}" IsReadOnly="True" Width="100"/>
+                            <DataGridTextColumn Header="Backs" Binding="{Binding BacksDisplay}" IsReadOnly="True" Width="100"/>
+                            <DataGridTextColumn Header="Properties" Binding="{Binding PropertiesDisplay}" IsReadOnly="True" Width="120"/>
+                            <DataGridTextColumn Header="Comment" Binding="{Binding CommentDisplay}" IsReadOnly="True" Width="120"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="80"/>
+                            <DataGridTemplateColumn Width="40">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Classes="toolbar icon delete"
+                                                Command="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).Indexes.DropIndexCommand}"
+                                                CommandParameter="{Binding}" IsEnabled="{Binding IsEditable}"
+                                                ToolTip.Tip="Drop this index, or keep it again">
+                                            <fi:SymbolIcon Symbol="Delete"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- The selected index's key parts, in order, with their directions -->
+                    <Border Grid.Row="2" Classes="add-form" IsVisible="{Binding Indexes.HasSelection}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Classes="section-header" Text="Key parts, in order"/>
+                            <TextBlock Name="IndexBacksKeyNote" Classes="muted" TextWrapping="Wrap"
+                                       Text="This index backs a key; change the key on the Constraints tab."
+                                       IsVisible="{Binding !Indexes.CanEditSelection}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <DataGrid Name="IndexPartGrid" ItemsSource="{Binding Indexes.Selected.Parts}" SelectedItem="{Binding Indexes.SelectedPart}"
+                                          AutoGenerateColumns="False" Width="360" MaxHeight="150">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="Column or expression" Width="*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Panel>
+                                                        <TextBlock Text="{Binding Column}" IsVisible="{Binding !IsExpression}" VerticalAlignment="Center" Margin="4,0"/>
+                                                        <TextBox Text="{Binding Expression}" IsVisible="{Binding IsExpression}" Watermark="expression"
+                                                                 IsReadOnly="{Binding !$parent[DataGrid].((vm:TableDesignerViewModel)DataContext).Indexes.CanEditSelection}"
+                                                                 ToolTip.Tip="The key expression; the server checks it when the index is saved"/>
+                                                    </Panel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Descending" Width="SizeToHeader">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Descending}" HorizontalAlignment="Center"
+                                                              IsEnabled="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).Indexes.CanEditSelection}"
+                                                              ToolTip.Tip="Sort this key part in descending order"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <StackPanel Spacing="4" IsEnabled="{Binding Indexes.CanEditSelection}">
+                                    <Button Name="IndexPartUpButton" Classes="toolbar" Command="{Binding Indexes.MovePartUpCommand}"
+                                            CommandParameter="{Binding Indexes.SelectedPart}" ToolTip.Tip="Move the selected key part earlier">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowUp"/>
+                                            <TextBlock Text="Up"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="IndexPartDownButton" Classes="toolbar" Command="{Binding Indexes.MovePartDownCommand}"
+                                            CommandParameter="{Binding Indexes.SelectedPart}" ToolTip.Tip="Move the selected key part later">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowDown"/>
+                                            <TextBlock Text="Down"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="IndexPartRemoveButton" Classes="toolbar" Command="{Binding Indexes.RemovePartCommand}"
+                                            CommandParameter="{Binding Indexes.SelectedPart}" ToolTip.Tip="Remove the selected key part">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Subtract"/>
+                                            <TextBlock Text="Remove"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Spacing="4" IsEnabled="{Binding Indexes.CanEditSelection}">
+                                    <ComboBox Name="IndexPartColumn" ItemsSource="{Binding Indexes.ColumnNames}" SelectedItem="{Binding Indexes.NewPart}"
+                                              MinWidth="160" PlaceholderText="column"/>
+                                    <Button Name="IndexPartAddButton" Classes="toolbar" Command="{Binding Indexes.AddPartCommand}" ToolTip.Tip="Add this column at the end of the index">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Add"/>
+                                            <TextBlock Text="Add column"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Spacing="4" IsEnabled="{Binding Indexes.CanEditSelection}" IsVisible="{Binding Indexes.HasExpressions}">
+                                    <TextBox Name="IndexExpressionText" Text="{Binding Indexes.NewExpression}" MinWidth="200" Watermark="expression, e.g. lower(name)"/>
+                                    <Button Name="IndexExpressionAddButton" Classes="toolbar" Command="{Binding Indexes.AddExpressionCommand}"
+                                            ToolTip.Tip="Add this expression at the end of the index">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Add"/>
+                                            <TextBlock Text="Add expression"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <StackPanel Spacing="4" IsVisible="{Binding Indexes.HasIncludedColumns}">
+                                    <TextBlock Classes="section-header" Text="Included columns"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8" IsEnabled="{Binding Indexes.CanEditSelection}">
+                                        <ListBox Name="IndexIncludedList" ItemsSource="{Binding Indexes.Selected.IncludedColumns}"
+                                                 SelectedItem="{Binding Indexes.SelectedIncluded}" Width="160" MaxHeight="120"/>
+                                        <StackPanel Spacing="4">
+                                            <ComboBox Name="IndexIncludedColumn" ItemsSource="{Binding Indexes.ColumnNames}" SelectedItem="{Binding Indexes.NewIncluded}"
+                                                      MinWidth="160" PlaceholderText="column"/>
+                                            <Button Name="IndexIncludedAddButton" Classes="toolbar" Command="{Binding Indexes.AddIncludedCommand}"
+                                                    ToolTip.Tip="Store this column in the index without making it a key">
+                                                <StackPanel>
+                                                    <fi:SymbolIcon Symbol="Add"/>
+                                                    <TextBlock Text="Include"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Name="IndexIncludedRemoveButton" Classes="toolbar" Command="{Binding Indexes.RemoveIncludedCommand}"
+                                                    CommandParameter="{Binding Indexes.SelectedIncluded}" ToolTip.Tip="Remove the selected included column">
+                                                <StackPanel>
+                                                    <fi:SymbolIcon Symbol="Subtract"/>
+                                                    <TextBlock Text="Remove"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Spacing="4" IsVisible="{Binding Indexes.HasFilters}">
+                                    <TextBlock Classes="section-header" Text="Filter (WHERE)"/>
+                                    <TextBox Name="IndexFilterText" Text="{Binding Indexes.Selected.Filter}" IsReadOnly="{Binding !Indexes.CanEditSelection}"
+                                             Width="280" Watermark="none: the index covers every row"
+                                             ToolTip.Tip="Only rows meeting this condition are indexed; the server checks it when the index is saved"/>
+                                </StackPanel>
+                                <StackPanel Spacing="4" IsVisible="{Binding Indexes.HasMethods}">
+                                    <TextBlock Classes="section-header" Text="Method"/>
+                                    <ComboBox Name="IndexMethod" ItemsSource="{Binding Indexes.Methods}" SelectedItem="{Binding Indexes.SelectedMethod}"
+                                              IsEnabled="{Binding Indexes.CanEditMethod}" MinWidth="160"
+                                              ToolTip.Tip="How the index is stored; an index with a method not listed keeps it"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab: Foreign Keys -->
+            <TabItem Header="Foreign Keys">
+                <Grid RowDefinitions="Auto,Auto,Auto">
+                    <!-- Foreign keys: the loaded ones with their edits, and added ones -->
+                    <StackPanel Grid.Row="0" Spacing="4">
+                        <TextBlock Name="ForeignKeyNote" Classes="muted" TextWrapping="Wrap" Text="{Binding ForeignKeys.Summary}"/>
+                        <Button Name="AddForeignKeyButton" Classes="toolbar" Command="{Binding ForeignKeys.AddForeignKeyCommand}" ToolTip.Tip="Add a foreign key"
+                                HorizontalAlignment="Left">
+                            <StackPanel>
+                                <fi:SymbolIcon Symbol="Add"/>
+                                <TextBlock Text="Foreign key"/>
+                            </StackPanel>
+                        </Button>
+                        <DataGrid Name="ForeignKeyGrid" ItemsSource="{Binding ForeignKeys.Items}" SelectedItem="{Binding ForeignKeys.Selected}"
+                                  AutoGenerateColumns="False" CanUserResizeColumns="True" MaxHeight="180">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Name" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Name}" Watermark="engine names it" ToolTip.Tip="Leave blank for a name the engine chooses"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Columns" Binding="{Binding PairsDisplay}" IsReadOnly="True" Width="*"/>
+                                <DataGridTextColumn Header="References" Binding="{Binding TargetDisplay}" IsReadOnly="True" Width="160"/>
+                                <DataGridTemplateColumn Header="On Delete" Width="110">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding OnDelete}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).ForeignKeys.Actions}" SelectedItem="{Binding OnDelete}"
+                                                      HorizontalAlignment="Stretch"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="On Update" Width="110">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding OnUpdate}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).ForeignKeys.Actions}" SelectedItem="{Binding OnUpdate}"
+                                                      HorizontalAlignment="Stretch"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="State" Binding="{Binding StateDisplay}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="80"/>
+                                <DataGridTemplateColumn Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Classes="toolbar icon delete"
+                                                    Command="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).ForeignKeys.DropForeignKeyCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip.Tip="Drop this foreign key, or keep it again">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+
+                    <!-- The selected foreign key's referenced table and ordered column pairs -->
+                    <Border Grid.Row="1" Classes="add-form" IsVisible="{Binding ForeignKeys.HasSelection}">
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="References:" VerticalAlignment="Center"/>
+                                <ComboBox Name="ReferencedTablePicker" ItemsSource="{Binding ForeignKeys.Targets}" SelectedItem="{Binding ForeignKeys.SelectedTarget}"
+                                          MinWidth="240" PlaceholderText="referenced table"/>
+                                <TextBlock Classes="muted" Text="Loading tables…" VerticalAlignment="Center" IsVisible="{Binding ForeignKeys.IsLoadingTargets}"/>
+                            </StackPanel>
+                            <Border Name="ReferenceTargetsFailedBanner" Classes="banner error" IsVisible="{Binding ForeignKeys.TargetsFailed}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding ForeignKeys.TargetsError, StringFormat='The tables could not be listed: {0}'}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                    <Button Name="RetryReferenceTargetsButton" Classes="toolbar" Command="{Binding ForeignKeys.LoadTargetsCommand}" ToolTip.Tip="List the tables again">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                                            <TextBlock Text="Retry"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                            <Border Name="TargetColumnsFailedBanner" Classes="banner error" IsVisible="{Binding ForeignKeys.TargetColumnsFailed}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding ForeignKeys.TargetColumnsError}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                    <Button Name="RetryTargetColumnsButton" Classes="toolbar" Command="{Binding ForeignKeys.RetryTargetColumnsCommand}" ToolTip.Tip="Read the referenced table again">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                                            <TextBlock Text="Retry"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Classes="section-header" Text="Column pairs, in order"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <DataGrid Name="ForeignKeyPairGrid" ItemsSource="{Binding ForeignKeys.Selected.Pairs}" SelectedItem="{Binding ForeignKeys.SelectedPair}"
+                                          AutoGenerateColumns="False" Width="420" MaxHeight="150">
+                                    <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Column" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Column}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).ForeignKeys.LocalColumns}" SelectedItem="{Binding Column}"
+                                                      HorizontalAlignment="Stretch"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Referenced column" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding ReferencedColumn}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).ForeignKeys.ReferencedColumns}" SelectedItem="{Binding ReferencedColumn}"
+                                                      HorizontalAlignment="Stretch"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <StackPanel Spacing="4">
+                                    <Button Name="AddPairButton" Classes="toolbar" Command="{Binding ForeignKeys.AddPairCommand}" ToolTip.Tip="Add a column pair at the end">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Add"/>
+                                            <TextBlock Text="Pair"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="PairUpButton" Classes="toolbar" Command="{Binding ForeignKeys.MovePairUpCommand}"
+                                            CommandParameter="{Binding ForeignKeys.SelectedPair}" ToolTip.Tip="Move the selected pair earlier">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowUp"/>
+                                            <TextBlock Text="Up"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="PairDownButton" Classes="toolbar" Command="{Binding ForeignKeys.MovePairDownCommand}"
+                                            CommandParameter="{Binding ForeignKeys.SelectedPair}" ToolTip.Tip="Move the selected pair later">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowDown"/>
+                                            <TextBlock Text="Down"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="RemovePairButton" Classes="toolbar" Command="{Binding ForeignKeys.RemovePairCommand}"
+                                            CommandParameter="{Binding ForeignKeys.SelectedPair}" ToolTip.Tip="Remove the selected pair">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Subtract"/>
+                                            <TextBlock Text="Remove"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SQLite warning -->
+                    <Border Grid.Row="2" Classes="banner warning" Margin="0,4,0,0"
+                            IsVisible="{Binding ShowForeignKeyPragmaWarning}">
+                        <TextBlock Text="SQLite foreign keys require PRAGMA foreign_keys = ON to be enforced at runtime."
+                                   TextWrapping="Wrap"/>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab: Constraints -->
+            <TabItem Header="Constraints">
+                <Grid RowDefinitions="Auto,Auto,*">
+                    <!-- Primary and unique keys: the loaded ones with their edits, and added ones -->
+                    <StackPanel Grid.Row="0" Spacing="4">
+                        <TextBlock Classes="section-header" Text="Keys"/>
+                        <TextBlock Name="KeyNote" Classes="muted" TextWrapping="Wrap" Text="{Binding Keys.Summary}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Name="AddPrimaryKeyButton" Classes="toolbar" Command="{Binding Keys.AddPrimaryKeyCommand}" ToolTip.Tip="Add a primary key, or select the existing one">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="Key"/>
+                                    <TextBlock Text="Primary key"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Name="AddUniqueKeyButton" Classes="toolbar" Command="{Binding Keys.AddUniqueKeyCommand}" ToolTip.Tip="Add a unique key">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="Add"/>
+                                    <TextBlock Text="Unique key"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <DataGrid Name="KeyGrid" ItemsSource="{Binding Keys.Items}" SelectedItem="{Binding Keys.Selected}"
+                                  AutoGenerateColumns="False" CanUserResizeColumns="True" MaxHeight="160">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Kind" Binding="{Binding KindDisplay}" IsReadOnly="True" Width="110"/>
+                                <DataGridTemplateColumn Header="Name" Width="160">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Name}" IsReadOnly="{Binding NameLocked}" Watermark="engine names it"
+                                                     ToolTip.Tip="Leave blank for a name the engine chooses"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Columns" Binding="{Binding ColumnsDisplay}" IsReadOnly="True" Width="*"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="90"/>
+                                <DataGridTemplateColumn Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Classes="toolbar icon delete"
+                                                    Command="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).Keys.DropKeyCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip.Tip="Drop this key, or keep it again">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+
+                    <!-- The selected key's members, in key order -->
+                    <Border Grid.Row="1" Classes="add-form" IsVisible="{Binding Keys.HasSelection}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Classes="section-header" Text="Key columns, in order"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ListBox Name="KeyMemberList" ItemsSource="{Binding Keys.Selected.Columns}" SelectedItem="{Binding Keys.SelectedMember}"
+                                         Width="220" MaxHeight="120"/>
+                                <StackPanel Spacing="4">
+                                    <Button Name="KeyMemberUpButton" Classes="toolbar" Command="{Binding Keys.MoveMemberUpCommand}"
+                                            CommandParameter="{Binding Keys.SelectedMember}" ToolTip.Tip="Move the selected column earlier in the key">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowUp"/>
+                                            <TextBlock Text="Up"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="KeyMemberDownButton" Classes="toolbar" Command="{Binding Keys.MoveMemberDownCommand}"
+                                            CommandParameter="{Binding Keys.SelectedMember}" ToolTip.Tip="Move the selected column later in the key">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="ArrowDown"/>
+                                            <TextBlock Text="Down"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="KeyMemberRemoveButton" Classes="toolbar" Command="{Binding Keys.RemoveMemberCommand}"
+                                            CommandParameter="{Binding Keys.SelectedMember}" ToolTip.Tip="Remove the selected column from the key">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Subtract"/>
+                                            <TextBlock Text="Remove"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Spacing="4">
+                                    <ComboBox Name="KeyMemberColumn" ItemsSource="{Binding Keys.ColumnNames}" SelectedItem="{Binding Keys.NewMember}"
+                                              MinWidth="160" PlaceholderText="column"/>
+                                    <Button Name="KeyMemberAddButton" Classes="toolbar" Command="{Binding Keys.AddMemberCommand}" ToolTip.Tip="Add this column at the end of the key">
+                                        <StackPanel>
+                                            <fi:SymbolIcon Symbol="Add"/>
+                                            <TextBlock Text="Add column"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Checks: the loaded ones with their edits, and added ones -->
+                    <StackPanel Grid.Row="2" Spacing="4" Margin="0,8,0,0">
+                        <TextBlock Classes="section-header" Text="Checks"/>
+                        <TextBlock Name="CheckNote" Classes="muted" TextWrapping="Wrap" Text="{Binding Checks.Summary}"/>
+                        <Button Name="AddCheckButton" Classes="toolbar" Command="{Binding Checks.AddCheckCommand}" ToolTip.Tip="Add a check"
+                                HorizontalAlignment="Left">
+                            <StackPanel>
+                                <fi:SymbolIcon Symbol="Add"/>
+                                <TextBlock Text="Check"/>
+                            </StackPanel>
+                        </Button>
+                        <DataGrid Name="CheckGrid" ItemsSource="{Binding Checks.Items}" SelectedItem="{Binding Checks.Selected}"
+                                  AutoGenerateColumns="False" CanUserResizeColumns="True" MaxHeight="220">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Name" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="4,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Name}" Watermark="engine names it" ToolTip.Tip="Leave blank for a name the engine chooses"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Expression" Binding="{Binding Expression}" Width="*"/>
+                                <DataGridTextColumn Header="Column" Binding="{Binding Column}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="State" Binding="{Binding StateDisplay}" IsReadOnly="True" Width="110"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" IsReadOnly="True" Width="80"/>
+                                <DataGridTemplateColumn Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Classes="toolbar icon delete"
+                                                    Command="{Binding $parent[DataGrid].((vm:TableDesignerViewModel)DataContext).Checks.DropCheckCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip.Tip="Drop this check, or keep it again">
+                                                <fi:SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab: Triggers (read-only) -->
+            <TabItem Header="Triggers">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Name="TriggerNote" Grid.Row="0" Classes="muted" Margin="4" TextWrapping="Wrap"
+                               Text="{Binding Design.TriggersUnsupported, TargetNullValue='Triggers are shown read-only; the designer does not edit trigger bodies.'}"/>
+                    <DataGrid Name="TriggerGrid" Grid.Row="1" ItemsSource="{Binding Design.Triggers}" AutoGenerateColumns="False"
+                              IsReadOnly="True" CanUserResizeColumns="True"
+                              IsVisible="{Binding Design.TriggersUnsupported, Converter={x:Static ObjectConverters.IsNull}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="140"/>
+                            <DataGridTextColumn Header="Timing" Binding="{Binding Timing}" Width="100"/>
+                            <DataGridTextColumn Header="Event" Binding="{Binding Event}" Width="180"/>
+                            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="100"/>
+                            <DataGridTextColumn Header="Definition" Binding="{Binding Definition}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <views:EmptyState Grid.Row="1" Name="NoTriggers" Icon="Flash" Title="No triggers"
+                                      Message="This table has no triggers.">
+                        <views:EmptyState.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="!Design.Triggers.Count"/>
+                                <Binding Path="Design.TriggersUnsupported" Converter="{x:Static ObjectConverters.IsNull}"/>
+                            </MultiBinding>
+                        </views:EmptyState.IsVisible>
+                    </views:EmptyState>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab: Options (read-only) and engine limits -->
+            <TabItem Header="Options">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Name="OptionNote" Grid.Row="0" Classes="muted" Margin="4" TextWrapping="Wrap"
+                               Text="{Binding Design.OptionsUnsupported, TargetNullValue='Table options are shown read-only.'}"/>
+                    <DataGrid Name="OptionGrid" Grid.Row="1" ItemsSource="{Binding Design.Options}" AutoGenerateColumns="False"
+                              IsReadOnly="True" CanUserResizeColumns="True"
+                              IsVisible="{Binding Design.OptionsUnsupported, Converter={x:Static ObjectConverters.IsNull}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Option" Binding="{Binding Name}" Width="200"/>
+                            <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Grid.Row="2" Spacing="4" Margin="4" IsVisible="{Binding Design.Limits.Count}">
+                        <TextBlock Classes="section-header" Text="Engine limits"/>
+                        <ItemsControl Name="LimitList" ItemsSource="{Binding Design.Limits}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Classes="muted" Text="{Binding}" TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Comment">
+                <DockPanel Margin="12,8">
+                    <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap"
+                               Text="The table's comment, saved with the other changes."
+                               IsVisible="{Binding SupportsComments}"/>
+                    <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap"
+                               Text="This database does not store table comments."
+                               IsVisible="{Binding !SupportsComments}"/>
+                    <TextBox Name="TableCommentBox" Text="{Binding TableComment}" Watermark="Table description / comment…"
+                             AcceptsReturn="True" TextWrapping="Wrap" IsEnabled="{Binding SupportsComments}"/>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="SQL Preview">
+                <DockPanel Margin="8">
+                    <TextBox Name="DdlPreview" Classes="code" Text="{Binding PreviewSql}" IsReadOnly="True"
+                             AcceptsReturn="True" TextWrapping="NoWrap"/>
+                </DockPanel>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- DDL Preview -->
+        <Grid Grid.Row="2" RowDefinitions="Auto">
+
+            <StackPanel Grid.Row="0">
+                <!-- Validation Errors -->
+                <Border Classes="banner warning" Margin="0,4,0,0"
+                        IsVisible="{Binding ValidationErrors.Count}">
+                    <ItemsControl ItemsSource="{Binding ValidationErrors}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+                <!-- What happened to each step of the last save -->
+                <Border Name="OutcomePanel" Classes="banner info" Margin="0,4,0,0" IsVisible="{Binding Review.HasOutcome}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding Review.Outcome.Summary}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <ItemsControl Name="OutcomeSteps" ItemsSource="{Binding Review.Steps}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TableChangeStepRow">
+                                    <StackPanel>
+                                        <TextBlock TextWrapping="Wrap">
+                                            <Run Text="{Binding Number, StringFormat='{}{0}.'}"/>
+                                            <Run Text="{Binding Status}" FontWeight="SemiBold"/>
+                                            <Run Text="{Binding Sql}"/>
+                                        </TextBlock>
+                                        <TextBlock Classes="muted" Text="{Binding Error}" TextWrapping="Wrap"
+                                                   IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

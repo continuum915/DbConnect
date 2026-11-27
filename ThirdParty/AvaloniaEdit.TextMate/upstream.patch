@@ -1,0 +1,167 @@
+diff --git a/src/AvaloniaEdit.TextMate/TextEditorModel.cs b/src/AvaloniaEdit.TextMate/TextEditorModel.cs
+index 6f35479..5ee27f0 100644
+--- a/src/AvaloniaEdit.TextMate/TextEditorModel.cs
++++ b/src/AvaloniaEdit.TextMate/TextEditorModel.cs
+@@ -37,7 +37,6 @@ namespace AvaloniaEdit.TextMate
+             for (int i = 0; i < _document.LineCount; i++)
+                 AddLine(i);
+ 
+-            _document.Changing += DocumentOnChanging;
+             _document.Changed += DocumentOnChanged;
+             _document.UpdateFinished += DocumentOnUpdateFinished;
+             _textView.ScrollOffsetChanged += TextView_ScrollOffsetChanged;
+@@ -45,7 +44,6 @@ namespace AvaloniaEdit.TextMate
+ 
+         public override void Dispose()
+         {
+-            _document.Changing -= DocumentOnChanging;
+             _document.Changed -= DocumentOnChanged;
+             _document.UpdateFinished -= DocumentOnUpdateFinished;
+             _textView.ScrollOffsetChanged -= TextView_ScrollOffsetChanged;
+@@ -91,29 +89,6 @@ namespace AvaloniaEdit.TextMate
+             }
+         }
+ 
+-        private void DocumentOnChanging(object sender, DocumentChangeEventArgs e)
+-        {
+-            try
+-            {
+-                if (e.RemovalLength > 0)
+-                {
+-                    var startLine = _document.GetLineByOffset(e.Offset).LineNumber - 1;
+-                    var endLine = _document.GetLineByOffset(e.Offset + e.RemovalLength).LineNumber - 1;
+-
+-                    for (int i = endLine; i > startLine; i--)
+-                    {
+-                        RemoveLine(i);
+-                    }
+-
+-                    _documentSnapshot.RemoveLines(startLine, endLine);
+-                }
+-            }
+-            catch (Exception ex)
+-            {
+-                _exceptionHandler?.Invoke(ex);
+-            }
+-        }
+-
+         private void DocumentOnChanged(object sender, DocumentChangeEventArgs e)
+         {
+             try
+@@ -121,17 +96,22 @@ namespace AvaloniaEdit.TextMate
+                 int startLine = _document.GetLineByOffset(e.Offset).LineNumber - 1;
+                 int endLine = startLine;
+                 if (e.InsertionLength > 0)
+-                {
+                     endLine = _document.GetLineByOffset(e.Offset + e.InsertionLength).LineNumber - 1;
+ 
+-                    for (int i = startLine; i < endLine; i++)
+-                    {
+-                        AddLine(i);
+-                    }
++                // Reconcile the actual line delta: CRLF edits can join/split delimiters at either boundary.
++                // Inline edits leave the line list and snapshot arrays intact.
++                int oldCount = _documentSnapshot.LineCount;
++                int lineDelta = _document.LineCount - oldCount;
++                if (lineDelta == 0)
++                    _documentSnapshot.Update(e);
++                else
++                {
++                    // Splitting/joining a CRLF can move the offset to a different logical line.
++                    int rangeStartLine = Math.Min(startLine, _documentSnapshot.GetLineIndexByOffset(e.Offset));
++                    UpdateLineRange(rangeStartLine + 1, Math.Max(0, -lineDelta), Math.Max(0, lineDelta),
++                        () => _documentSnapshot.Update(e));
+                 }
+ 
+-                _documentSnapshot.Update(e);
+-
+                 if (startLine == 0)
+                 {
+                     SetInvalidRange(startLine, endLine);
+diff --git a/src/AvaloniaEdit.TextMate/DocumentSnapshot.cs b/src/AvaloniaEdit.TextMate/DocumentSnapshot.cs
+index f79f8c9..dc2c707 100644
+--- a/src/AvaloniaEdit.TextMate/DocumentSnapshot.cs
++++ b/src/AvaloniaEdit.TextMate/DocumentSnapshot.cs
+@@ -1,4 +1,4 @@
+-﻿using System;
++using System;
+ using System.Collections.Generic;
+ using System.Linq;
+ 
+@@ -74,6 +74,27 @@ namespace AvaloniaEdit.TextMate
+             }
+         }
+ 
++        internal int GetLineIndexByOffset(int offset)
++        {
++            lock (_lock)
++            {
++                if (offset < 0 || offset > _textSource.TextLength)
++                    throw new ArgumentOutOfRangeException(nameof(offset));
++
++                int low = 0;
++                int high = _lineCount - 1;
++                while (low <= high)
++                {
++                    int middle = low + (high - low) / 2;
++                    if (_lineRanges[middle].Offset <= offset)
++                        low = middle + 1;
++                    else
++                        high = middle - 1;
++                }
++                return high;
++            }
++        }
++
+         public int GetLineLength(int lineIndex)
+         {
+             lock (_lock)
+@@ -104,44 +125,19 @@ namespace AvaloniaEdit.TextMate
+             {
+                 _lineCount = _document.Lines.Count;
+ 
+-                if (e != null && e.OffsetChangeMap != null && _lineRanges != null && _lineCount == _lineRanges.Length)
+-                {
+-                    // it's a single-line change
+-                    // update the offsets usign the OffsetChangeMap
+-                    RecalculateOffsets(e);
+-                }
+-                else
+-                {
+-                    // recompute all the line ranges
+-                    // based in the document lines
+-                    RecomputeAllLineRanges(e);
+-                }
+-
++                // Reuse the array when the line count is unchanged. Reading authoritative ranges
++                // also handles replacements and CRLF boundary changes with the same net line count.
++                RecomputeAllLineRanges(e);
+                 _textSource = _document.CreateSnapshot();
+             }
+         }
+ 
+-        private void RecalculateOffsets(DocumentChangeEventArgs e)
+-        {
+-            var changedLine = _document.GetLineByOffset(e.Offset);
+-            int lineIndex = changedLine.LineNumber - 1;
+-
+-            _lineRanges[lineIndex].Offset = changedLine.Offset;
+-            _lineRanges[lineIndex].Length = changedLine.Length;
+-            _lineRanges[lineIndex].TotalLength = changedLine.TotalLength;
+-
+-            for (int i = lineIndex + 1; i < _lineCount; i++)
+-            {
+-                _lineRanges[i].Offset = e.OffsetChangeMap.GetNewOffset(_lineRanges[i].Offset);
+-            }
+-        }
+-
+         private void RecomputeAllLineRanges(DocumentChangeEventArgs e)
+         {
+             Array.Resize(ref _lineRanges, _lineCount);
+ 
+             int currentLineIndex = (e != null) ?
+-                _document.GetLineByOffset(e.Offset).LineNumber - 1 : 0;
++                Math.Max(0, _document.GetLineByOffset(e.Offset).LineNumber - 2) : 0;
+             var currentLine = _document.GetLineByNumber(currentLineIndex + 1);
+ 
+             while (currentLine != null)

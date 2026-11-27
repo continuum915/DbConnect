@@ -1,0 +1,373 @@
+<!-- Shared layout classes: toolbars, dialog forms and footers, banners and summary strips. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fi="using:FluentIcons.Avalonia">
+
+    <!-- Tool and tab toolbars: toolbar band with a bottom divider. -->
+    <Style Selector="Border.toolbar">
+        <Setter Property="Background" Value="{DynamicResource DbConnectToolbarBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.Toolbar}"/>
+    </Style>
+    <Style Selector="Border.toolbar StackPanel">
+        <Setter Property="Spacing" Value="{DynamicResource DbConnect.Space.XS}"/>
+    </Style>
+    <!-- Toolbars wrap onto a second row in a narrow window rather than clipping commands. -->
+    <Style Selector="Border.toolbar > WrapPanel">
+        <Setter Property="ItemSpacing" Value="{DynamicResource DbConnect.Space.XS}"/>
+        <Setter Property="LineSpacing" Value="{DynamicResource DbConnect.Space.XS}"/>
+    </Style>
+    <!-- A section header that titles a toolbar band sits on the band's centre line, without the header's bottom gap. -->
+    <Style Selector="Border.toolbar TextBlock.section-header">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- Divides toolbar button groups. -->
+    <Style Selector="Border.toolbar Separator">
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Icon.Toolbar}"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Margin" Value="4,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Separator}"/>
+    </Style>
+
+    <!-- The main toolbar band: the window colour, a border below; tiles split by 44 px separators. -->
+    <Style Selector="Border.main-toolbar">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Window}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="6,2"/>
+    </Style>
+    <Style Selector="Border.tile-separator">
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Height" Value="44"/>
+        <Setter Property="Margin" Value="5,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Separator}"/>
+    </Style>
+
+    <!-- A pane header strip (navigator "Connections", Information pane): chrome colour, 29 px, semibold title, icon
+         buttons on the right, a border below. -->
+    <Style Selector="Border.pane-header">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Chrome}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.TabStrip}"/>
+        <Setter Property="Padding" Value="10,0,4,0"/>
+    </Style>
+    <Style Selector="Border.pane-header > DockPanel > TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.pane-header StackPanel">
+        <Setter Property="Spacing" Value="2"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- The band holding a pane's filter box: a divider below. -->
+    <Style Selector="Border.filter-band">
+        <Setter Property="Padding" Value="6,5"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Divider}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    </Style>
+
+    <!-- A footer strip under a list or grid (Objects tab counts): 22 px on the toolbar colour, muted text. -->
+    <Style Selector="Border.footer-strip">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Toolbar}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.RowHeight}"/>
+        <Setter Property="Padding" Value="8,0"/>
+    </Style>
+    <Style Selector="Border.footer-strip TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextMuted}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- A notice band under a toolbar (file changed on disk, connection lost, USE moved the session): the dirty
+         colours, full width, icon, text, actions on the right. -->
+    <Style Selector="Border.banner.notice">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.DirtyBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.DirtyBorder}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="Padding" Value="10,4"/>
+    </Style>
+    <Style Selector="Border.banner.notice TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="8,0"/>
+    </Style>
+    <Style Selector="Border.banner.notice StackPanel">
+        <Setter Property="Spacing" Value="6"/>
+    </Style>
+
+    <!-- A query tab's result footer: 24 px on the toolbar colour, caption text, parts on the right. -->
+    <Style Selector="Border.result-footer">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Toolbar}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.StatusBar}"/>
+        <Setter Property="Padding" Value="8,0,4,0"/>
+    </Style>
+    <Style Selector="Border.result-footer TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextSecondary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,12,0"/>
+    </Style>
+
+    <!-- The table data filter bar: panel colour, a soft rule below. -->
+    <Style Selector="Border.filter-bar">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Panel}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+    <Style Selector="Border.filter-bar StackPanel">
+        <Setter Property="Spacing" Value="4"/>
+    </Style>
+    <Style Selector="Grid.sql-filter">
+        <Setter Property="ColumnSpacing" Value="8"/>
+        <Setter Property="RowSpacing" Value="4"/>
+    </Style>
+    <!-- A flyout's content panel (the table data Sort flyout). -->
+    <Style Selector="StackPanel.flyout-panel">
+        <Setter Property="Spacing" Value="8"/>
+        <Setter Property="Margin" Value="8"/>
+        <Setter Property="Width" Value="260"/>
+    </Style>
+    <!-- The record pane's focused-cell box and its fields. -->
+    <Style Selector="Border.cell-box">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+    <Style Selector="Border.cell-box StackPanel">
+        <Setter Property="Spacing" Value="6"/>
+    </Style>
+    <Style Selector="Grid.record-field">
+        <Setter Property="ColumnSpacing" Value="8"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+
+    <!-- The table designer's field properties panel under the fields grid: panel colour, a border above. -->
+    <Style Selector="Border.field-properties">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Panel}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+    <Style Selector="Border.field-properties > StackPanel">
+        <Setter Property="Spacing" Value="6"/>
+    </Style>
+
+    <!-- A dialog tab's page: spacing between its sections. -->
+    <Style Selector="StackPanel.dialog-page">
+        <Setter Property="Spacing" Value="10"/>
+    </Style>
+    <!-- The connection dialog's provider tile: a 40 px icon tile, the provider and what it is, Change…. -->
+    <Style Selector="Border.provider-tile">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Divider}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="0,0,0,12"/>
+    </Style>
+    <Style Selector="Border.provider-tile DockPanel > StackPanel">
+        <Setter Property="Spacing" Value="2"/>
+        <Setter Property="Margin" Value="12,0"/>
+    </Style>
+    <Style Selector="Border.provider-icon">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.CurrentRow}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.TileBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}"/>
+    </Style>
+    <Style Selector="Border.provider-icon fi|SymbolIcon">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.Icon.Tile}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- Colour-tag swatches: 20 px squares; the chosen one is outlined. -->
+    <Style Selector="ListBox.swatches">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="ListBox.swatches ListBoxItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="MinHeight" Value="0"/>
+    </Style>
+    <Style Selector="ListBox.swatches ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.swatch">
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.ButtonBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="ListBox.swatches ListBoxItem:selected Border.swatch">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Text}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <!-- The inline connection test result in the dialog footer. -->
+    <Style Selector="StackPanel.test-result">
+        <Setter Property="Spacing" Value="6"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="8,0"/>
+    </Style>
+    <Style Selector="StackPanel.test-result TextBlock.success">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.SuccessText}"/>
+    </Style>
+    <Style Selector="StackPanel.test-result TextBlock.failure">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectDangerBrush}"/>
+    </Style>
+
+    <!-- The status bar: title-bar colour, a border above, 24 px, caption text in the secondary text colour;
+         segments after the first are divided by a border line. -->
+    <Style Selector="Border.status-bar">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.TitleBar}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.StatusBar}"/>
+    </Style>
+    <Style Selector="Border.status-bar TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextSecondary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.status-bar StackPanel">
+        <Setter Property="Spacing" Value="6"/>
+    </Style>
+    <Style Selector="StackPanel.status-lead">
+        <Setter Property="Margin" Value="10,0"/>
+    </Style>
+    <Style Selector="Border.status-segment">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        <Setter Property="Padding" Value="10,0"/>
+    </Style>
+
+    <!-- Two-column dialog form: "Label:" in an Auto column, fields in *. Declare ColumnDefinitions="Auto,*" on the Grid. -->
+    <Style Selector="Grid.form">
+        <Setter Property="RowSpacing" Value="{DynamicResource DbConnect.Space.M}"/>
+        <Setter Property="ColumnSpacing" Value="{DynamicResource DbConnect.Space.M}"/>
+    </Style>
+    <Style Selector="Grid.form > TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- Dialog form fields are a little taller than the 22 px inputs in panels and toolbars. -->
+    <Style Selector="Grid.form > :is(TextBox)">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.DialogInputHeight}"/>
+    </Style>
+    <Style Selector="Grid.form > ComboBox">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.DialogInputHeight}"/>
+    </Style>
+    <Style Selector="Grid.form > NumericUpDown">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.DialogInputHeight}"/>
+    </Style>
+    <!-- A hint under a field (in the field column): wraps instead of widening the form. -->
+    <Style Selector="Grid.form > TextBlock.hint">
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
+    <!-- Fixed-width form fields, left-aligned: "field" for most, "short" for ports and timeouts. -->
+    <Style Selector=":is(TemplatedControl).field">
+        <Setter Property="Width" Value="{DynamicResource DbConnect.Size.Field}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+    <Style Selector=":is(TemplatedControl).short">
+        <Setter Property="Width" Value="{DynamicResource DbConnect.Size.FieldShort}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+    <!-- Dialog footer: top divider, buttons right-aligned in order primary, other actions, Cancel/Close. -->
+    <Style Selector="Border.dialog-footer">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Margin" Value="0,12,0,0"/>
+        <Setter Property="Padding" Value="0,12,0,0"/>
+    </Style>
+    <Style Selector="Border.dialog-footer > StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Spacing" Value="{DynamicResource DbConnect.Space.M}"/>
+    </Style>
+    <!-- With secondary destructive actions (Delete, Reset Page): a DockPanel whose first StackPanel docks left. -->
+    <Style Selector="Border.dialog-footer > DockPanel > StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Spacing" Value="{DynamicResource DbConnect.Space.M}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+    <Style Selector="Border.dialog-footer > DockPanel > StackPanel.start">
+        <Setter Property="DockPanel.Dock" Value="Left"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+    <!-- Status or summary text beside the footer buttons. -->
+    <Style Selector="Border.dialog-footer > DockPanel > TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style Selector="Border.dialog-footer Button">
+        <Setter Property="MinWidth" Value="{DynamicResource DbConnect.Size.DialogButtonMinWidth}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.DialogButtonHeight}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Inline banners: add info, warning or error. -->
+    <Style Selector="Border.banner">
+        <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.Section}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}"/>
+    </Style>
+    <Style Selector="Border.banner.info">
+        <Setter Property="Background" Value="{DynamicResource DbConnectInfoNoteBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDividerBrush}"/>
+    </Style>
+    <Style Selector="Border.banner.warning">
+        <Setter Property="Background" Value="{DynamicResource DbConnectWarningBgBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnectWarningBorderBrush}"/>
+    </Style>
+    <Style Selector="Border.banner.error">
+        <Setter Property="Background" Value="{DynamicResource DbConnectErrorBgBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnectDangerBrush}"/>
+    </Style>
+
+    <!-- Banner text: each kind sets its own colour, so text never inherits a toolbar's or a parent's foreground. -->
+    <Style Selector="Border.banner.info TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectContentBrush}"/>
+    </Style>
+    <Style Selector="Border.banner.warning TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectWarningFgBrush}"/>
+    </Style>
+    <Style Selector="Border.banner.error TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectContentBrush}"/>
+    </Style>
+    <!-- A banner sitting inside a toolbar row: compact, vertically centred; its buttons don't grow the row. -->
+    <Style Selector="Border.banner.inline">
+        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.banner.inline Button">
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- One-line status and summary strips (statement summary, row counts): plain text, no input-like border. -->
+    <Style Selector="Border.summary">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.Toolbar}"/>
+    </Style>
+    <Style Selector="Border.summary TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectMutedBrush}"/>
+    </Style>
+</Styles>

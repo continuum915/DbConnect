@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             x:Class="DbConnect.Views.ResultChartView"
+             x:DataType="vm:ResultChartViewModel">
+    <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="Type:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{x:Static vm:ResultChartViewModel.ChartTypes}" SelectedItem="{Binding ChartType}" Width="80"/>
+                <TextBlock Text="X:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableColumns}" SelectedItem="{Binding XColumn}" Width="140"/>
+                <TextBlock Text="Y:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableColumns}" SelectedItem="{Binding YColumn}" Width="140"/>
+                <Button Classes="toolbar" Command="{Binding UpdateChartFromSelectionCommand}"
+                        ToolTip.Tip="Draw the chart from the selected columns">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowSync"/>
+                        <TextBlock Text="Update Chart"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <lvc:CartesianChart Series="{Binding ChartSeries}"
+                                IsVisible="{Binding HasData}"
+                                x:CompileBindings="False"/>
+            <views:EmptyState Icon="DataBarVertical" Title="No chart yet"
+                              Message="Run a query with numeric data, pick the X and Y columns, then Update Chart."
+                              IsVisible="{Binding !HasData}"/>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,166 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DbConnect.App"
+             xmlns:local="using:DbConnect"
+             xmlns:editing="clr-namespace:AvaloniaEdit.Editing;assembly=AvaloniaEdit"
+             RequestedThemeVariant="Light">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        <StyleInclude Source="avares://DbConnectTheme/Themes/DbConnectTheme.axaml" />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        <Style Selector="editing|TextArea">
+            <Setter Property="SelectionBrush" Value="{DynamicResource DbConnect.Brush.Selection}"/>
+            <Setter Property="SelectionForeground" Value="{DynamicResource DbConnect.Brush.Text}"/>
+        </Style>
+
+        <!-- Global spacing and sizing standards -->
+        <Style Selector="Button">
+            <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+            <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.ControlPadding}"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.InputHeight}"/>
+            <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.InputPadding}"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.InputHeight}"/>
+            <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.InputPadding}"/>
+        </Style>
+        <Style Selector="Border.dbconnect-card">
+            <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}"/>
+        </Style>
+        <!-- Tab close button hover behavior -->
+        <Style Selector="TabItem Button.tab-close">
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+        <Style Selector="TabItem:pointerover Button.tab-close">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="TabItem:selected Button.tab-close">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+
+        <!-- Shared styles built on the DbConnect tokens. Included last so they win over the defaults above. -->
+        <StyleInclude Source="avares://DbConnect/Styles/Global.axaml"/>
+        <StyleInclude Source="avares://DbConnect/Styles/Layout.axaml"/>
+        <StyleInclude Source="avares://DbConnect/Styles/Text.axaml"/>
+        <StyleInclude Source="avares://DbConnect/Styles/Buttons.axaml"/>
+        <StyleInclude Source="avares://DbConnect/Styles/Controls.axaml"/>
+        <StyleInclude Source="avares://DbConnect/Styles/Tabs.axaml"/>
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- The tooltip of every command, tab or value the design shows but the app cannot do yet. -->
+            <x:String x:Key="DbConnect.Text.NotAvailableYet">Not available yet</x:String>
+            <ResourceDictionary.ThemeDictionaries>
+
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="DbConnectToolbarBrush"          Color="{DynamicResource DbConnect.Color.Toolbar}"/>
+                    <SolidColorBrush x:Key="DbConnectPanelBrush"            Color="{DynamicResource DbConnect.Color.Panel}"/>
+                    <SolidColorBrush x:Key="DbConnectStatusBarBrush"        Color="{DynamicResource DbConnect.Color.TitleBar}"/>
+                    <SolidColorBrush x:Key="DbConnectDividerBrush"          Color="{DynamicResource DbConnect.Color.BorderSoft}"/>
+                    <SolidColorBrush x:Key="DbConnectSubtleBorderBrush"     Color="{DynamicResource DbConnect.Color.BorderSoft}"/>
+                    <SolidColorBrush x:Key="DbConnectContentBrush"          Color="{DynamicResource DbConnect.Color.Text}"/>
+                    <SolidColorBrush x:Key="DbConnectMutedBrush"            Color="{DynamicResource DbConnect.Color.TextMuted}"/>
+                    <SolidColorBrush x:Key="DbConnectOverlayBrush"          Color="{DynamicResource DbConnect.Color.Surface}"/>
+                    <SolidColorBrush x:Key="DbConnectWarningBgBrush"        Color="#FFF3CD"/>
+                    <SolidColorBrush x:Key="DbConnectWarningFgBrush"        Color="#7A5A1E"/>
+                    <SolidColorBrush x:Key="DbConnectWarningBorderBrush"    Color="#FBC02D"/>
+                    <SolidColorBrush x:Key="DbConnectInfoBgBrush"           Color="#FAFAFA"/>
+                    <SolidColorBrush x:Key="DbConnectCodeBgBrush"           Color="{DynamicResource DbConnect.Color.Surface}"/>
+                    <SolidColorBrush x:Key="DbConnectCodeFgBrush"           Color="{DynamicResource DbConnect.Color.Text}"/>
+                    <SolidColorBrush x:Key="DbConnectSnippetBgBrush"        Color="#ECECEC"/>
+                    <SolidColorBrush x:Key="DbConnectInfoNoteBrush"         Color="#D1ECF1"/>
+                    <SolidColorBrush x:Key="DbConnectNoteYellowBgBrush"     Color="#FFF9C4"/>
+                    <SolidColorBrush x:Key="DbConnectNoteYellowBorderBrush" Color="#FBC02D"/>
+                    <SolidColorBrush x:Key="DbConnectSuccessBgBrush"        Color="#D4EDDA"/>
+                    <SolidColorBrush x:Key="DbConnectSelectedRowBrush"      Color="{DynamicResource DbConnect.Color.Selection}"/>
+                    <SolidColorBrush x:Key="DbConnectModifiedRowBrush"      Color="{DynamicResource DbConnect.Color.DirtyBg}"/>
+                    <SolidColorBrush x:Key="DbConnectInsertedRowBrush"      Color="{DynamicResource DbConnect.Color.NewRowBg}"/>
+                    <SolidColorBrush x:Key="DbConnectDeletedRowBrush"       Color="#F8D7DA"/>
+                    <SolidColorBrush x:Key="DbConnectErrorBgBrush"          Color="#F8D7DA"/>
+                    <SolidColorBrush x:Key="DbConnectDangerBrush"          Color="#CC2200"/>
+                    <SolidColorBrush x:Key="DbConnectLinkBrush"             Color="#1A6EC8"/>
+                    <SolidColorBrush x:Key="DbConnectBorderBrush"           Color="{DynamicResource DbConnect.Color.Border}"/>
+                    <SolidColorBrush x:Key="DbConnectSuccessBrush"          Color="#1E7E34"/>
+                    <SolidColorBrush x:Key="DbConnectInfoBannerBrush"       Color="#1C4A8C"/>
+                    <SolidColorBrush x:Key="DbConnectPrimaryKeyBrush"       Color="#E6A817"/>
+                    <SolidColorBrush x:Key="DbConnectOnAccentBrush"         Color="#FFFFFF"/>
+                    <!-- Filled danger buttons (Button.danger): white text stays at 4.5:1 or more in every state. -->
+                    <SolidColorBrush x:Key="DbConnectDangerFillBrush"         Color="#CC2200"/>
+                    <!-- SQL editor overlays: error underline, running statement and matching bracket. -->
+                    <SolidColorBrush x:Key="DbConnectEditorErrorUnderlineBrush"     Color="#E64646"/>
+                    <SolidColorBrush x:Key="DbConnectEditorRunningStatementBrush"   Color="#50FFBE3C"/>
+                    <SolidColorBrush x:Key="DbConnectEditorBracketMatchBrush"       Color="#645096E6"/>
+                    <SolidColorBrush x:Key="DbConnectEditorBracketMatchBorderBrush" Color="#326EBE"/>
+                    <!-- Diagram lines: ER relationships and Query Builder joins (one colour per join type). -->
+                    <SolidColorBrush x:Key="DbConnectRelationshipBrush"        Color="#6B7A85"/>
+                    <SolidColorBrush x:Key="DbConnectVirtualRelationshipBrush" Color="#2F74E0"/>
+                    <SolidColorBrush x:Key="DbConnectJoinInnerBrush"           Color="#5D6973"/>
+                    <SolidColorBrush x:Key="DbConnectJoinLeftBrush"            Color="#1A6EC8"/>
+                    <SolidColorBrush x:Key="DbConnectJoinRightBrush"           Color="#7B4FC9"/>
+                    <SolidColorBrush x:Key="DbConnectJoinFullBrush"            Color="#C9650A"/>
+                    <SolidColorBrush x:Key="DbConnectJoinCrossBrush"           Color="#9A7B0A"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="DbConnectToolbarBrush"          Color="{DynamicResource DbConnect.Color.Toolbar}"/>
+                    <SolidColorBrush x:Key="DbConnectPanelBrush"            Color="{DynamicResource DbConnect.Color.Panel}"/>
+                    <SolidColorBrush x:Key="DbConnectStatusBarBrush"        Color="{DynamicResource DbConnect.Color.TitleBar}"/>
+                    <SolidColorBrush x:Key="DbConnectDividerBrush"          Color="{DynamicResource DbConnect.Color.BorderSoft}"/>
+                    <SolidColorBrush x:Key="DbConnectSubtleBorderBrush"     Color="{DynamicResource DbConnect.Color.BorderSoft}"/>
+                    <SolidColorBrush x:Key="DbConnectContentBrush"          Color="{DynamicResource DbConnect.Color.Text}"/>
+                    <SolidColorBrush x:Key="DbConnectMutedBrush"            Color="{DynamicResource DbConnect.Color.TextMuted}"/>
+                    <SolidColorBrush x:Key="DbConnectOverlayBrush"          Color="{DynamicResource DbConnect.Color.Surface}"/>
+                    <SolidColorBrush x:Key="DbConnectWarningBgBrush"        Color="#3D3000"/>
+                    <SolidColorBrush x:Key="DbConnectWarningFgBrush"        Color="#FFD700"/>
+                    <SolidColorBrush x:Key="DbConnectWarningBorderBrush"    Color="#7D6000"/>
+                    <SolidColorBrush x:Key="DbConnectInfoBgBrush"           Color="#252526"/>
+                    <SolidColorBrush x:Key="DbConnectCodeBgBrush"           Color="{DynamicResource DbConnect.Color.Surface}"/>
+                    <SolidColorBrush x:Key="DbConnectCodeFgBrush"           Color="{DynamicResource DbConnect.Color.Text}"/>
+                    <SolidColorBrush x:Key="DbConnectSnippetBgBrush"        Color="#2D2D30"/>
+                    <SolidColorBrush x:Key="DbConnectInfoNoteBrush"         Color="#1A3A45"/>
+                    <SolidColorBrush x:Key="DbConnectNoteYellowBgBrush"     Color="#3D3000"/>
+                    <SolidColorBrush x:Key="DbConnectNoteYellowBorderBrush" Color="#7D6000"/>
+                    <SolidColorBrush x:Key="DbConnectSuccessBgBrush"        Color="#1A3D2B"/>
+                    <SolidColorBrush x:Key="DbConnectSelectedRowBrush"      Color="{DynamicResource DbConnect.Color.Selection}"/>
+                    <SolidColorBrush x:Key="DbConnectModifiedRowBrush"      Color="{DynamicResource DbConnect.Color.DirtyBg}"/>
+                    <SolidColorBrush x:Key="DbConnectInsertedRowBrush"      Color="{DynamicResource DbConnect.Color.NewRowBg}"/>
+                    <SolidColorBrush x:Key="DbConnectDeletedRowBrush"       Color="#3D1A1A"/>
+                    <SolidColorBrush x:Key="DbConnectErrorBgBrush"          Color="#3D1A1A"/>
+                    <SolidColorBrush x:Key="DbConnectDangerBrush"          Color="#FF6B5A"/>
+                    <SolidColorBrush x:Key="DbConnectLinkBrush"             Color="#5BA3F5"/>
+                    <SolidColorBrush x:Key="DbConnectBorderBrush"           Color="{DynamicResource DbConnect.Color.Border}"/>
+                    <SolidColorBrush x:Key="DbConnectSuccessBrush"          Color="#4CAF50"/>
+                    <SolidColorBrush x:Key="DbConnectInfoBannerBrush"       Color="#1E4E8C"/>
+                    <SolidColorBrush x:Key="DbConnectPrimaryKeyBrush"       Color="#F5B942"/>
+                    <SolidColorBrush x:Key="DbConnectOnAccentBrush"         Color="#FFFFFF"/>
+                    <!-- Filled danger buttons (Button.danger): white text stays at 4.5:1 or more in every state. -->
+                    <SolidColorBrush x:Key="DbConnectDangerFillBrush"         Color="#B3261E"/>
+                    <SolidColorBrush x:Key="DbConnectEditorErrorUnderlineBrush"     Color="#F14C4C"/>
+                    <SolidColorBrush x:Key="DbConnectEditorRunningStatementBrush"   Color="#40FFBE3C"/>
+                    <SolidColorBrush x:Key="DbConnectEditorBracketMatchBrush"       Color="#505BA3F5"/>
+                    <SolidColorBrush x:Key="DbConnectEditorBracketMatchBorderBrush" Color="#5BA3F5"/>
+                    <SolidColorBrush x:Key="DbConnectRelationshipBrush"        Color="#9AA7B0"/>
+                    <SolidColorBrush x:Key="DbConnectVirtualRelationshipBrush" Color="#6FA8FF"/>
+                    <SolidColorBrush x:Key="DbConnectJoinInnerBrush"           Color="#C7D1DA"/>
+                    <SolidColorBrush x:Key="DbConnectJoinLeftBrush"            Color="#5BA3F5"/>
+                    <SolidColorBrush x:Key="DbConnectJoinRightBrush"           Color="#B39DDB"/>
+                    <SolidColorBrush x:Key="DbConnectJoinFullBrush"            Color="#FFB74D"/>
+                    <SolidColorBrush x:Key="DbConnectJoinCrossBrush"           Color="#E0C04D"/>
+                </ResourceDictionary>
+
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>

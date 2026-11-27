@@ -1,0 +1,178 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:models="using:DbConnect.Models"
+        xmlns:views="using:DbConnect.Views"
+        x:Class="DbConnect.Views.CsvImportWizardView"
+        x:DataType="vm:CsvImportWizardViewModel"
+        Title="Import CSV"
+        Width="680" Height="600" MinWidth="560" MinHeight="460"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Step band -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <Panel>
+                <TextBlock Classes="section-header" Text="Step 1 of 2: Select File" IsVisible="{Binding IsStepPickFile}"/>
+                <TextBlock Classes="section-header" Text="Step 2 of 2: Configure Columns" IsVisible="{Binding IsStepConfigureColumns}"/>
+                <TextBlock Classes="section-header" Text="Importing" IsVisible="{Binding IsStepExecuting}"/>
+                <TextBlock Classes="section-header" Text="Import Complete" IsVisible="{Binding IsStepDone}"/>
+            </Panel>
+        </Border>
+
+        <Panel Grid.Row="1" Margin="16,16,16,0">
+
+        <!-- Step: Pick File -->
+        <StackPanel Spacing="12" IsVisible="{Binding IsStepPickFile}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding FilePath}" Watermark="CSV file path…" IsReadOnly="True"/>
+                <Button Grid.Column="1" Content="Browse…" Command="{Binding BrowseFileCommand}"/>
+            </Grid>
+
+            <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Delimiter:"/>
+                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding DelimiterOptions}" SelectedIndex="{Binding DelimiterIndex}" Width="160"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Import mode:"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ImportModeOptions}" SelectedItem="{Binding ImportMode}" Width="160"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Table name:"
+                           IsVisible="{Binding IsNewTableMode}"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewTableName}" IsVisible="{Binding IsNewTableMode}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Existing table:"
+                           IsVisible="{Binding !IsNewTableMode}"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ExistingTableName}" IsVisible="{Binding !IsNewTableMode}"/>
+
+                <CheckBox Grid.Row="3" Grid.Column="1" Content="First row is header" IsChecked="{Binding HasHeaderRow}"/>
+            </Grid>
+
+            <CheckBox Content="Truncate table before import" IsChecked="{Binding TruncateBeforeImport}"
+                      IsVisible="{Binding !IsNewTableMode}"/>
+
+            <TextBlock Classes="warning-text" Text="{Binding StatusMessage}" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Step: Configure Columns -->
+        <Grid RowDefinitions="Auto,*,Auto,Auto,Auto,Auto" IsVisible="{Binding IsStepConfigureColumns}">
+            <TextBlock Grid.Row="0" Classes="muted" Text="{Binding DetectionSummary}" Margin="0,0,0,8"/>
+
+            <views:EmptyState Grid.Row="1" Icon="TableSearch" Title="No columns detected"
+                              Message="DbConnect found no columns in this file. Go back and check the file and its delimiter."
+                              IsVisible="{Binding !ColumnSpecs.Count}"/>
+            <DataGrid Grid.Row="1"
+                      IsVisible="{Binding !!ColumnSpecs.Count}"
+                      ItemsSource="{Binding ColumnSpecs}"
+                      AutoGenerateColumns="False"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="False"
+                      MinHeight="160">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Header="Include" Binding="{Binding Include}" Width="SizeToHeader" MinWidth="80"/>
+                    <DataGridTextColumn Header="CSV Column" Binding="{Binding CsvHeader}" Width="160" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Target Column" Binding="{Binding TargetColumnName}" Width="160"/>
+                    <DataGridTextColumn Header="Detected Type" Binding="{Binding DetectedType}" Width="SizeToHeader" MinWidth="120" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="Override Type" Width="SizeToHeader" MinWidth="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:CsvColumnSpec">
+                                <TextBlock Text="{Binding OverrideType}" VerticalAlignment="Center" Margin="8,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate x:DataType="models:CsvColumnSpec">
+                                <ComboBox ItemsSource="{Binding $parent[Window].((vm:CsvImportWizardViewModel)DataContext).ColumnTypeOptions}"
+                                          SelectedItem="{Binding OverrideType}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock Grid.Row="2" Classes="section-header" Text="DDL Preview" Margin="0,8,0,4"
+                       IsVisible="{Binding IsNewTableMode}"/>
+            <TextBox Grid.Row="3" Classes="code"
+                     Text="{Binding PreviewDdl}"
+                     IsReadOnly="True"
+                     Height="100"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding IsNewTableMode}"/>
+            <TextBlock Grid.Row="4" Classes="warning-text" Text="{Binding StatusMessage}" TextWrapping="Wrap"/>
+            <StackPanel Grid.Row="5" Spacing="4" Margin="0,8,0,0">
+                <TextBlock Classes="section-header" Text="Data preview (up to 20 records)"/>
+                <TextBlock Classes="muted" Text="No records to preview: the file has a header but no data rows."
+                           IsVisible="{Binding !PreviewRows.Count}"/>
+                <ScrollViewer MaxHeight="120" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                              IsVisible="{Binding !!PreviewRows.Count}">
+                    <ItemsControl ItemsSource="{Binding PreviewRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:CompileBindings="False">
+                                <ItemsControl ItemsSource="{Binding}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,0,1,1" Padding="4,2">
+                                                <TextBlock Text="{Binding}" MinWidth="100"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+        </Grid>
+
+        <!-- Step: Executing -->
+        <StackPanel Spacing="8" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    IsVisible="{Binding IsStepExecuting}">
+            <ProgressBar IsIndeterminate="True" Width="200"/>
+            <TextBlock Text="Importing data, please wait…" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Step: Done -->
+        <StackPanel Spacing="8" VerticalAlignment="Center"
+                    IsVisible="{Binding IsStepDone}">
+            <TextBlock Text="{Binding StatusMessage}"/>
+            <TextBlock Classes="error-text" Text="{Binding ImportError}" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        </Panel>
+
+        <!-- Button row. A wizard keeps Back before Next (as Navicat's wizards do); Next is the default, Cancel
+             (Close once done) closes. The import-warning choices sit apart on the left. -->
+        <Border Grid.Row="2" Classes="dialog-footer" Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+            <DockPanel>
+                <StackPanel Classes="start">
+                    <Button Name="CancelImportWarning" Content="Don't import" Command="{Binding CancelImportWarningCommand}"
+                            IsVisible="{Binding HasImportWarning}"/>
+                    <Button Name="ProceedAnyway" Classes="danger" Content="Proceed anyway" Command="{Binding ProceedAnywayCommand}"
+                            IsVisible="{Binding HasImportWarning}"/>
+                </StackPanel>
+                <StackPanel>
+                    <Button Content="Back"
+                            Command="{Binding PreviousStepCommand}"
+                            IsVisible="{Binding IsStepConfigureColumns}"/>
+                    <Button Content="Next" Classes="primary" IsDefault="True"
+                            Command="{Binding NextStepCommand}"
+                            IsVisible="{Binding IsNotDone}"
+                            IsEnabled="{Binding !IsStepExecuting}"/>
+                    <Button Content="Cancel" IsCancel="True"
+                            IsVisible="{Binding IsNotDone}"
+                            IsEnabled="{Binding !IsStepExecuting}"
+                            Click="Close_Click"/>
+                    <Button Content="Close" Classes="primary" IsDefault="True" IsCancel="True"
+                            IsVisible="{Binding IsStepDone}"
+                            Click="Close_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+    </Grid>
+</Window>

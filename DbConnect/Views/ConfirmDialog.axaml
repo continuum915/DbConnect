@@ -1,0 +1,20 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.ConfirmDialog"
+        Title="Confirm"
+        Width="460"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- The confirm button may be destructive, so Cancel is the default: Enter never confirms by accident. -->
+    <StackPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap"/>
+        <Border Classes="dialog-footer">
+            <StackPanel>
+                <Button x:Name="ConfirmButton" Classes="danger" Click="Confirm_Click"/>
+                <Button x:Name="CancelButton" Click="Cancel_Click" IsCancel="True" IsDefault="True"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

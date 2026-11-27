@@ -1,0 +1,7 @@
+<!-- Popup menus: surface with the dialog border (FluentOverrides.axaml), square corners. -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="ContextMenu">
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+</Styles>

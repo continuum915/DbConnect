@@ -1,0 +1,350 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             xmlns:views="using:DbConnect.Views"
+             x:Class="DbConnect.Views.ErDiagramView"
+             x:DataType="vm:ErDiagramViewModel">
+    <UserControl.Styles>
+        <!-- Relationship lines and cardinality markers are drawn in code-behind; their colours follow the theme here. -->
+        <Style Selector="Canvas#LiveRelationshipCanvas > :is(Shape)">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectRelationshipBrush}"/>
+        </Style>
+        <Style Selector="Canvas#VirtualRelationshipCanvas > :is(Shape)">
+            <Setter Property="Stroke" Value="{DynamicResource DbConnectVirtualRelationshipBrush}"/>
+        </Style>
+        <Style Selector="Canvas > Ellipse">
+            <Setter Property="Fill" Value="{DynamicResource DbConnectPanelBrush}"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal" ItemSpacing="4" LineSpacing="4">
+                <Button Classes="toolbar" Command="{Binding LoadDiagramCommand}" ToolTip.Tip="Reload the diagram from the schema">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                        <TextBlock Text="Load Diagram"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Click="ExportDiagram_Click" ToolTip.Tip="Export the diagram as an image">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowExportUp"/>
+                        <TextBlock Text="Export Diagram"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Click="OpenModel_Click" ToolTip.Tip="Open a saved model">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="FolderOpen"/>
+                        <TextBlock Text="Open Model"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Click="SaveModel_Click" ToolTip.Tip="Save the model to a file">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Save"/>
+                        <TextBlock Text="Save Model"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <ToggleButton Classes="toolbar" IsChecked="{Binding IsDesignMode, Mode=TwoWay}" ToolTip.Tip="Edit the model: add tables and relationships">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Edit"/>
+                        <TextBlock Text="Design Mode"/>
+                    </StackPanel>
+                </ToggleButton>
+                <ToggleButton Classes="toolbar" IsChecked="{Binding IsRelationshipMode, Mode=TwoWay}"
+                              IsVisible="{Binding IsDesignMode}"
+                              ToolTip.Tip="Drag from one column to another to relate them">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Link"/>
+                        <TextBlock Text="Draw Relationship"/>
+                    </StackPanel>
+                </ToggleButton>
+                <Button Classes="toolbar" Command="{Binding AddVirtualTableCommand}"
+                        IsVisible="{Binding IsDesignMode}"
+                        ToolTip.Tip="Add a table to the model">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="TableAdd"/>
+                        <TextBlock Text="Add Table"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding SyncToDatabaseCommand}"
+                        IsVisible="{Binding IsDesignMode}"
+                        ToolTip.Tip="Write the model's changes to the database">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="DatabaseArrowUp"/>
+                        <TextBlock Text="Sync to DB"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <TextBox Text="{Binding SearchText, Mode=TwoWay}"
+                         Watermark="Filter tables…"
+                         Width="180"/>
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" Width="80" VerticalAlignment="Center"/>
+                <Border Classes="banner warning inline" IsVisible="{Binding HasUnsavedModelChanges}">
+                    <TextBlock Text="Unsaved model changes"/>
+                </Border>
+            </WrapPanel>
+        </Border>
+
+        <views:SidebarSection Grid.Row="1" Name="HiddenTablesSection" IsExpanded="False" Margin="8,4,8,0"
+                              Header="{Binding HiddenTables.Count, StringFormat=Hidden Tables ({0})}">
+            <ItemsControl ItemsSource="{Binding HiddenTables}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="0,2">
+                            <Button DockPanel.Dock="Right"
+                                    Content="Show"
+                                    Tag="{Binding .}"
+                                    Click="ShowHiddenTable_Click"/>
+                            <TextBlock Text="{Binding .}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </views:SidebarSection>
+
+        <ScrollViewer Grid.Row="2"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+            <Canvas x:Name="DiagramCanvas"
+                    Width="2400"
+                    Height="1800"
+                    Background="Transparent"
+                    PointerPressed="DiagramCanvas_PointerPressed"
+                    DoubleTapped="DiagramCanvas_DoubleTapped">
+                <Canvas.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Add Note" Click="AddNote_Click"/>
+                    </ContextMenu>
+                </Canvas.ContextMenu>
+
+                <Canvas x:Name="LiveRelationshipCanvas"
+                        Width="2400"
+                        Height="1800"
+                        IsHitTestVisible="False"/>
+
+                <Canvas x:Name="VirtualRelationshipCanvas"
+                        Width="2400"
+                        Height="1800"
+                        IsHitTestVisible="False"/>
+
+                <!-- Sized to the canvas: a 0x0 item layer would clip its items. -->
+                <ItemsControl ItemsSource="{Binding VisibleTables}" Width="2400" Height="1800">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <!-- The Canvas positions each item's container, not the template inside it. -->
+                    <ItemsControl.ItemContainerTheme>
+                        <ControlTheme TargetType="ContentPresenter" x:DataType="models:ErTable">
+                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                        </ControlTheme>
+                    </ItemsControl.ItemContainerTheme>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:ErTable">
+                            <Border BorderBrush="{DynamicResource DbConnectDividerBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}"
+                                    Background="{DynamicResource DbConnectPanelBrush}"
+                                    Width="{Binding Width}"
+                                    Loaded="TableNode_Loaded"
+                                    DoubleTapped="TableNode_DoubleTapped">
+                                <Border.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Hide Table" Click="HideTable_Click"/>
+                                        <MenuItem Header="Set Color Group">
+                                            <MenuItem Header="None" Tag="None" Click="SetTableColorGroup_Click"/>
+                                            <MenuItem Header="Red" Tag="Red" Click="SetTableColorGroup_Click"/>
+                                            <MenuItem Header="Blue" Tag="Blue" Click="SetTableColorGroup_Click"/>
+                                            <MenuItem Header="Green" Tag="Green" Click="SetTableColorGroup_Click"/>
+                                            <MenuItem Header="Yellow" Tag="Yellow" Click="SetTableColorGroup_Click"/>
+                                            <MenuItem Header="Purple" Tag="Purple" Click="SetTableColorGroup_Click"/>
+                                            <MenuItem Header="Orange" Tag="Orange" Click="SetTableColorGroup_Click"/>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+                                <StackPanel>
+                                    <Border x:Name="TableHeaderBorder"
+                                            Background="{DynamicResource DbConnectToolbarBrush}"
+                                            Padding="8,4"
+                                            PointerPressed="TableHeader_PointerPressed"
+                                            PointerMoved="DragHandle_PointerMoved"
+                                            PointerReleased="DragHandle_PointerReleased">
+                                        <TextBlock Text="{Binding TableName}" FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}"/>
+                                    </Border>
+                                    <ItemsControl ItemsSource="{Binding Columns}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:ErColumn">
+                                                <Border Padding="4,2"
+                                                        PointerPressed="ColumnLink_PointerPressed"
+                                                        PointerReleased="ColumnLink_PointerReleased">
+                                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                                        <fi:SymbolIcon Grid.Column="0"
+                                                                       Symbol="Key"
+                                                                       IsVisible="{Binding IsPrimaryKey}"
+                                                                       FontSize="{DynamicResource DbConnect.Icon.Inline}"
+                                                                       Foreground="{DynamicResource DbConnectPrimaryKeyBrush}"
+                                                                       Margin="0,0,4,0"/>
+                                                        <TextBlock Grid.Column="1" Classes="caption" Text="{Binding Name}"/>
+                                                        <TextBlock Grid.Column="2" Classes="caption muted"
+                                                                   Text="{Binding DataType}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ItemsControl ItemsSource="{Binding Notes}" Width="2400" Height="1800">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <!-- The Canvas positions each item's container, not the template inside it. -->
+                    <ItemsControl.ItemContainerTheme>
+                        <ControlTheme TargetType="ContentPresenter" x:DataType="models:DiagramNote">
+                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                        </ControlTheme>
+                    </ItemsControl.ItemContainerTheme>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:DiagramNote">
+                            <Border Background="{DynamicResource DbConnectNoteYellowBgBrush}"
+                                    BorderBrush="{DynamicResource DbConnectNoteYellowBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}"
+                                    Width="{Binding Width}">
+                                <Grid RowDefinitions="Auto,*">
+                                    <Border Background="{DynamicResource DbConnectNoteYellowBorderBrush}"
+                                            Padding="8,2"
+                                            PointerPressed="NoteHeader_PointerPressed"
+                                            PointerMoved="DragHandle_PointerMoved"
+                                            PointerReleased="DragHandle_PointerReleased">
+                                        <TextBlock Classes="caption" Text="Note"/>
+                                    </Border>
+                                    <TextBox Grid.Row="1"
+                                             Text="{Binding Text, Mode=TwoWay}"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             MinHeight="60"
+                                             Padding="8"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border x:CompileBindings="False"
+                        Canvas.Left="{Binding ColumnEditorX}"
+                        Canvas.Top="{Binding ColumnEditorY}"
+                        IsVisible="{Binding IsColumnEditorOpen}"
+                        BorderBrush="{DynamicResource DbConnectDividerBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}"
+                        Background="{DynamicResource DbConnectPanelBrush}"
+                        Width="460"
+                        MaxHeight="360"
+                        ZIndex="100">
+                    <Grid RowDefinitions="Auto,*,Auto" Margin="8">
+                        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,8">
+                            <TextBlock Classes="section-header" Text="Column Editor"/>
+                            <TextBox Text="{Binding EditingVirtualTable.Name, Mode=TwoWay}" Watermark="Table name"/>
+                        </StackPanel>
+
+                        <views:EmptyState Grid.Row="1" Icon="TableAdd" Title="No columns yet"
+                                          Message="Add Column adds the first one."
+                                          IsVisible="{Binding !EditingColumns.Count}"/>
+                        <DataGrid Grid.Row="1"
+                                  IsVisible="{Binding !!EditingColumns.Count}"
+                                  ItemsSource="{Binding EditingColumns}"
+                                  SelectedItem="{Binding SelectedEditingColumn, Mode=TwoWay}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="False"
+                                  x:CompileBindings="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding DataType}" Width="140"/>
+                                <DataGridCheckBoxColumn Header="PK" Binding="{Binding IsPrimaryKey}" Width="SizeToHeader" MinWidth="48"/>
+                                <DataGridCheckBoxColumn Header="Nullable" Binding="{Binding IsNullable}" Width="SizeToHeader" MinWidth="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                            <Button Content="Add Column" Command="{Binding AddEditingColumnCommand}"/>
+                            <Button Content="Remove Column" Command="{Binding RemoveSelectedColumnCommand}"/>
+                            <Button Content="Apply" Classes="primary" Command="{Binding ApplyColumnEditorCommand}"/>
+                            <Button Content="Close" Command="{Binding CancelColumnEditorCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Canvas>
+        </ScrollViewer>
+
+        <Border Grid.Row="3"
+                IsVisible="{Binding ShowForwardEngineeringScript}"
+                BorderBrush="{DynamicResource DbConnectBorderBrush}"
+                BorderThickness="0,1,0,0"
+                MaxHeight="220">
+            <Grid RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Classes="toolbar">
+                    <TextBlock Classes="section-header" Text="Forward Engineering Script"/>
+                </Border>
+                <ScrollViewer Grid.Row="1">
+                    <TextBox Classes="code"
+                             Text="{Binding ForwardEngineeringScript}"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <views:SidebarSection Grid.Row="4" Name="RelationshipsSection" IsExpanded="False" Margin="8,4,8,0" MaxHeight="200"
+                              Header="Foreign Key Relationships">
+            <Grid>
+                <views:EmptyState Icon="Link" Title="No relationships"
+                                  Message="The tables shown have no foreign keys. In Design Mode, drag from one column to another to add one."
+                                  IsVisible="{Binding !DisplayRelationships.Count}"/>
+                <DataGrid ItemsSource="{Binding DisplayRelationships}"
+                          IsVisible="{Binding !!DisplayRelationships.Count}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="From Table" Binding="{Binding FromTable}" Width="150"/>
+                        <DataGridTextColumn Header="From Column" Binding="{Binding FromColumn}" Width="130"/>
+                        <DataGridTextColumn Header="To Table" Binding="{Binding ToTable}" Width="150"/>
+                        <DataGridTextColumn Header="To Column" Binding="{Binding ToColumn}" Width="130"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </views:SidebarSection>
+
+        <views:EmptyState Grid.Row="2" Icon="Organization" Title="No tables to show"
+                          Message="Load Diagram reads the tables from the schema. If a filter is set, clear it; in Design Mode, Add Table creates a new one."
+                          ActionText="Load Diagram" ActionCommand="{Binding LoadDiagramCommand}">
+            <views:EmptyState.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                    <Binding Path="!VisibleTables.Count"/>
+                    <Binding Path="!IsLoading"/>
+                </MultiBinding>
+            </views:EmptyState.IsVisible>
+        </views:EmptyState>
+
+        <!-- Status, kept apart from the filter box -->
+        <Border Grid.Row="5" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}"
+                BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Name="DiagramStatus" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis"/>
+        </Border>
+    </Grid>
+</UserControl>

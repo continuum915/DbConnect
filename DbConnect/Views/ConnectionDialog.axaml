@@ -1,0 +1,340 @@
+<!-- The connection dialog (the design's ConnectionDialog artboard): one connection's settings in tabs, General /
+     Advanced / Databases / SSL / SSH / HTTP (file databases show only General and Advanced), and a footer with Test
+     Connection and its result, Save, Connect and Cancel. The saved connections stay in the list on the left until the
+     navigator lists closed connections (see issue 09). -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:models="using:DbConnect.Models"
+        xmlns:fi="using:FluentIcons.Avalonia"
+        x:Class="DbConnect.Views.ConnectionDialog"
+        x:DataType="vm:ConnectionDialogViewModel"
+        Title="{Binding SelectedProvider, StringFormat='Connection — {0}'}"
+        Width="900" Height="640" MinWidth="720" MinHeight="520"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <DockPanel>
+                <StackPanel Classes="start">
+                    <Button Name="TestButton" Content="Test Connection" Command="{Binding TestConnectionCommand}"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right">
+                    <Button Content="Save" Command="{Binding SaveConnectionCommand}"
+                            ToolTip.Tip="Save the connection without connecting"/>
+                    <Button Classes="primary" Content="Connect" Click="AddButton_Click" IsDefault="True"
+                            ToolTip.Tip="Save the connection and connect"/>
+                    <Button Content="Cancel" Click="CancelButton_Click" IsCancel="True"/>
+                </StackPanel>
+                <!-- The test result inline: green when it connected, red with the full message in the tooltip when not. -->
+                <StackPanel Classes="test-result" Orientation="Horizontal">
+                    <fi:SymbolIcon Classes="inline role" Tag="IconGreen" Symbol="Checkmark"
+                                   IsVisible="{Binding TestResult.Success, FallbackValue=False}"/>
+                    <TextBlock Name="TestResultText" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis"
+                               Classes.success="{Binding TestResult.Success, FallbackValue=False}"
+                               Classes.failure="{Binding HasTestFailureDetail}"
+                               ToolTip.Tip="{Binding TestResult.Detail, FallbackValue={x:Null}}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Expander DockPanel.Dock="Bottom" Header="Details" IsVisible="{Binding HasTestFailureDetail}" HorizontalAlignment="Stretch">
+            <TextBox Classes="code" Text="{Binding TestResult.Detail, Mode=OneWay}" IsReadOnly="True"
+                     TextWrapping="Wrap" MaxHeight="160"/>
+        </Expander>
+
+        <Grid ColumnDefinitions="200,Auto,*">
+            <!-- Left: saved connections (grouped), with Duplicate and Delete under the list -->
+            <DockPanel Grid.Column="0">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="4" Margin="0,4,0,0">
+                    <Button Classes="toolbar icon" Command="{Binding DuplicateConnectionCommand}"
+                            ToolTip.Tip="Duplicate the selected connection">
+                        <fi:SymbolIcon Symbol="Copy"/>
+                    </Button>
+                    <Button Classes="toolbar icon delete" Command="{Binding DeleteConnectionCommand}"
+                            ToolTip.Tip="Delete the selected connection">
+                        <fi:SymbolIcon Symbol="Delete"/>
+                    </Button>
+                </StackPanel>
+                <Border BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}">
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding GroupedConnections}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ConnectionGroup">
+                                    <Expander IsExpanded="{Binding IsExpanded}" HorizontalAlignment="Stretch">
+                                        <Expander.Header>
+                                            <TextBlock Classes="muted" Text="{Binding GroupName}"
+                                                       FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}"/>
+                                        </Expander.Header>
+                                        <ListBox ItemsSource="{Binding Connections}"
+                                                 SelectedItem="{Binding SelectedConnection}"
+                                                 BorderThickness="0" Background="Transparent">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate x:DataType="models:ConnectionInfo">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <!-- Label colour dot -->
+                                                        <Border Classes="status-dot"
+                                                                IsVisible="{Binding LabelColor, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                                Background="{Binding LabelColor}"/>
+                                                        <TextBlock Classes="caption muted" Text="{Binding Provider}" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Expander>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </DockPanel>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Margin="8,0"/>
+
+            <TabControl Grid.Column="2" Name="ConnectionTabs" Classes="dialog-tabs">
+                <TabItem Header="General">
+                    <ScrollViewer>
+                        <StackPanel Classes="dialog-page" Grid.IsSharedSizeScope="True">
+                            <!-- Provider tile: icon, provider, and Change… -->
+                            <Border Classes="provider-tile">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Change…" VerticalAlignment="Center">
+                                        <Button.Flyout>
+                                            <Flyout Placement="BottomEdgeAlignedRight">
+                                                <ComboBox Name="ProviderPicker" ItemsSource="{Binding AvailableProviders}"
+                                                          SelectedItem="{Binding SelectedProvider}" MinWidth="{DynamicResource DbConnect.Size.Field}"/>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                    <Border Classes="provider-icon">
+                                        <fi:SymbolIcon Classes="role" Tag="IconBlue" Symbol="Database"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Classes="subject-name" Text="{Binding SelectedProvider}"/>
+                                        <TextBlock Classes="muted" Text="A database stored in a single local file" IsVisible="{Binding IsFileProvider}"/>
+                                        <TextBlock Classes="muted" Text="A database server reached over the network" IsVisible="{Binding IsNetworkProvider}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                            <Grid Classes="form" RowDefinitions="Auto">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Connection name"/>
+                                <TextBox Grid.Column="1" Name="ConnectionNameBox" Text="{Binding ConnectionName}" Watermark="My Database"/>
+                            </Grid>
+
+                            <!-- File databases (SQLite / DuckDB) -->
+                            <Grid Classes="form" IsVisible="{Binding IsFileProvider}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Database file"/>
+                                <TextBox Grid.Column="1" Name="DatabaseFileBox" Text="{Binding DatabaseFilePath}" Watermark="/path/to/database.db"/>
+                                <Button Grid.Column="2" Content="Browse…" Click="BrowseButton_Click"/>
+                            </Grid>
+
+                            <!-- Servers -->
+                            <Grid Classes="form" RowDefinitions="Auto,Auto,Auto,Auto,Auto" IsVisible="{Binding IsNetworkProvider}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Host"/>
+                                <TextBox Grid.Column="1" Name="HostBox" Text="{Binding Host}" Watermark="localhost"/>
+                                <TextBlock Grid.Row="1" Text="Port"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Classes="short" Text="{Binding Port}" Watermark="5432 / 1433"/>
+                                <TextBlock Grid.Row="2" Text="Authentication" IsVisible="{Binding Options.HasAuthenticationChoice}"/>
+                                <ComboBox Grid.Row="2" Grid.Column="1" IsVisible="{Binding Options.HasAuthenticationChoice}"
+                                          ItemsSource="{Binding Options.AuthenticationChoices}"
+                                          SelectedItem="{Binding Options.Authentication}" HorizontalAlignment="Stretch"/>
+                                <TextBlock Grid.Row="3" Text="User name" IsVisible="{Binding Options.UsesUsername}"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Name="UsernameBox" IsVisible="{Binding Options.UsesUsername}"
+                                         Text="{Binding Username}" Watermark="postgres"/>
+                                <TextBlock Grid.Row="4" Text="Password" IsVisible="{Binding Options.UsesPassword}"/>
+                                <TextBox Grid.Row="4" Grid.Column="1" IsVisible="{Binding Options.UsesPassword}"
+                                         Text="{Binding Password}" PasswordChar="●" Watermark="••••••••"
+                                         ToolTip.Tip="Saved in the operating system's credential store"/>
+                            </Grid>
+
+                            <Grid Classes="form" RowDefinitions="Auto,Auto,Auto,Auto">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Group"/>
+                                <ComboBox Grid.Column="1" IsEditable="True"
+                                          ItemsSource="{Binding KnownGroups}"
+                                          Text="{Binding ConnectionGroup}"
+                                          HorizontalAlignment="Stretch"/>
+                                <TextBlock Grid.Row="1" Text="Environment"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AvailableEnvironmentTiers}"
+                                          SelectedItem="{Binding SelectedEnvironmentTier}" HorizontalAlignment="Stretch"/>
+                                <TextBlock Grid.Row="2" Text="Color tag"/>
+                                <ListBox Grid.Row="2" Grid.Column="1" Name="ColorTags" Classes="swatches"
+                                         ItemsSource="{Binding LabelColorOptions}" SelectedItem="{Binding SelectedLabelColor}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="models:LabelColorOption">
+                                            <Border Classes="swatch" Background="{Binding Hex, FallbackValue=Transparent, TargetNullValue=Transparent}"
+                                                    ToolTip.Tip="{Binding Name}" AutomationProperties.Name="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <CheckBox Grid.Row="3" Grid.Column="1" Content="Read-only connection" IsChecked="{Binding Options.IsReadOnly}"
+                                          ToolTip.Tip="{Binding Options.ReadOnlyEnforcement, StringFormat='DbConnect refuses SQL that may change data. {0}'}"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="Advanced">
+                    <ScrollViewer>
+                        <Grid Classes="form dialog-page" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Connect timeout (s)" IsVisible="{Binding Options.SupportsConnectTimeout}"/>
+                            <TextBox Grid.Column="1" Classes="short" IsVisible="{Binding Options.SupportsConnectTimeout}"
+                                     Text="{Binding Options.ConnectTimeout}" Watermark="driver default"/>
+                            <TextBlock Grid.Row="1" Text="Command timeout (s)"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Classes="short"
+                                     Text="{Binding Options.CommandTimeout}" Watermark="Preferences default"/>
+                            <TextBlock Grid.Row="2" Text="Keepalive interval (s)" IsVisible="{Binding Options.SupportsKeepAlive}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Classes="short" IsVisible="{Binding Options.SupportsKeepAlive}"
+                                     Text="{Binding Options.KeepAlive}" Watermark="off"/>
+                            <TextBlock Grid.Row="3" Text="Default schema" IsVisible="{Binding Options.SupportsDefaultSchema}"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" IsVisible="{Binding Options.SupportsDefaultSchema}"
+                                     Text="{Binding Options.DefaultSchema}" Watermark="server default"/>
+                            <TextBlock Grid.Row="4" Text="Driver properties" VerticalAlignment="Top"
+                                       ToolTip.Tip="Additional driver properties, one key=value per line"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Name="DriverPropertiesBox" Classes="code" Text="{Binding Options.AdditionalProperties}"
+                                     AcceptsReturn="True" Height="60" Watermark="Application Name=DbConnect"
+                                     ToolTip.Tip="Additional driver properties, one key=value per line"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Classes="caption muted hint" Text="One key=value per line."/>
+                            <TextBlock Grid.Row="6" Text="Startup SQL" VerticalAlignment="Top"/>
+                            <TextBox Grid.Row="6" Grid.Column="1" Name="StartupSqlBox" Classes="code" Text="{Binding Options.StartupSql}"
+                                     AcceptsReturn="True" Height="60" Watermark="SET ..."/>
+                            <TextBlock Grid.Row="7" Grid.Column="1" Classes="caption muted hint" Text="Runs on every new query or table session."/>
+                            <TextBlock Grid.Row="8" Grid.Column="1" Classes="error-text hint" Text="{Binding Options.Error}"
+                                       IsVisible="{Binding Options.Error, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="Databases" IsVisible="{Binding IsNetworkProvider}">
+                    <StackPanel Classes="dialog-page">
+                        <Grid Classes="form" RowDefinitions="Auto">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Default database"/>
+                            <TextBox Grid.Column="1" Name="DatabaseBox" Text="{Binding Database}" Watermark="my_database"/>
+                        </Grid>
+                        <RadioButton GroupName="DatabaseScope" Content="Show all databases on the server (the default database opens first)"
+                                     IsChecked="{Binding ShowAllDatabases}" IsVisible="{Binding SupportsServerDatabases}"/>
+                        <RadioButton GroupName="DatabaseScope" Content="Show only the default database" IsChecked="{Binding !ShowAllDatabases, Mode=OneWay}"
+                                     IsVisible="{Binding SupportsServerDatabases}"/>
+                        <RadioButton GroupName="DatabaseScope" Content="Show only these databases in the navigator" IsEnabled="False"
+                                     ToolTip.ShowOnDisabled="True" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}"
+                                     IsVisible="{Binding SupportsServerDatabases}"/>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="SSL" Name="SslTab" IsVisible="{Binding IsNetworkProvider}">
+                    <Grid Classes="form dialog-page" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Certificate-capable SSL options -->
+                        <TextBlock Text="SSL mode:" IsVisible="{Binding HasCertificateSslModes}"/>
+                        <ComboBox Grid.Column="1" IsVisible="{Binding HasCertificateSslModes}"
+                                  ItemsSource="{Binding SslModes}" SelectedItem="{Binding SslMode}"
+                                  HorizontalAlignment="Stretch"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Classes="caption muted hint"
+                                   IsVisible="{Binding ShowsVerifyFullSslHint}"
+                                   Text="VerifyFull verifies the server certificate and hostname. Require skips certificate verification for development servers."/>
+                        <TextBlock Grid.Row="2" Text="Client certificate:" IsVisible="{Binding SupportsClientCertificate}"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" IsVisible="{Binding SupportsClientCertificate}"
+                                 Text="{Binding SslClientCertPath}"
+                                 Name="SslClientCertificate" Watermark="Path to client certificate (optional)"/>
+                        <TextBlock Grid.Row="3" Text="CA certificate:" IsVisible="{Binding SupportsCaCertificate}"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" IsVisible="{Binding SupportsCaCertificate}"
+                                 Text="{Binding SslCaCertPath}"
+                                 Name="SslCaCertificate" Watermark="Path to CA certificate (optional)"/>
+                        <TextBlock Grid.Row="4" Text="Client key:" IsVisible="{Binding SupportsClientKey}"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" IsVisible="{Binding SupportsClientKey}"
+                                 Name="SslClientKey" Text="{Binding SslClientKeyPath}" Watermark="Path to client private key (optional)"/>
+                        <!-- SQL Server SSL options -->
+                        <TextBlock Grid.Row="5" Text="Encryption:" IsVisible="{Binding UsesEncryptionOptions}"/>
+                        <ComboBox Grid.Row="5" Grid.Column="1" IsVisible="{Binding UsesEncryptionOptions}"
+                                  ItemsSource="{Binding SqlServerSslModes}" SelectedItem="{Binding SqlServerSslMode}"
+                                  HorizontalAlignment="Stretch"/>
+                        <CheckBox Grid.Row="6" Grid.Column="1" IsVisible="{Binding UsesEncryptionOptions}"
+                                  Content="Trust server certificate (skip verification)"
+                                  IsChecked="{Binding TrustServerCertificate}"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="SSH" IsVisible="{Binding IsNetworkProvider}">
+                    <StackPanel Classes="dialog-page">
+                        <CheckBox Content="Use SSH tunnel" IsChecked="{Binding UseSshTunnel}"/>
+                        <Grid Classes="form" IsEnabled="{Binding UseSshTunnel}" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="SSH host:"/>
+                            <TextBox Grid.Column="1" Text="{Binding SshHost}" Watermark="bastion.example.com"/>
+                            <TextBlock Grid.Row="1" Text="SSH port:"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Classes="short" Text="{Binding SshPort}" Watermark="22"/>
+                            <TextBlock Grid.Row="2" Text="SSH username:"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SshUsername}" Watermark="ec2-user"/>
+                            <TextBlock Grid.Row="3" Text="Auth method:"/>
+                            <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding SshAuthMethods}"
+                                      SelectedItem="{Binding SshAuthMethod}" HorizontalAlignment="Stretch"/>
+                            <!-- Password auth -->
+                            <TextBlock Grid.Row="4" Text="SSH password:" IsVisible="{Binding SshAuthIsPassword}"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" IsVisible="{Binding SshAuthIsPassword}"
+                                     Text="{Binding SshPassword}" PasswordChar="●"
+                                     Watermark="Stored securely in credential store"/>
+                            <!-- Private key auth -->
+                            <TextBlock Grid.Row="5" Text="Private key:" IsVisible="{Binding SshAuthIsPrivateKey}"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" IsVisible="{Binding SshAuthIsPrivateKey}"
+                                     Text="{Binding SshPrivateKeyPath}" Watermark="~/.ssh/id_rsa"/>
+                            <TextBlock Grid.Row="6" Text="Passphrase:" IsVisible="{Binding SshAuthIsPrivateKey}"/>
+                            <TextBox Grid.Row="6" Grid.Column="1" IsVisible="{Binding SshAuthIsPrivateKey}"
+                                     Text="{Binding SshPrivateKeyPassphrase}" PasswordChar="●"
+                                     Watermark="Stored securely in credential store"/>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="HTTP" IsVisible="{Binding IsNetworkProvider}">
+                    <Grid Classes="form dialog-page" RowDefinitions="Auto,Auto">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="1" Content="Use HTTP tunnel" IsEnabled="False"
+                                  ToolTip.ShowOnDisabled="True" ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}"/>
+                        <TextBlock Grid.Row="1" Text="Tunnel URL"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" IsEnabled="False" Watermark="https://example.com/tunnel.php"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

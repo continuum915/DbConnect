@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             x:Class="DbConnect.Views.TableChoiceList"
+             x:DataType="vm:ITableChoices">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Content="Select All" Command="{Binding SelectAllCommand}"/>
+                <Button Content="Select None" Command="{Binding SelectNoneCommand}"/>
+            </StackPanel>
+            <TextBlock Text="{Binding TablesCaption}" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <ListBox ItemsSource="{Binding Tables}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ExportTableChoice">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <!-- A TextBlock, not string content: table names contain underscores, which access text would eat. -->
+                        <CheckBox IsChecked="{Binding IsSelected}">
+                            <TextBlock Text="{Binding Name}"/>
+                        </CheckBox>
+                        <TextBlock Grid.Column="1" Classes="muted" Text="{Binding Result}" VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.GoToLineDialog"
+        Title="Go to Line"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+            <TextBlock Text="Line:"/>
+            <TextBox Grid.Column="1" Name="LineNumberBox" Watermark="Line number" MinWidth="160"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Name="ErrorText" Foreground="{DynamicResource DbConnectDangerBrush}"
+                       TextWrapping="Wrap" IsVisible="False"/>
+        </Grid>
+        <Border Classes="dialog-footer">
+            <StackPanel>
+                <Button Name="OkButton" Classes="primary" Content="Go" IsDefault="True"/>
+                <Button Name="CancelButton" Content="Cancel" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+
+</Window>

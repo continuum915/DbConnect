@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:models="using:DbConnect.Models"
+        x:Class="DbConnect.Views.GlobalSearchOverlay"
+        x:DataType="vm:GlobalSearchViewModel"
+        Title="Search Everywhere"
+        Width="640" Height="440" MinWidth="440" MinHeight="280"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <!-- No footer: Enter opens the highlighted result and Esc closes (code-behind). -->
+    <Grid RowDefinitions="Auto,*" Margin="{DynamicResource DbConnect.Thickness.Dialog}" RowSpacing="8">
+
+        <TextBox Grid.Row="0" Classes="search"
+                 Name="SearchBox"
+                 Text="{Binding SearchText}"
+                 Watermark="Search tables, views, columns, connections…"/>
+
+        <ListBox Grid.Row="1"
+                 Name="ResultsList"
+                 ItemsSource="{Binding Results}"
+                 SelectedItem="{Binding SelectedResult, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="models:GlobalSearchResult">
+                    <Grid ColumnDefinitions="70,8,*,8,Auto,8,Auto">
+                        <TextBlock Grid.Column="0"
+                                   Classes="caption muted"
+                                   Text="{Binding ObjectType}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding ObjectName}"
+                                   FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="4"
+                                   Classes="caption muted"
+                                   Text="{Binding SchemaName}"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding SchemaName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        <TextBlock Grid.Column="6"
+                                   Classes="caption muted"
+                                   Text="{Binding ConnectionName}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+    </Grid>
+</Window>

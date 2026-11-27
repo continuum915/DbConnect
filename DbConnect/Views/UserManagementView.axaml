@@ -1,0 +1,112 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.UserManagementView"
+             x:DataType="vm:UserManagementViewModel">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar" Command="{Binding LoadUsersCommand}" ToolTip.Tip="Reload users and roles">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                        <TextBlock Text="Refresh"/>
+                    </StackPanel>
+                </Button>
+                <Separator IsVisible="{Binding SupportsUserWrite}"/>
+                <Button Classes="toolbar" Command="{Binding CreateUserCommand}"
+                        IsVisible="{Binding SupportsUserWrite}"
+                        ToolTip.Tip="Create a user">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="PersonAdd"/>
+                        <TextBlock Text="Create User"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding DropUserCommand}"
+                        IsVisible="{Binding SupportsUserWrite}"
+                        IsEnabled="{Binding HasSelectedUser}"
+                        ToolTip.Tip="Drop the selected user">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="PersonDelete"/>
+                        <TextBlock Text="Drop User"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding ChangePasswordCommand}"
+                        IsVisible="{Binding SupportsUserWrite}"
+                        IsEnabled="{Binding HasSelectedUser}"
+                        ToolTip.Tip="Change the selected user's password">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Key"/>
+                        <TextBlock Text="Change Password"/>
+                    </StackPanel>
+                </Button>
+                <Separator IsVisible="{Binding SupportsUserWrite}"/>
+                <Button Classes="toolbar" Command="{Binding GrantPrivilegeCommand}"
+                        IsVisible="{Binding SupportsUserWrite}"
+                        IsEnabled="{Binding HasSelectedUser}"
+                        ToolTip.Tip="Grant a privilege to the selected user">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ShieldAdd"/>
+                        <TextBlock Text="Grant Privilege"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding RevokePrivilegeCommand}"
+                        IsVisible="{Binding SupportsUserWrite}"
+                        IsEnabled="{Binding HasSelectedPermission}"
+                        ToolTip.Tip="Revoke the selected privilege">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ShieldDismiss"/>
+                        <TextBlock Text="Revoke Privilege"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="220,5,*">
+            <ListBox Grid.Column="0"
+                     ItemsSource="{Binding Users}"
+                     SelectedItem="{Binding SelectedUser, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:DatabaseUser">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Classes="caption muted" Text="{Binding IsRole}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <views:EmptyState Grid.Column="0" Icon="People" Title="No users loaded"
+                              Message="Refresh to list the server's users and roles."
+                              ActionText="Refresh" ActionCommand="{Binding LoadUsersCommand}"
+                              IsVisible="{Binding !Users.Count}"/>
+
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+
+            <Grid Grid.Column="2" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0" Classes="section-header" Text="Permissions" Margin="8,8,8,4"/>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding SelectedUserPermissions}"
+                          SelectedItem="{Binding SelectedPermission, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="4">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Object" Binding="{Binding ObjectName}" Width="*"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding ObjectType}" Width="100"/>
+                        <DataGridTextColumn Header="Privilege" Binding="{Binding Privilege}" Width="120"/>
+                        <DataGridCheckBoxColumn Header="With Grant" Binding="{Binding WithGrantOption}" Width="SizeToHeader" MinWidth="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <views:EmptyState Grid.Row="1" Icon="Shield" Title="No permissions"
+                                  Message="Select a user to see its privileges, or Grant Privilege to add one."
+                                  IsVisible="{Binding !SelectedUserPermissions.Count}"/>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="2" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,129 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:svc="using:DbConnect.Services"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.FindInDataView"
+             x:DataType="vm:FindInDataViewModel">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Toolbar & Options Panel -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <StackPanel Spacing="4">
+                <!-- Search term and connection -->
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto" ColumnSpacing="8">
+                    <TextBlock Grid.Column="0" Text="Session:" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableSessions}" SelectedItem="{Binding SelectedSession}" Width="180">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="svc:DatabaseSession">
+                                <TextBlock Text="{Binding DisplayName}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Grid.Column="2" Text="Search for:" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="3" Text="{Binding SearchTerm}" Watermark="Enter search term…" VerticalAlignment="Center">
+                        <TextBox.KeyBindings>
+                            <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}"/>
+                        </TextBox.KeyBindings>
+                    </TextBox>
+
+                    <Button Grid.Column="4" Classes="toolbar" Command="{Binding SearchCommand}" VerticalAlignment="Center"
+                            ToolTip.Tip="Search every table (Enter)">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="Search"/>
+                            <TextBlock Text="Search"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="5" Classes="toolbar" Command="{Binding CancelCommand}" IsVisible="{Binding IsSearching}" VerticalAlignment="Center"
+                            ToolTip.Tip="Stop searching">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="Dismiss" Foreground="{DynamicResource DbConnectDangerBrush}"/>
+                            <TextBlock Text="Cancel"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- Configuration Options -->
+                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" ItemSpacing="16" LineSpacing="4">
+                    <CheckBox Content="Case sensitive" IsChecked="{Binding CaseSensitive}"/>
+                    <CheckBox Content="Exact match" IsChecked="{Binding ExactMatch}"/>
+                    <CheckBox Content="Text columns only" IsChecked="{Binding TextColumnsOnly}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="Row limit per table:" VerticalAlignment="Center"/>
+                        <ComboBox SelectedItem="{Binding RowLimitPerTable}" Width="80">
+                            <ComboBox.Items>
+                                <x:Int32>50</x:Int32>
+                                <x:Int32>100</x:Int32>
+                                <x:Int32>250</x:Int32>
+                                <x:Int32>500</x:Int32>
+                                <x:Int32>1000</x:Int32>
+                                <x:Int32>5000</x:Int32>
+                            </ComboBox.Items>
+                        </ComboBox>
+                    </StackPanel>
+                </WrapPanel>
+
+                <!-- Search progress -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding IsSearching}">
+                    <ProgressBar Grid.Column="0" Value="{Binding ProgressPercent}" Minimum="0" Maximum="100" Height="4" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Classes="caption muted" Text="{Binding ProgressText}" VerticalAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Results tree view -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="8">
+            <TextBlock Grid.Row="0" Classes="caption muted" Margin="4,0,4,8"
+                       Text="Double-click a result row to open and view the row in the table data tab."/>
+
+            <TreeView Grid.Row="1" Name="ResultsTree" ItemsSource="{Binding Results}"
+                      BorderBrush="{DynamicResource DbConnectBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}">
+                <TreeView.DataTemplates>
+                    <!-- TableGroup (match or warning) -->
+                    <TreeDataTemplate DataType="vm:FindInDataTableGroup" ItemsSource="{Binding Columns}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="2">
+                            <fi:SymbolIcon Symbol="Table" Foreground="{DynamicResource DbConnectPrimaryKeyBrush}"
+                                           IsVisible="{Binding !IsError}"/>
+                            <fi:SymbolIcon Symbol="Warning" Foreground="{DynamicResource DbConnectWarningFgBrush}"
+                                           IsVisible="{Binding IsError}"/>
+                            <TextBlock Text="{Binding HeaderText}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource DbConnectWarningFgBrush}"
+                                       IsVisible="{Binding IsError}"/>
+                            <TextBlock Text="{Binding HeaderText}"
+                                       FontWeight="SemiBold"
+                                       IsVisible="{Binding !IsError}"/>
+                        </StackPanel>
+                    </TreeDataTemplate>
+
+                    <!-- ColumnGroup -->
+                    <TreeDataTemplate DataType="vm:FindInDataColumnGroup" ItemsSource="{Binding Rows}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="2">
+                            <fi:SymbolIcon Symbol="DocumentText" Foreground="{DynamicResource DbConnectLinkBrush}"/>
+                            <TextBlock Text="{Binding HeaderText}"/>
+                        </StackPanel>
+                    </TreeDataTemplate>
+
+                    <!-- RowResult -->
+                    <DataTemplate DataType="vm:FindInDataRowResult">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="2">
+                            <fi:SymbolIcon Symbol="ChevronRight" FontSize="{DynamicResource DbConnect.Icon.Inline}" Foreground="{DynamicResource DbConnectMutedBrush}"/>
+                            <TextBlock Text="{Binding Preview}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </TreeView.DataTemplates>
+            </TreeView>
+            <views:EmptyState Grid.Row="1" Icon="DatabaseSearch" Title="No results"
+                              Message="Pick a session, type a value and Search to look for it in every table."
+                              IsVisible="{Binding !Results.Count}"/>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}"
+                BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</UserControl>

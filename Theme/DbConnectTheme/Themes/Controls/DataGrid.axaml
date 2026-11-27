@@ -1,0 +1,41 @@
+<!-- Grids: 24 px semibold headers on the grid-header colour with soft column separators and a border below;
+     22 px rows (DbConnect/Styles/Global.axaml) with light grid lines; hover, selection and current-cell colours come from
+     FluentOverrides.axaml, with ordinary text on the selection. -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="DataGrid">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Surface}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="GridLinesVisibility" Value="All" />
+    <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource DbConnect.Brush.GridLine}" />
+    <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource DbConnect.Brush.GridLine}" />
+    <Setter Property="RowBackground" Value="{DynamicResource DbConnect.Brush.Surface}" />
+  </Style>
+
+  <Style Selector="DataGridColumnHeader">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.GridHeader}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="SeparatorBrush" Value="{DynamicResource DbConnect.Brush.BorderSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.GridHeader}" />
+    <Setter Property="Padding" Value="8,0" />
+  </Style>
+
+  <Style Selector="DataGridRowHeader">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.GridHeader}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextMuted}" />
+    <Setter Property="SeparatorBrush" Value="{DynamicResource DbConnect.Brush.BorderSoft}" />
+  </Style>
+
+  <Style Selector="DataGridRow:selected">
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+  </Style>
+
+  <Style Selector="DataGridCell">
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.GridLine}" />
+  </Style>
+</Styles>

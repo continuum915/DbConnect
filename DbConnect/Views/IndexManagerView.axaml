@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.IndexManagerView"
+             x:DataType="vm:IndexManagerViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar" Command="{Binding LoadCommand}" IsEnabled="{Binding !IsLoading}" ToolTip.Tip="Reload the indexes">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                        <TextBlock Text="Refresh"/>
+                    </StackPanel>
+                </Button>
+                <TextBlock Classes="muted" Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="8,0"/>
+            </WrapPanel>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="8">
+            <DataGrid ItemsSource="{Binding Indexes}" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Index Name" Binding="{Binding Name}" Width="200"/>
+                    <DataGridTextColumn Header="Columns" Binding="{Binding ColumnsDisplay}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Unique" Binding="{Binding IsUnique}" Width="SizeToHeader" MinWidth="80"/>
+                    <DataGridTemplateColumn Width="40">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Classes="toolbar icon"
+                                        Command="{Binding $parent[DataGrid].((vm:IndexManagerViewModel)DataContext).DropIndexCommand}"
+                                        CommandParameter="{Binding}"
+                                        IsEnabled="{Binding $parent[DataGrid].((vm:IndexManagerViewModel)DataContext).SupportsIndexManagement}"
+                                        ToolTip.Tip="{Binding $parent[DataGrid].((vm:IndexManagerViewModel)DataContext).UnsupportedReason, TargetNullValue='Drop this index'}">
+                                    <fi:SymbolIcon Symbol="Delete" Foreground="{DynamicResource DbConnectDangerBrush}"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <views:EmptyState Icon="Key" Title="No indexes"
+                              Message="Add an index below to speed up lookups on this table."
+                              IsVisible="{Binding !Indexes.Count}"/>
+
+            <Border Background="{DynamicResource DbConnectOverlayBrush}" IsVisible="{Binding IsLoading}">
+                <ProgressBar IsIndeterminate="True" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+
+        <!-- New Index Form -->
+        <Border Grid.Row="2" Background="{DynamicResource DbConnectStatusBarBrush}" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0" Padding="{DynamicResource DbConnect.Thickness.Section}">
+            <StackPanel Spacing="8">
+                <TextBlock Classes="section-header" Text="Add New Index"/>
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Name:" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding NewIndexName}" Width="200"/>
+                        <CheckBox Content="Unique" IsChecked="{Binding NewIndexIsUnique}"/>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" Margin="16,0">
+                        <ItemsControl ItemsSource="{Binding ColumnEntries}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="8"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:IndexColumnEntry">
+                                    <Border BorderBrush="{DynamicResource DbConnectSubtleBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource DbConnect.CornerRadius.Control}" Padding="4,2">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <CheckBox Content="{Binding ColumnName}"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      Click="OnColumnToggle_Click"/>
+                                            <Button Content="{Binding DirectionLabel}"
+                                                    IsEnabled="{Binding IsSelected}"
+                                                    Click="OnDirectionToggle_Click"
+                                                    FontSize="{DynamicResource DbConnect.FontSize.Caption}" Padding="4,0" MinHeight="0"
+                                                    ToolTip.Tip="Toggle ascending or descending"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Button Grid.Column="2" Classes="primary"
+                            Command="{Binding AddIndexCommand}"
+                            IsEnabled="{Binding SupportsIndexManagement}"
+                            ToolTip.Tip="{Binding UnsupportedReason, TargetNullValue='Create the index'}" Margin="8,0">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <fi:SymbolIcon Symbol="Add" FontSize="{DynamicResource DbConnect.Icon.Toolbar}"/>
+                            <TextBlock Text="Create Index" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+                <StackPanel Orientation="Horizontal" Spacing="8"
+                            IsVisible="{Binding SupportsIndexWhereClause}">
+                    <TextBlock Text="WHERE:" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding NewIndexWhereClause}" Width="300" Watermark="partial index predicate"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8"
+                            IsVisible="{Binding SupportsIncludedColumns}">
+                    <TextBlock Text="INCLUDE columns:" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding NewIndexIncludedColumns}" Width="300" Watermark="col1, col2"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

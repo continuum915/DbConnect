@@ -1,0 +1,68 @@
+name: rain-databases
+
+services:
+  postgres:
+    build:
+      context: ./postgres
+    container_name: rain-postgres
+    environment:
+      POSTGRES_DB: rain_ecommerce
+      POSTGRES_USER: rain
+      POSTGRES_PASSWORD: rain_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - rain-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rain -d rain_ecommerce && psql -U rain -d rain_ecommerce -c \"SELECT 1 FROM rain_fixture_child LIMIT 1\" >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sqlserver:
+    build:
+      context: ./sqlserver
+    container_name: rain-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: DbConnect_dev_password123
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - rain-sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -b -Q \"IF DB_ID(N'rain_ecommerce') IS NULL THROW 50000, 'rain_ecommerce not ready', 1; SELECT 1;\" || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -b -Q \"IF DB_ID(N'rain_ecommerce') IS NULL THROW 50000, 'rain_ecommerce not ready', 1; SELECT 1;\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  mysql:
+    build:
+      context: ./mysql
+    container_name: rain-mysql
+    environment:
+      MYSQL_DATABASE: rain_ecommerce
+      MYSQL_USER: rain
+      MYSQL_PASSWORD: rain_dev_password
+      MYSQL_ROOT_PASSWORD: rain_root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - rain-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent && mysql -h localhost -u root -p\"$${MYSQL_ROOT_PASSWORD}\" -D \"$${MYSQL_DATABASE}\" -e \"SELECT 1 FROM rain_fixture_child LIMIT 1\" --silent >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  rain-postgres-data:
+  rain-sqlserver-data:
+  rain-mysql-data:

@@ -1,0 +1,150 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             x:Class="DbConnect.Views.DataTransferView"
+             x:DataType="vm:DataTransferViewModel">
+
+    <DockPanel Margin="16">
+        <TextBlock DockPanel.Dock="Top" Classes="heading" Text="{Binding StepCaption}" Margin="0,0,0,12"/>
+
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Content="Back" Command="{Binding BackCommand}"/>
+                <Button Classes="primary" Content="Next" Command="{Binding NextCommand}" IsVisible="{Binding !IsRunStep}"/>
+                <Button Classes="primary" Content="Start" Command="{Binding StartCommand}" IsVisible="{Binding IsRunStep}"/>
+                <Button Content="Cancel Transfer" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel DockPanel.Dock="Bottom" Spacing="4" Margin="0,8,0,0">
+            <TextBlock Classes="muted" Text="{Binding Status}" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <Panel>
+            <!-- Source -->
+            <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" IsVisible="{Binding IsSourceStep}"
+                  VerticalAlignment="Top">
+                <TextBlock Grid.Row="3" Text="Saved profile:"/>
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <ComboBox ItemsSource="{Binding Profiles.Names}" SelectedItem="{Binding Profiles.Selected}" MinWidth="240"
+                              PlaceholderText="No profile"/>
+                    <Button Content="Load" Command="{Binding Profiles.LoadCommand}"
+                            ToolTip.Tip="Fill every step from the profile; its connections must be open"/>
+                    <Button Content="Delete" Command="{Binding Profiles.DeleteCommand}"/>
+                </StackPanel>
+                <TextBlock Grid.Row="4" Grid.Column="1" Classes="muted" Text="{Binding Profiles.Message}" TextWrapping="Wrap"/>
+                <TextBlock Text="Source connection:"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableSessions}" SelectedItem="{Binding SourceSession}"
+                          DisplayMemberBinding="{Binding DisplayName}" HorizontalAlignment="Stretch"/>
+                <TextBlock Grid.Row="1" Text="Database:" IsVisible="{Binding SourceDatabase.IsAvailable}"/>
+                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" IsVisible="{Binding SourceDatabase.IsAvailable}">
+                    <ComboBox ItemsSource="{Binding SourceDatabase.Databases}" SelectedItem="{Binding SourceDatabase.Selected}"
+                              HorizontalAlignment="Stretch"/>
+                    <TextBlock Classes="error-text" Text="{Binding SourceDatabase.Notice}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="hint" TextWrapping="Wrap"
+                           Text="Rows are read on a connection of the transfer's own, so open query tabs are not affected."/>
+            </Grid>
+
+            <!-- Target -->
+            <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" IsVisible="{Binding IsTargetStep}"
+                  VerticalAlignment="Top">
+                <TextBlock Text="Target connection:"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableSessions}" SelectedItem="{Binding TargetSession}"
+                          DisplayMemberBinding="{Binding DisplayName}" HorizontalAlignment="Stretch"/>
+                <TextBlock Grid.Row="1" Text="Database:" IsVisible="{Binding TargetDatabase.IsAvailable}"/>
+                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4" IsVisible="{Binding TargetDatabase.IsAvailable}">
+                    <ComboBox ItemsSource="{Binding TargetDatabase.Databases}" SelectedItem="{Binding TargetDatabase.Selected}"
+                              HorizontalAlignment="Stretch"/>
+                    <TextBlock Classes="error-text" Text="{Binding TargetDatabase.Notice}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="error-text" Text="{Binding TargetRefusal}" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Classes="hint" TextWrapping="Wrap"
+                           Text="Each table is copied in one transaction on the target: a table that fails or is canceled leaves the target as it was."/>
+            </Grid>
+
+            <!-- Tables -->
+            <views:TableChoiceList IsVisible="{Binding IsObjectsStep}"/>
+
+            <!-- Options -->
+            <DockPanel IsVisible="{Binding IsOptionsStep}">
+                <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+                    <Grid Classes="form" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                        <TextBlock Text="Existing tables:"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:DataTransferViewModel.ModeChoices}"
+                                  SelectedItem="{Binding Mode}"
+                                  ToolTip.Tip="What happens to target tables that already exist; each table below can choose its own"/>
+                        <TextBlock Grid.Row="1" Text="Rows per batch:"/>
+                        <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding BatchSize}" Minimum="1" Maximum="100000" Increment="100"
+                                       FormatString="0" Width="120"
+                                       ToolTip.Tip="Rows sent to the target per round trip, as multi-row INSERTs kept within the target's parameter limit"/>
+                        <TextBlock Grid.Row="2" Text="Transaction:"/>
+                        <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{x:Static vm:DataTransferViewModel.TransactionChoices}"
+                                  SelectedItem="{Binding Transaction}"
+                                  ToolTip.Tip="Per table: a table arrives whole or not at all. Per batch: each batch commits, and a failure keeps the batches before it"/>
+                        <CheckBox Grid.Row="3" Grid.Column="1" Content="Continue on error" IsChecked="{Binding ContinueOnError}"
+                                  IsEnabled="{Binding CanContinueOnError}"
+                                  ToolTip.Tip="Retry a rejected batch row by row, skip the rows the target rejects and list them in the report"/>
+                        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                            <CheckBox Content="Create indexes" IsChecked="{Binding IncludeIndexes}"
+                                      ToolTip.Tip="Add a created table's indexes once it is committed; an index the target refuses is reported and the data stays"/>
+                            <CheckBox Content="Create foreign keys" IsChecked="{Binding IncludeForeignKeys}"
+                                      ToolTip.Tip="Add created tables' foreign keys once every table's rows are in; keys written inside CREATE TABLE (SQLite, DuckDB, MySQL) always come with their table"/>
+                        </StackPanel>
+                    </Grid>
+                    <Border Classes="banner warning" IsVisible="{Binding TargetWarning, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Text="{Binding TargetWarning}" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Bottom" Spacing="4" Margin="0,8,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Text="{Binding Profiles.NewName}" Watermark="Profile name" MinWidth="240"/>
+                        <Button Content="Save as Profile" Command="{Binding Profiles.SaveCommand}"
+                                ToolTip.Tip="Keep these connections, tables and options to run again, here or as an Automation job; no passwords are saved"/>
+                    </StackPanel>
+                    <TextBlock Classes="muted" Text="{Binding Profiles.Message}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Tables}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DataTransferTableChoice">
+                                <Grid ColumnDefinitions="200,Auto" IsVisible="{Binding IsSelected}" Margin="0,2">
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:DataTransferViewModel.TableModeChoices}"
+                                              SelectedItem="{Binding Mode}" Margin="8,0" MinWidth="240"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+
+            <!-- Preview -->
+            <DockPanel IsVisible="{Binding IsPreviewStep}">
+                <TextBlock DockPanel.Dock="Top" Classes="hint" TextWrapping="Wrap" Margin="0,0,0,8"
+                           Text="What the transfer runs for the tables it creates, and what does not carry over. Nothing has run yet."/>
+                <TextBox Classes="code" Text="{Binding PreviewScript}" IsReadOnly="True" AcceptsReturn="True"/>
+            </DockPanel>
+
+            <!-- Run -->
+            <DockPanel IsVisible="{Binding IsRunStep}">
+                <TextBox DockPanel.Dock="Bottom" Classes="code" Text="{Binding Report}" IsReadOnly="True" MaxHeight="200"
+                         IsVisible="{Binding Report, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Margin="0,8,0,0"/>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Tables}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DataTransferTableChoice">
+                                <Grid ColumnDefinitions="200,*" IsVisible="{Binding IsSelected}" Margin="0,2">
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="1" Classes="muted" Text="{Binding Result}" TextWrapping="Wrap"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Panel>
+    </DockPanel>
+</UserControl>

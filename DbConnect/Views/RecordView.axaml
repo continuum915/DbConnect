@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.RecordView"
+             x:DataType="vm:RecordViewModel">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar icon" Command="{Binding FirstCommand}" ToolTip.Tip="First row">
+                    <fi:SymbolIcon Symbol="ArrowPrevious"/>
+                </Button>
+                <Button Classes="toolbar icon" Command="{Binding PreviousCommand}" ToolTip.Tip="Previous row">
+                    <fi:SymbolIcon Symbol="ChevronLeft"/>
+                </Button>
+                <TextBlock Text="{Binding PositionText}" VerticalAlignment="Center" MinWidth="120" TextAlignment="Center"/>
+                <Button Classes="toolbar icon" Command="{Binding NextCommand}" ToolTip.Tip="Next row">
+                    <fi:SymbolIcon Symbol="ChevronRight"/>
+                </Button>
+                <Button Classes="toolbar icon" Command="{Binding LastCommand}" ToolTip.Tip="Last row">
+                    <fi:SymbolIcon Symbol="ArrowNext"/>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding ToggleCommand}" ToolTip.Tip="Back to the grid">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Grid"/>
+                        <TextBlock Text="Grid View"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Fields}" Margin="8">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RecordField">
+                        <Grid ColumnDefinitions="220,*,Auto" Margin="0,2">
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}"/>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBox Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                         IsReadOnly="{Binding !IsEditable}"
+                                         Watermark="NULL" AcceptsReturn="True" MaxHeight="160"
+                                         FontWeight="{Binding IsChanged, Converter={x:Static vm:RecordFieldStyles.ChangedWeight}}"/>
+                                <TextBlock Classes="caption" Text="{Binding Error}" Foreground="{DynamicResource DbConnectDangerBrush}"
+                                           IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="NULL" Margin="8,0,0,0" Padding="8,0" MinHeight="0"
+                                    VerticalAlignment="Top" Command="{Binding SetNullCommand}" IsEnabled="{Binding IsEditable}"
+                                    ToolTip.Tip="Set this field to NULL"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

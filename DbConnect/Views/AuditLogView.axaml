@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:svc="using:DbConnect.Services"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.AuditLogView"
+             x:DataType="vm:AuditLogViewModel">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Filter Bar -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="Session:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableSessions}" SelectedItem="{Binding SelectedSession}" Width="200">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="svc:DatabaseSession">
+                            <TextBlock Text="{Binding DisplayName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBox Text="{Binding FilterText}" Width="200" Watermark="Text filter…"/>
+                <CheckBox Content="Errors Only" IsChecked="{Binding ShowErrorsOnly}" VerticalAlignment="Center"/>
+                <Button Classes="toolbar" Command="{Binding SearchCommand}" ToolTip.Tip="Search the log with these filters">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Search"/>
+                        <TextBlock Text="Search"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding ExportCsvCommand}" ToolTip.Tip="Export the entries to a CSV file">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowExportUp"/>
+                        <TextBlock Text="Export CSV"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding ClearLogCommand}" ToolTip.Tip="Delete every entry in the audit log">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Delete"/>
+                        <TextBlock Text="Clear Log"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- Results Grid -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Entries}" SelectedItem="{Binding SelectedEntry}"
+                  IsReadOnly="True" AutoGenerateColumns="False" GridLinesVisibility="All"
+                  BorderBrush="{DynamicResource DbConnectBorderBrush}" BorderThickness="1" CanUserResizeColumns="True" Margin="4">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="160"/>
+                <DataGridTextColumn Header="Connection" Binding="{Binding ConnectionName}" Width="120"/>
+                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="SizeToHeader" MinWidth="90"/>
+                <DataGridTextColumn Header="Duration (ms)" Binding="{Binding DurationMs}" Width="SizeToHeader" MinWidth="110"/>
+                <DataGridTextColumn Header="Rows" Binding="{Binding RowsAffected}" Width="SizeToHeader" MinWidth="70"/>
+                <DataGridCheckBoxColumn Header="Error" Binding="{Binding IsError}" Width="SizeToHeader" MinWidth="70"/>
+                <DataGridTextColumn Header="Query" Binding="{Binding QueryText}" Width="*"/>
+                <DataGridTemplateColumn Header="" Width="40">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:AuditEntry">
+                            <Button Classes="toolbar icon"
+                                    Command="{Binding $parent[UserControl].((vm:AuditLogViewModel)DataContext).ReRunCommand}"
+                                    ToolTip.Tip="Re-run this query in a new tab">
+                                <fi:SymbolIcon Symbol="Play"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <views:EmptyState Grid.Row="1" Icon="DocumentSearch" Title="No audit entries"
+                          Message="Queries you run are logged here. Change the filters and Search to look again."
+                          ActionText="Search" ActionCommand="{Binding SearchCommand}"
+                          IsVisible="{Binding !Entries.Count}"/>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</UserControl>

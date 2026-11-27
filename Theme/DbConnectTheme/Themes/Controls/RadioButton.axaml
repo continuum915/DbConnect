@@ -1,0 +1,6 @@
+<!-- Flat radio buttons: an input-bordered circle with an accent dot (FluentOverrides.axaml). -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="RadioButton">
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+  </Style>
+</Styles>

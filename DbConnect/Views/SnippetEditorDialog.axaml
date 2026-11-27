@@ -1,0 +1,45 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.SnippetEditorDialog"
+        x:DataType="vm:SnippetEditorDialogViewModel"
+        Title="Edit Snippet"
+        Width="540" Height="460" MinWidth="420" MinHeight="380"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="Save" Click="Save_Click" IsDefault="True"/>
+                <Button Content="Cancel" Click="Cancel_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer>
+            <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                <TextBlock Text="Name:"/>
+                <TextBox Grid.Column="1" Text="{Binding Name}" Watermark="Snippet name"/>
+
+                <TextBlock Grid.Row="1" Text="Description:"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Description}" Watermark="Short description (optional)"/>
+
+                <TextBlock Grid.Row="2" Text="Body (SQL):" VerticalAlignment="Top"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Classes="code" Text="{Binding Body}"
+                         AcceptsReturn="True" Height="140" Watermark="SELECT …"/>
+
+                <TextBlock Grid.Row="3" Text="Tags:"/>
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TagsText}" Watermark="Comma-separated, e.g. reporting, etl"/>
+
+                <TextBlock Grid.Row="4" Text="Scope:"/>
+                <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding AvailableScopes}"
+                          SelectedItem="{Binding Scope}" HorizontalAlignment="Stretch"/>
+
+                <TextBlock Grid.Row="5" Text="Connection:"/>
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ConnectionName}" Watermark="Optional"/>
+
+                <TextBlock Grid.Row="6" Text="Database:"/>
+                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding DatabaseName}" Watermark="Optional"/>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

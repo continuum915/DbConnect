@@ -1,0 +1,13 @@
+{
+"targetNames": ["select", "quote\"bracket]"],
+"targetType": "Text",
+"modes": ["NewTable", "ExistingTable"],
+"fixtures": [
+  { "file": "quoted-crlf.csv", "delimiter": ",", "header": true, "ordinals": [0,1], "expected": [["001","line one\r\nline two"]] },
+  { "file": "quoted.csv", "delimiter": ",", "header": true, "ordinals": [0,1], "expected": [["00013","O'Brien, café 雨"],["2","line one\nline two"],["3","He said \"hello\""],["4","'); DROP TABLE people; --"],["5",null],["6",null]] },
+  { "file": "semicolon.csv", "delimiter": ";", "header": true, "ordinals": [1,0], "expected": [["value;with;delimiter","001"],["NULL","002"]] },
+  { "file": "headerless.tsv", "delimiter": "\t", "header": false, "ordinals": [0,2], "expected": [["001","kept"],["002","雨"]] },
+  { "file": "duplicate-labels.csv", "delimiter": "|", "header": true, "ordinals": [1,2], "expected": [["second","third"]] },
+  { "file": "malformed.csv", "delimiter": ",", "header": true, "ordinals": [0,1], "expected": [], "diagnostic": "Unclosed" }
+]
+}

@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.AddTableDialog"
+        x:DataType="vm:AddTableDialogViewModel"
+        Title="Add Table"
+        Width="380" Height="320" MinWidth="320" MinHeight="260"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Name="OkButton" Classes="primary" Content="Add" IsDefault="True"/>
+                <Button Name="CancelButton" Content="Cancel" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="*,Auto">
+            <TextBlock Text="Table:" VerticalAlignment="Top"/>
+            <ListBox Grid.Column="1" ItemsSource="{Binding AvailableTables}"
+                     SelectedItem="{Binding SelectedTable, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="1" Text="Alias:"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Alias, Mode=TwoWay}" Watermark="Optional, e.g. t1"/>
+        </Grid>
+    </DockPanel>
+</Window>

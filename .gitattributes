@@ -1,0 +1,10 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Shell scripts run inside Linux containers and must keep LF endings.
+*.sh text eol=lf
+DbConnect.Tests/Fixtures/Csv/*.csv text eol=lf
+DbConnect.Tests/Fixtures/Csv/*.tsv text eol=lf
+DbConnect.Tests/Fixtures/Csv/quoted-crlf.csv text eol=crlf
+# Byte-exact performance inputs: preserve CRLF and manifest hashes on every checkout.
+DbConnect.PerformanceTests/Fixtures/EditorPaste/*.sql -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

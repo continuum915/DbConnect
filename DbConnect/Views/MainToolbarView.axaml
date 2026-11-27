@@ -1,0 +1,162 @@
+<!-- The main toolbar (the design's MenuToolbar artboard): 58 px tiles, a 26 px icon over a label, in groups split by
+     44 px separators; the row wraps on narrow windows. The Table, View, Function, Query and Others tiles choose what
+     the Objects tab lists, and the current one is drawn checked. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.MainToolbarView"
+             x:DataType="vm:MainWindowViewModel">
+    <Border Classes="main-toolbar">
+        <WrapPanel Name="Tiles" Orientation="Horizontal">
+            <Button Classes="tile" Name="ConnectionTile" ToolTip.Tip="Connection" AutomationProperties.Name="Connection">
+                <Button.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuItem Header="Add Connection…" Command="{Binding $parent[views:MainWindow].AddConnectionCommand}"/>
+                        <MenuItem Header="Disconnect" Click="Disconnect_Click"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="PlugConnected" Foreground="{DynamicResource DbConnect.Brush.IconGreen}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="2" HorizontalAlignment="Center">
+                        <TextBlock Text="Connection"/>
+                        <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Command="{Binding NewQueryTabCommand}"
+                    ToolTip.Tip="New Query (Ctrl+T)" AutomationProperties.Name="New Query">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="DocumentAdd" Foreground="{DynamicResource DbConnect.Brush.Accent}"/>
+                    <TextBlock Text="New Query"/>
+                </StackPanel>
+            </Button>
+
+            <Border Classes="tile-separator"/>
+
+            <Button Classes="tile" Classes.checked="{Binding Frame.Toolbar.IsTablesShown}"
+                    Command="{Binding Frame.Toolbar.ShowObjectsCommand}" CommandParameter="{x:Static vm:ObjectBrowserKind.Tables}"
+                    ToolTip.Tip="List tables" AutomationProperties.Name="Tables">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Table" Foreground="{DynamicResource DbConnect.Brush.IconBlue}"/>
+                    <TextBlock Text="Table"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Classes.checked="{Binding Frame.Toolbar.IsViewsShown}"
+                    Command="{Binding Frame.Toolbar.ShowObjectsCommand}" CommandParameter="{x:Static vm:ObjectBrowserKind.Views}"
+                    ToolTip.Tip="List views" AutomationProperties.Name="Views">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Eye" Foreground="{DynamicResource DbConnect.Brush.IconPurple}"/>
+                    <TextBlock Text="View"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Classes.checked="{Binding Frame.Toolbar.IsFunctionsShown}"
+                    Command="{Binding Frame.Toolbar.ShowObjectsCommand}" CommandParameter="{x:Static vm:ObjectBrowserKind.Functions}"
+                    ToolTip.Tip="List functions" AutomationProperties.Name="Functions">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="MathFormula" Foreground="{DynamicResource DbConnect.Brush.IconOrange}"/>
+                    <TextBlock Text="Function"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Command="{Binding OpenUserManagementCommand}"
+                    ToolTip.Tip="User Management" AutomationProperties.Name="User Management">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Person" Foreground="{DynamicResource DbConnect.Brush.IconSlate}"/>
+                    <TextBlock Text="User"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Classes.checked="{Binding Frame.Toolbar.IsOtherShown}"
+                    ToolTip.Tip="Other object types" AutomationProperties.Name="Other object types">
+                <Button.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuItem Header="Procedures" Command="{Binding Frame.Toolbar.ShowObjectsCommand}"
+                                  CommandParameter="{x:Static vm:ObjectBrowserKind.Procedures}"/>
+                        <MenuItem Header="Triggers" Command="{Binding Frame.Toolbar.ShowObjectsCommand}"
+                                  CommandParameter="{x:Static vm:ObjectBrowserKind.Triggers}"/>
+                        <MenuItem Header="Events" Command="{Binding Frame.Toolbar.ShowObjectsCommand}"
+                                  CommandParameter="{x:Static vm:ObjectBrowserKind.Events}"/>
+                        <MenuItem Header="Sequences" Command="{Binding Frame.Toolbar.ShowObjectsCommand}"
+                                  CommandParameter="{x:Static vm:ObjectBrowserKind.Sequences}"/>
+                        <MenuItem Header="Materialized Views" Command="{Binding Frame.Toolbar.ShowObjectsCommand}"
+                                  CommandParameter="{x:Static vm:ObjectBrowserKind.MaterializedViews}"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Apps" Foreground="{DynamicResource DbConnect.Brush.IconSlate}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="2" HorizontalAlignment="Center">
+                        <TextBlock Text="Others"/>
+                        <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+
+            <Border Classes="tile-separator"/>
+
+            <Button Classes="tile" Classes.checked="{Binding Frame.Toolbar.IsQueriesShown}"
+                    Command="{Binding Frame.Toolbar.ShowObjectsCommand}" CommandParameter="{x:Static vm:ObjectBrowserKind.Queries}"
+                    ToolTip.Tip="List saved queries" AutomationProperties.Name="Saved queries">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="DocumentText" Foreground="{DynamicResource DbConnect.Brush.Accent}"/>
+                    <TextBlock Text="Query"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Command="{Binding OpenBackupRestoreCommand}"
+                    ToolTip.Tip="Backup / Restore" AutomationProperties.Name="Backup / Restore">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Box" Foreground="{DynamicResource DbConnect.Brush.IconBrown}"/>
+                    <TextBlock Text="Backup"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Command="{Binding OpenAutomationCommand}"
+                    ToolTip.Tip="Automation" AutomationProperties.Name="Automation">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Clock" Foreground="{DynamicResource DbConnect.Brush.IconTeal}"/>
+                    <TextBlock Text="Automation"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Command="{Binding OpenErDiagramCommand}"
+                    ToolTip.Tip="ER Diagram" AutomationProperties.Name="Model">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="Flowchart" Foreground="{DynamicResource DbConnect.Brush.IconPink}"/>
+                    <TextBlock Text="Model"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" Name="ChartTile" IsEnabled="False" ToolTip.ShowOnDisabled="True"
+                    ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}" AutomationProperties.Name="Chart">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="ChartMultiple" Foreground="{DynamicResource DbConnect.Brush.IconDisabled}"/>
+                    <TextBlock Text="Chart"/>
+                </StackPanel>
+            </Button>
+
+            <Border Classes="tile-separator"/>
+
+            <Button Classes="tile" Command="{Binding Tools.OpenDataTransferCommand}"
+                    ToolTip.Tip="Data Transfer" AutomationProperties.Name="Data Transfer">
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="ArrowSwap" Foreground="{DynamicResource DbConnect.Brush.IconTeal}"/>
+                    <TextBlock Text="Data Transfer"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="tile" ToolTip.Tip="Compare and synchronize" AutomationProperties.Name="Sync">
+                <Button.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuItem Header="Schema Diff…" Command="{Binding OpenSchemaDiffCommand}"/>
+                        <MenuItem Header="Data Compare…" Command="{Binding OpenDataCompareCommand}"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+                <StackPanel>
+                    <fi:SymbolIcon Symbol="ArrowSync" Foreground="{DynamicResource DbConnect.Brush.IconTeal}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="2" HorizontalAlignment="Center">
+                        <TextBlock Text="Sync"/>
+                        <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsExecuting}"
+                         Width="80" VerticalAlignment="Center" Margin="8,0"/>
+        </WrapPanel>
+    </Border>
+</UserControl>

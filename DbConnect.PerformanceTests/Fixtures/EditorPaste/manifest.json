@@ -1,0 +1,65 @@
+{
+  "SchemaVersion": 1,
+  "Encoding": "UTF-8 without BOM",
+  "Newlines": "CRLF",
+  "Dialect": "SQL Server",
+  "Files": [
+    {
+      "FileName": "representative-64KiB.sql",
+      "GeneratorVersion": "representative-v1",
+      "Seed": 1729,
+      "Profile": "representative",
+      "Sha256": "1499C86768D3407CB03BEC03476099AEA4F67A244E606C515E4E261186AC38E8",
+      "EncodedBytes": 65536,
+      "Utf16Characters": 65536,
+      "Lines": 2392,
+      "GoDirectives": 7,
+      "Inserts": 396,
+      "Tables": 2,
+      "MaximumLineLength": 120,
+      "Configuration": {
+        "PairsPerBatch": 32,
+        "LiteralPadding": 0,
+        "ActualParameters": false
+      }
+    },
+    {
+      "FileName": "many-small-batches-64KiB.sql",
+      "GeneratorVersion": "variants-v1",
+      "Seed": 1729,
+      "Profile": "many-small-batches",
+      "Sha256": "6B8F81942CB616A655E0D40C1B70F237A7DC0FA1E1D2F2EAF624BBAB7E0462A4",
+      "EncodedBytes": 65536,
+      "Utf16Characters": 65536,
+      "Lines": 2557,
+      "GoDirectives": 197,
+      "Inserts": 392,
+      "Tables": 2,
+      "MaximumLineLength": 120,
+      "Configuration": {
+        "PairsPerBatch": 1,
+        "LiteralPadding": 0,
+        "ActualParameters": false
+      }
+    },
+    {
+      "FileName": "long-lines-64KiB.sql",
+      "GeneratorVersion": "variants-v1",
+      "Seed": 1729,
+      "Profile": "long-lines",
+      "Sha256": "D2A6A431F470C30AF11A39BFDF3514BB3CC2888125BEE4E1240520E92287E549",
+      "EncodedBytes": 65536,
+      "Utf16Characters": 65536,
+      "Lines": 201,
+      "GoDirectives": 1,
+      "Inserts": 28,
+      "Tables": 2,
+      "MaximumLineLength": 4183,
+      "Configuration": {
+        "PairsPerBatch": 32,
+        "LiteralPadding": 4096,
+        "ActualParameters": false
+      }
+    }
+  ]
+}

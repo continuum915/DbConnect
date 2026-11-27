@@ -1,0 +1,70 @@
+<!-- The Information pane (the design's Main artboard, right column): header with a close button, the object's icon,
+     name and type, then General (key/value), DDL (read-only code) and Usage (not built yet) sub-tabs. Shows
+     "No selection" without collapsing when nothing is selected. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.InformationPaneView"
+             x:DataType="vm:InformationPaneViewModel">
+    <Border Classes="information-pane">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Classes="pane-header">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Classes="toolbar icon" Name="CloseInformationPane" Command="{Binding CloseCommand}"
+                                ToolTip.Tip="Close information pane" AutomationProperties.Name="Close information pane">
+                            <fi:SymbolIcon Classes="inline" Symbol="Dismiss"/>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Text="Information"/>
+                </DockPanel>
+            </Border>
+
+            <TextBlock Name="NoSelection" DockPanel.Dock="Top" Classes="muted" Text="No selection"
+                       Margin="12" IsVisible="{Binding !HasSubject}"/>
+
+            <DockPanel IsVisible="{Binding HasSubject}">
+                <StackPanel DockPanel.Dock="Top" Classes="information-subject" Orientation="Horizontal">
+                    <fi:SymbolIcon Classes="node-icon subject" Tag="{Binding IconRole}" Symbol="{Binding Icon}"/>
+                    <StackPanel>
+                        <TextBlock Name="SubjectName" Classes="subject-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Classes="muted" Text="{Binding Subtitle}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <TabControl Name="InformationTabs">
+                    <TabItem Header="General">
+                        <ScrollViewer>
+                            <ItemsControl Name="GeneralList" ItemsSource="{Binding General}" Margin="12,8">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:InformationItem">
+                                        <Grid Classes="information-item" ColumnDefinitions="110,*">
+                                            <TextBlock Classes="muted" Text="{Binding Label}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="DDL">
+                        <DockPanel Margin="12,8">
+                            <TextBlock DockPanel.Dock="Top" Classes="muted" Text="{Binding DdlStatus}" TextWrapping="Wrap"
+                                       IsVisible="{Binding DdlStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <TextBox Name="DdlText" Classes="code" Text="{Binding Ddl}" IsReadOnly="True"
+                                     AcceptsReturn="True" TextWrapping="NoWrap"
+                                     IsVisible="{Binding Ddl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        </DockPanel>
+                    </TabItem>
+                    <TabItem Header="Usage">
+                        <views:EmptyState Icon="DataUsage"
+                                          Title="Usage"
+                                          Message="Where this object is used (views, routines, saved queries) will appear here. Not available yet."/>
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
+        </DockPanel>
+    </Border>
+</UserControl>

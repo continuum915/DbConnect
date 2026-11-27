@@ -1,0 +1,64 @@
+<!-- The table data tab's record pane (the design's TableData artboard): "Record N of M", the current row as a
+     label/value form with edited and NULL styling, then the focused cell's full value with its column, type and
+     foreign-key target, and View Value…, Set NULL and Open referenced row. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.RecordPaneView"
+             x:DataType="vm:RecordPaneState">
+    <Border Classes="information-pane">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Classes="pane-header">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Classes="toolbar icon" Command="{Binding Record.PreviousCommand}" ToolTip.Tip="Previous record"
+                                AutomationProperties.Name="Previous record">
+                            <fi:SymbolIcon Classes="inline" Symbol="ChevronLeft"/>
+                        </Button>
+                        <Button Classes="toolbar icon" Command="{Binding Record.NextCommand}" ToolTip.Tip="Next record"
+                                AutomationProperties.Name="Next record">
+                            <fi:SymbolIcon Classes="inline" Symbol="ChevronRight"/>
+                        </Button>
+                        <Button Classes="toolbar icon" Command="{Binding ToggleCommand}" ToolTip.Tip="Close the record pane"
+                                AutomationProperties.Name="Close the record pane">
+                            <fi:SymbolIcon Classes="inline" Symbol="Dismiss"/>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Name="RecordPosition" Text="{Binding PositionText}"/>
+                </DockPanel>
+            </Border>
+
+            <!-- The focused cell. -->
+            <Border DockPanel.Dock="Bottom" Classes="cell-box" IsVisible="{Binding HasCell}">
+                <StackPanel>
+                    <TextBlock Classes="section-header" Text="Cell"/>
+                    <TextBox Name="CellValue" Classes="code" Text="{Binding CellValue}" IsReadOnly="True"
+                             AcceptsReturn="True" TextWrapping="Wrap"/>
+                    <TextBlock Name="CellDescription" Classes="caption muted" Text="{Binding CellDescription}" TextWrapping="Wrap"/>
+                    <WrapPanel Orientation="Horizontal">
+                        <Button Content="View Value…" Click="ViewValue_Click"/>
+                        <Button Content="Set NULL" Command="{Binding SetNullCommand}"/>
+                        <Button Content="Open referenced row" IsVisible="{Binding IsForeignKeyCell}" Click="OpenReferenced_Click"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <ScrollViewer>
+                <ItemsControl Name="RecordFields" ItemsSource="{Binding Record.Fields}" Margin="12,8">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RecordField">
+                            <Grid Classes="record-field" ColumnDefinitions="90,*">
+                                <TextBlock Classes="muted" Text="{Binding Name}" TextTrimming="CharacterEllipsis"
+                                           ToolTip.Tip="{Binding Name}"/>
+                                <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                                         Classes.dirty="{Binding IsChanged}" Classes.null="{Binding IsNull}"
+                                         IsReadOnly="{Binding !IsEditable}" Watermark="(Null)"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

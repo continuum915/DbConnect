@@ -1,0 +1,436 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:views="using:DbConnect.Views"
+        xmlns:fi="using:FluentIcons.Avalonia"
+        xmlns:models="using:DbConnect.Models"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DbConnect.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/dbconnect-icon.png"
+        Title="{Binding Frame.Menu.WindowTitle}">
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+T"         Command="{Binding NewQueryTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+W"         Command="{Binding CloseSelectedTabCommand}"/>
+        <KeyBinding Gesture="F5"             Command="{Binding ExecuteQueryCommand}"/>
+        <KeyBinding Gesture="Ctrl+Return"    Command="{Binding ExecuteSelectionCommand}"/>
+        <KeyBinding Gesture="Ctrl+F5"        Command="{Binding ExecuteSelectionCommand}"/>
+        <KeyBinding Gesture="Ctrl+Escape"    Command="{Binding CancelQueryCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+R"   Command="{Binding RefreshSchemaCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+F"   Command="{Binding FormatSqlActiveTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+E"         Command="{Binding ExplainQueryCommand}"/>
+        <KeyBinding Gesture="Ctrl+O"         Command="{Binding Files.OpenCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+S"   Command="{Binding Files.SaveActiveAsCommand}"/>
+        <KeyBinding Gesture="Ctrl+OemComma"  Command="{Binding Preferences.OpenCommand}"/>
+        <KeyBinding Gesture="Ctrl+Z"         Command="{Binding UndoActiveTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+Y"         Command="{Binding RedoActiveTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+F"         Command="{Binding FindReplaceActiveTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+G"         Command="{Binding GoToLineActiveTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+Oem2" Command="{Binding ToggleCommentActiveTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+Tab"       Command="{Binding Frame.Menu.NextTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+Tab" Command="{Binding Frame.Menu.PreviousTabCommand}"/>
+    </Window.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+        <!-- Menu Bar -->
+        <!-- Menu bar: File, Edit, View, Query, Database, Favorites, Tools, Window, Help. -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="New Query Tab"    Command="{Binding NewQueryTabCommand}"       InputGesture="Ctrl+T"/>
+                <MenuItem Header="Open SQL File…"   Command="{Binding Files.OpenCommand}"        InputGesture="Ctrl+O"/>
+                <MenuItem Header="Open Recent"      Name="OpenRecentMenu"/>
+                <MenuItem Header="Save"             Command="{Binding Files.SaveActiveCommand}"  InputGesture="Ctrl+S"/>
+                <MenuItem Header="Save As…"         Command="{Binding Files.SaveActiveAsCommand}" InputGesture="Ctrl+Shift+S"/>
+                <MenuItem Header="Save All"         Command="{Binding Files.SaveAllCommand}"/>
+                <Separator/>
+                <MenuItem Header="Close Tab"        Command="{Binding CloseSelectedTabCommand}" InputGesture="Ctrl+W"/>
+                <MenuItem Header="Exit"             Click="MenuExit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="Undo"                 Command="{Binding UndoActiveTabCommand}"          InputGesture="Ctrl+Z"/>
+                <MenuItem Header="Redo"                 Command="{Binding RedoActiveTabCommand}"          InputGesture="Ctrl+Y"/>
+                <Separator/>
+                <MenuItem Header="Find / Replace"       Command="{Binding FindReplaceActiveTabCommand}"   InputGesture="Ctrl+F"/>
+                <MenuItem Header="Go to Line…"          Command="{Binding GoToLineActiveTabCommand}"      InputGesture="Ctrl+G"/>
+                <MenuItem Header="Toggle Block Comment" Command="{Binding ToggleCommentActiveTabCommand}" InputGesture="Ctrl+Shift+Oem2"/>
+                <MenuItem Header="Format SQL"           Command="{Binding FormatSqlActiveTabCommand}"     InputGesture="Ctrl+Shift+F"/>
+            </MenuItem>
+            <MenuItem Header="_Query">
+                <MenuItem Header="Run Query"        Command="{Binding ExecuteQueryCommand}"     InputGesture="F5"/>
+                <MenuItem Header="Run Selection"    Command="{Binding ExecuteSelectionCommand}" InputGesture="Ctrl+F5"/>
+                <MenuItem Header="Cancel Execution" Command="{Binding CancelQueryCommand}"      InputGesture="Ctrl+Escape"/>
+                <MenuItem Header="Explain Plan"     Command="{Binding ExplainQueryCommand}"     InputGesture="Ctrl+E"/>
+                <Separator/>
+                <MenuItem Header="Add to Favorites…" Command="{Binding Files.AddToFavoritesCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="Toggle Sidebar"       Click="MenuToggleSidebar_Click"        InputGesture="Ctrl+OemBackslash"/>
+                <MenuItem Header="Toggle Snippet Panel" Click="MenuToggleSnippetPanel_Click"/>
+                <MenuItem Header="Information Pane" Name="InformationPaneMenu" ToggleType="CheckBox"
+                          IsChecked="{Binding Sidebar.InformationPaneVisible, Mode=TwoWay}"/>
+                <Separator/>
+                <MenuItem Header="Theme">
+                    <MenuItem Header="Light"  Click="MenuThemeLight_Click"/>
+                    <MenuItem Header="Dark"   Click="MenuThemeDark_Click"/>
+                    <MenuItem Header="System" Click="MenuThemeSystem_Click"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Command Palette" Click="MenuCommandPalette_Click" InputGesture="Ctrl+Shift+P"/>
+                <MenuItem Header="Global Search"   Command="{Binding ShowGlobalSearchOverlayCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_Database">
+                <MenuItem Header="Add Connection…"    Click="AddConnection_Click"/>
+                <MenuItem Header="Disconnect"         Click="MenuDisconnect_Click"/>
+                <MenuItem Header="Refresh Schema"     Click="MenuRefreshSchema_Click"          InputGesture="Ctrl+Shift+R"/>
+                <Separator/>
+                <MenuItem Header="Find in Data…"      Command="{Binding OpenFindInDataCommand}"/>
+                <MenuItem Header="Schema Diff…"       Command="{Binding OpenSchemaDiffCommand}"/>
+                <MenuItem Header="Data Compare…"      Command="{Binding OpenDataCompareCommand}"/>
+                <MenuItem Header="Import CSV…"        Click="MenuImportCsv_Click"/>
+                <MenuItem Header="Backup / Restore…"  Command="{Binding OpenBackupRestoreCommand}"/>
+            </MenuItem>
+            <MenuItem Header="F_avorites" Name="FavoritesMenu"
+                      views:MenuOpenedCommand.Command="{Binding Frame.Menu.RefreshFavoritesCommand}">
+                <MenuItem Header="Add to Favorites…" Command="{Binding Files.AddToFavoritesCommand}"/>
+                <Separator/>
+                <MenuItem Header="Open Favorite" Name="FavoritesList" ItemsSource="{Binding Frame.Menu.Favorites}"
+                          IsEnabled="{Binding !Frame.Menu.HasNoFavorites}">
+                    <MenuItem.Styles>
+                        <!-- Only the favourites: MenuItem.Styles also matches the "Open Favorite" header itself. -->
+                        <Style Selector="MenuItem:not(#FavoritesList)" x:DataType="models:SavedQueryDefinition">
+                            <Setter Property="Header" Value="{Binding DisplayName}"/>
+                            <Setter Property="Command" Value="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Frame.Menu.OpenFavoriteCommand}"/>
+                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="Query Builder…"          Command="{Binding OpenQueryBuilderCommand}"/>
+                <MenuItem Header="Data Transfer…"          Command="{Binding Tools.OpenDataTransferCommand}"/>
+                <MenuItem Header="ER Diagram…"             Command="{Binding OpenErDiagramCommand}"/>
+                <MenuItem Header="Automation…"             Command="{Binding OpenAutomationCommand}"/>
+                <MenuItem Header="User Management…"        Command="{Binding OpenUserManagementCommand}"/>
+                <MenuItem Header="Data Masking Rules…"     Command="{Binding Tools.OpenMaskingRulesCommand}"/>
+                <Separator/>
+                <MenuItem Header="Connection Monitor…"     Command="{Binding OpenConnectionMonitorCommand}"/>
+                <MenuItem Header="Slow Query Dashboard…"   Command="{Binding OpenSlowQueryDashboardCommand}"/>
+                <Separator/>
+                <MenuItem Header="Schema History…"         Command="{Binding OpenSchemaHistoryCommand}"/>
+                <MenuItem Header="Audit Log…"              Command="{Binding OpenAuditLogCommand}"/>
+                <MenuItem Header="Dependency Analysis…"    Click="MenuDependencyAnalysis_Click"/>
+                <Separator/>
+                <MenuItem Header="Preferences…"            Command="{Binding Preferences.OpenCommand}" InputGesture="Ctrl+OemComma"/>
+            </MenuItem>
+            <MenuItem Header="_Window">
+                <MenuItem Header="Next Tab"       Command="{Binding Frame.Menu.NextTabCommand}"     InputGesture="Ctrl+Tab"/>
+                <MenuItem Header="Previous Tab"   Command="{Binding Frame.Menu.PreviousTabCommand}" InputGesture="Ctrl+Shift+Tab"/>
+                <MenuItem Header="Close All Tabs" Command="{Binding TabActions.CloseAllCommand}"/>
+                <Separator/>
+                <MenuItem Header="Open Tabs" Name="OpenTabsList" ItemsSource="{Binding Frame.Menu.Tabs}"
+                          IsEnabled="{Binding !HasNoTabs}">
+                    <MenuItem.Styles>
+                        <Style Selector="MenuItem" x:DataType="vm:ViewModelBase">
+                            <Setter Property="Header" Value="{Binding Title}"/>
+                            <Setter Property="Command" Value="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Frame.Menu.SelectTabCommand}"/>
+                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Export Support Bundle…" Command="{Binding ExportSupportBundleCommand}"/>
+                <Separator/>
+                <MenuItem Header="About DbConnect"           Click="MenuAbout_Click"/>
+                <MenuItem Header="Check for Updates"    Click="MenuCheckUpdates_Click"/>
+                <MenuItem Header="View on GitHub" Click="MenuViewOnGitHub_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main toolbar: tiles in groups (MainToolbarView). Run, Run Selection and Cancel are on the query tab and in the
+             Query menu; Global Search and the sidebar toggle are in the View menu. -->
+        <views:MainToolbarView Grid.Row="1" Name="MainToolbar"/>
+        <Border Grid.Row="2" Classes="banner info" CornerRadius="0" BorderThickness="0,0,0,1"
+                IsVisible="{Binding IsUpdateBannerVisible}">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" TextWrapping="Wrap">
+                    <Run Text="{Binding UpdateBannerText}"/>
+                    <Run Text=" "/>
+                    <Run Text="{Binding UpdateBannerUrl}" TextDecorations="Underline" Foreground="{DynamicResource DbConnectLinkBrush}"/>
+                </TextBlock>
+                <Button Grid.Column="1" Classes="toolbar icon"
+                        Command="{Binding DismissUpdateBannerCommand}"
+                        AutomationProperties.Name="Dismiss update notification"
+                        ToolTip.Tip="Dismiss"
+                        VerticalAlignment="Center">
+                    <fi:SymbolIcon Classes="inline" Symbol="Dismiss"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Main Layout -->
+        <!-- Navigator | documents | Information pane; the pane's width and visibility are kept with the layout. -->
+        <Grid Grid.Row="3" Name="MainContentGrid" ColumnDefinitions="250,5,*,5,260"
+              views:InformationPaneLayout.State="{Binding Sidebar}">
+
+            <!-- Left Pane: filter, tree, then Properties and Snippets under a splitter. Every part is the column's width. -->
+            <Grid Grid.Column="0" Name="Sidebar" RowDefinitions="Auto,Auto,*,Auto,Auto"
+                  views:SidebarLayout.State="{Binding Sidebar}">
+                <!-- Navigator header (the design's NavTree): "Connections" with New connection, Refresh and Collapse all,
+                     then the filter box. -->
+                <StackPanel Grid.Row="0">
+                    <Border Classes="pane-header">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Classes="toolbar icon" Command="{Binding $parent[views:MainWindow].AddConnectionCommand}"
+                                        ToolTip.Tip="New connection" AutomationProperties.Name="New connection">
+                                    <fi:SymbolIcon Symbol="Add"/>
+                                </Button>
+                                <Button Classes="toolbar icon" Command="{Binding RefreshSchemaCommand}"
+                                        ToolTip.Tip="Refresh" AutomationProperties.Name="Refresh">
+                                    <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                                </Button>
+                                <Button Classes="toolbar icon" Name="CollapseAllButton" Command="{Binding SchemaTree.CollapseAllCommand}"
+                                        ToolTip.Tip="Collapse all" AutomationProperties.Name="Collapse all">
+                                    <fi:SymbolIcon Symbol="ArrowCollapseAll"/>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Text="Connections"/>
+                        </DockPanel>
+                    </Border>
+                    <Border Classes="filter-band">
+                        <TextBox Name="SchemaFilter" Watermark="Filter objects" Text="{Binding SchemaSearchText}"
+                                 AutomationProperties.Name="Filter objects">
+                            <TextBox.InnerLeftContent>
+                                <fi:SymbolIcon Classes="inline muted" Symbol="Search"/>
+                            </TextBox.InnerLeftContent>
+                        </TextBox>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <TextBlock Name="SchemaSearchStatus" Classes="caption muted"
+                               IsVisible="{Binding SchemaSearchText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Text="{Binding SchemaFilterMatchCount}"
+                               Margin="8,0,8,2"/>
+                    <Button Name="RetrySchemaSearch" Content="Retry search metadata"
+                            Command="{Binding SchemaTree.Search.RetryCommand}"
+                            IsVisible="{Binding SchemaTree.Search.IsIncomplete}" Margin="8,0,8,2"/>
+                </StackPanel>
+
+                <Panel Grid.Row="2">
+                    <TreeView Name="SchemaTree" Classes="navigator"
+                              ItemsSource="{Binding FilteredSchemaNodes}"
+                              SelectionMode="Multiple">
+                    <TreeView.Styles>
+                        <Style Selector="TreeViewItem" x:DataType="models:SchemaNode">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                        </Style>
+                    </TreeView.Styles>
+                    <TreeView.ContextMenu>
+                        <!-- Grouped as on the NavTree artboard: open | copy and script | export and import | analyse |
+                             change and drop | refresh | connection | group. SchemaTreeContextMenu hides separators left
+                             with nothing on one side. -->
+                        <ContextMenu x:CompileBindings="False">
+                            <MenuItem Header="Open Table Data"  Name="CtxOpenData"     Click="CtxOpenData_Click"
+                                      IsVisible="{Binding CtxIsTable}"/>
+                            <MenuItem Header="Design Table…"   Name="CtxDesignTable"  Click="CtxDesignTable_Click"
+                                      IsVisible="{Binding CtxIsTable}"/>
+                            <MenuItem Header="Create Table…"   Name="CtxCreateTable"  Click="CtxCreateTable_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="New Query Tab"    Name="CtxNewQueryTab"  Click="CtxNewQueryTab_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <Separator Name="CtxSep1"/>
+                            <MenuItem Header="Copy Name"       Name="CtxCopyName"     Click="CtxCopyName_Click"/>
+                            <MenuItem Header="Copy DDL"        Name="CtxCopyDdl"/>
+                            <MenuItem Header="Script As" Name="CtxScriptAs"/>
+                            <Separator Name="CtxSep2"/>
+                            <MenuItem Header="Export Data…"    Name="CtxExportData"/>
+                            <MenuItem Header="Import CSV into Table…"  Name="CtxImportCsvIntoTable" Click="CtxImportCsvIntoTable_Click"
+                                      IsVisible="{Binding CtxIsTable}"/>
+                            <MenuItem Header="Import CSV (New Table)…" Name="CtxImportCsv" Click="CtxImportCsv_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="Dump SQL File"   Name="CtxDumpSql">
+                                <MenuItem Header="Structure and Data…" Name="CtxDumpSqlStructureAndData"/>
+                                <MenuItem Header="Structure Only…" Name="CtxDumpSqlStructure"/>
+                            </MenuItem>
+                            <MenuItem Header="Transfer Data…"  Name="CtxTransferData"/>
+                            <Separator Name="CtxSep3"/>
+                            <MenuItem Header="Find in Data…"      Name="CtxFindInData"       Click="CtxFindInData_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="View Dependencies…" Name="CtxViewDependencies" Click="CtxViewDependencies_Click"
+                                      IsVisible="{Binding CtxIsTableOrView}"/>
+                            <MenuItem Header="Compare Data…"      Name="CtxCompareData"      Click="CtxCompareData_Click"
+                                      IsVisible="{Binding CtxIsTable}"/>
+                            <MenuItem Header="Manage Indexes…" Name="CtxManageIndexes" Click="CtxManageIndexes_Click"
+                                      IsVisible="{Binding CtxIsTable}"/>
+                            <MenuItem Header="View ER Diagram"     Name="CtxErDiagram"       Click="CtxErDiagram_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="Create View…"    Name="CtxCreateView"  Click="CtxCreateView_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="Edit View…"      Name="CtxEditView"    Click="CtxEditView_Click"
+                                      IsVisible="{Binding CtxIsView}"/>
+                            <MenuItem Header="New Routine…"    Name="CtxCreateRoutine" Click="CtxCreateRoutine_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="Backup / Restore…"  Name="CtxBackupRestore"    Click="CtxBackupRestore_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <Separator Name="CtxSep4"/>
+                            <MenuItem Header="Duplicate Table" Name="CtxDuplicateTable">
+                                <MenuItem Header="Structure and Data" Name="CtxDuplicateWithData"/>
+                                <MenuItem Header="Structure Only"     Name="CtxDuplicateStructure"/>
+                            </MenuItem>
+                            <MenuItem Header="Rename…"         Name="CtxRenameObject"/>
+                            <MenuItem Header="Empty Table…"    Name="CtxEmptyTable"/>
+                            <MenuItem Header="Truncate Table…" Name="CtxTruncateTable"/>
+                            <MenuItem Header="Drop Table…"     Name="CtxDropTable"    Classes="danger"    Click="CtxDropTable_Click"
+                                      IsVisible="{Binding CtxIsTable}"/>
+                            <Separator Name="CtxSep5"/>
+                            <MenuItem Header="Refresh Node"        Name="CtxRefreshNode"       Click="CtxRefreshNode_Click"/>
+                            <MenuItem Header="Refresh Connection"  Name="CtxRefreshConnection" Click="CtxRefreshConnection_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <Separator Name="CtxSep6"/>
+                            <MenuItem Header="Disconnect" Name="CtxDisconnect" Click="CtxDisconnect_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="Connection Monitor…" Name="CtxConnectionMonitor" Click="CtxConnectionMonitor_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <MenuItem Header="Move to Group…"   Name="CtxMoveToGroup"  Click="CtxMoveToGroup_Click"
+                                      IsVisible="{Binding CtxIsDatabase}"/>
+                            <Separator Name="CtxSep10"/>
+                            <MenuItem Header="Rename Group…"    Name="CtxRenameGroup"  Click="CtxRenameGroup_Click"
+                                      IsVisible="{Binding CtxIsConnectionGroup}"/>
+                            <MenuItem Header="Delete Group"     Name="CtxDeleteGroup"  Click="CtxDeleteGroup_Click"
+                                      IsVisible="{Binding CtxIsConnectionGroup}"/>
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate ItemsSource="{Binding Children}" x:DataType="models:SchemaNode">
+                            <!-- A navigator row: icon in the object's role colour, label (semibold for connections and
+                                 groups), a connection's colour tag, then right-aligned meta (provider, child count). -->
+                            <DockPanel Classes="node-row" ToolTip.Tip="{Binding Description}">
+                                <TextBlock DockPanel.Dock="Right" Classes="node-meta" Text="{Binding Meta}"
+                                           IsVisible="{Binding Meta, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <fi:SymbolIcon x:CompileBindings="False" Classes="node-icon" Tag="{Binding IconRole}"
+                                                   Symbol="{Binding FluentIconSymbol}"
+                                                   IsVisible="{Binding FluentIconSymbol, Converter={x:Static ObjectConverters.IsNotNull}, FallbackValue=False}"/>
+                                    <TextBlock Classes="node-label" Classes.emphasis="{Binding IsEmphasised}" Text="{Binding Name}"/>
+                                    <Border Classes="tag" Background="{Binding TagColor}"
+                                            IsVisible="{Binding TagColor, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            ToolTip.Tip="Colour tag"/>
+                                    <TextBlock Text="{Binding MetadataStatus}" Classes="caption muted"
+                                               IsVisible="{Binding MetadataStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                    </TreeView>
+
+                    <views:EmptyState IsVisible="{Binding HasNoConnections}"
+                                      Icon="PlugDisconnected"
+                                      Title="No connections"
+                                      ActionText="Add Connection"
+                                      ActionCommand="{Binding $parent[views:MainWindow].AddConnectionCommand}"/>
+                </Panel>
+
+                <GridSplitter Grid.Row="3" Name="SidebarSplitter" ResizeDirection="Rows"/>
+
+                <!-- Lower region: its height is the user's split, kept in workspace state (SidebarLayout). -->
+                <Grid Grid.Row="4" Name="SidebarLower" RowDefinitions="*" Margin="0,0,0,4">
+                    <views:SidebarSection Grid.Row="0" Name="SnippetsSection" Header="Snippets"
+                                          IsExpanded="{Binding Sidebar.SnippetsExpanded, Mode=TwoWay}">
+                        <views:SidebarSection.HeaderActions>
+                            <StackPanel Orientation="Horizontal" DataContext="{Binding SnippetPanel}">
+                                <Button Classes="toolbar icon" Command="{Binding NewSnippetCommand}"
+                                        ToolTip.Tip="New snippet" AutomationProperties.Name="New snippet">
+                                    <fi:SymbolIcon Symbol="Add"/>
+                                </Button>
+                                <Button Classes="toolbar icon" Command="{Binding EditSnippetCommand}"
+                                        ToolTip.Tip="Edit snippet" AutomationProperties.Name="Edit snippet"
+                                        IsEnabled="{Binding SelectedSnippet, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <fi:SymbolIcon Symbol="Edit"/>
+                                </Button>
+                                <Button Classes="toolbar icon delete" Command="{Binding DeleteSnippetCommand}"
+                                        ToolTip.Tip="Delete snippet" AutomationProperties.Name="Delete snippet"
+                                        IsEnabled="{Binding SelectedSnippet, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <fi:SymbolIcon Symbol="Delete"/>
+                                </Button>
+                                <Button Classes="toolbar icon" Command="{Binding PromoteToGlobalCommand}"
+                                        ToolTip.Tip="Promote to global" AutomationProperties.Name="Promote to global"
+                                        IsEnabled="{Binding IsPromoteEnabled}">
+                                    <fi:SymbolIcon Symbol="ArrowUp"/>
+                                </Button>
+                                <Button Classes="toolbar icon" Command="{Binding InsertSnippetCommand}"
+                                        ToolTip.Tip="Insert into editor" AutomationProperties.Name="Insert into editor"
+                                        IsEnabled="{Binding SelectedSnippet, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <fi:SymbolIcon Symbol="ArrowEnter"/>
+                                </Button>
+                            </StackPanel>
+                        </views:SidebarSection.HeaderActions>
+                        <views:SnippetPanelView DataContext="{Binding SnippetPanel}"/>
+                    </views:SidebarSection>
+                </Grid>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Name="MainSplitter" ResizeDirection="Columns"/>
+
+            <!-- Right Pane: one row of document tabs that scrolls, with an overflow menu; ViewLocator resolves each view. -->
+            <Panel Grid.Column="2">
+            <TabControl Name="MainTabControl" Classes="document-tabs" Margin="4"
+                        views:TabStripBehavior.IsEnabled="True"
+                        ItemsSource="{Binding Frame.Strip.Items}"
+                        SelectedItem="{Binding Frame.Strip.SelectedItem, Mode=TwoWay}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ViewModelBase">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Border Width="4" CornerRadius="2" Margin="0,0,2,0"
+                                    IsVisible="{Binding LabelColor, Converter={x:Static StringConverters.IsNotNullOrEmpty}, FallbackValue=False}"
+                                    Background="{Binding LabelColor, FallbackValue=Transparent}"/>
+                            <fi:SymbolIcon x:CompileBindings="False" Classes="inline"
+                                           Symbol="{Binding TabIcon}"
+                                           IsVisible="{Binding TabIcon, Converter={x:Static ObjectConverters.IsNotNull}, FallbackValue=False}"/>
+                            <!-- Unsaved changes: a leading "* " before the title. -->
+                            <TextBlock Classes="dirty-marker" Text="* " VerticalAlignment="Center" IsVisible="{Binding IsDirty}"
+                                       ToolTip.Tip="Unsaved changes"/>
+                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"
+                                       ToolTip.Tip="{Binding TabToolTip}"/>
+                            <fi:SymbolIcon Classes="inline" Symbol="Pin"
+                                           IsVisible="{Binding IsPinned}"
+                                           ToolTip.Tip="Pinned tab"/>
+                            <!-- Open transaction (query tabs in manual-commit mode) -->
+                            <Border x:CompileBindings="False" Classes="status-dot transaction"
+                                    IsVisible="{Binding IsInTransaction, FallbackValue=False}"
+                                    ToolTip.Tip="Open transaction: uncommitted changes"/>
+                            <Button x:CompileBindings="False"
+                                    Classes="tab-close"
+                                    ToolTip.Tip="Close tab"
+                                    Padding="2,0"
+                                    MinWidth="0"
+                                    MinHeight="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{Binding $parent[TabControl].DataContext.CloseTabCommand}"
+                                    CommandParameter="{Binding}"
+                                    IsVisible="{Binding ShowsCloseButton}"
+                                    AutomationProperties.Name="Close tab"
+                                    VerticalAlignment="Center">
+                                <fi:SymbolIcon Classes="inline" Symbol="Dismiss"/>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <!-- ContentTemplate intentionally omitted: ViewLocator in App.DataTemplates resolves it -->
+            </TabControl>
+
+
+            </Panel>
+
+            <GridSplitter Grid.Column="3" Name="InformationSplitter" ResizeDirection="Columns"/>
+            <views:InformationPaneView Grid.Column="4" Name="InformationPane" DataContext="{Binding Frame.Information}"/>
+        </Grid>
+
+        <views:StatusBarView Grid.Row="4" Name="StatusBar"/>
+    </Grid>
+</Window>

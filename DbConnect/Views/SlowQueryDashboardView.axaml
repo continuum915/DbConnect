@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:svc="using:DbConnect.Services"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.SlowQueryDashboardView"
+             x:DataType="vm:SlowQueryDashboardViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="Session:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableSessions}"
+                          SelectedItem="{Binding SelectedSession, Mode=TwoWay}"
+                          MinWidth="200">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="svc:DatabaseSession">
+                            <TextBlock Text="{Binding DisplayName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="Threshold (ms):" VerticalAlignment="Center"/>
+                <NumericUpDown Value="{Binding ThresholdMs, Mode=TwoWay}"
+                               Minimum="0" Maximum="600000"
+                               Width="100"
+                               ToolTip.Tip="Minimum query duration to log (milliseconds)"/>
+
+                <Button Classes="toolbar" Command="{Binding LoadCommand}" ToolTip.Tip="Load the slow-query log for this session">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                        <TextBlock Text="Load"/>
+                    </StackPanel>
+                </Button>
+
+                <TextBox Text="{Binding FilterText, Mode=TwoWay}"
+                         Watermark="Filter by fingerprint…"
+                         Width="200"/>
+
+                <Separator/>
+
+                <Button Classes="toolbar" Command="{Binding ViewPlanCommand}" ToolTip.Tip="Explain the selected query pattern">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Flowchart"/>
+                        <TextBlock Text="View Plan"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding ExportCsvCommand}" ToolTip.Tip="Export the patterns to a CSV file">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowExportUp"/>
+                        <TextBlock Text="Export CSV"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding ClearLogCommand}" ToolTip.Tip="Delete the slow-query log">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Delete"/>
+                        <TextBlock Text="Clear Log"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- Aggregates grid -->
+        <Grid Grid.Row="1">
+            <DataGrid ItemsSource="{Binding FilteredAggregates}"
+                      SelectedItem="{Binding SelectedAggregate, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      GridLinesVisibility="All"
+                      BorderBrush="{DynamicResource DbConnectBorderBrush}"
+                      BorderThickness="1"
+                      CanUserResizeColumns="True"
+                      Margin="8,4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Fingerprint"  Width="*"
+                                        Binding="{Binding Fingerprint}"/>
+                    <DataGridTextColumn Header="Count"        Width="SizeToHeader" MinWidth="70"
+                                        Binding="{Binding Count}"/>
+                    <DataGridTextColumn Header="Avg (ms)"     Width="SizeToHeader" MinWidth="90"
+                                        Binding="{Binding AvgDuration.TotalMilliseconds, StringFormat='{}{0:F0}'}"/>
+                    <DataGridTextColumn Header="Max (ms)"     Width="SizeToHeader" MinWidth="90"
+                                        Binding="{Binding MaxDuration.TotalMilliseconds, StringFormat='{}{0:F0}'}"/>
+                    <DataGridTextColumn Header="Last Seen"    Width="140"
+                                        Binding="{Binding LastSeen, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
+                    <DataGridTextColumn Header="Connection"   Width="140"
+                                        Binding="{Binding ConnectionName}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <views:EmptyState Icon="Timer" Title="No slow queries"
+                              Message="Queries slower than the threshold are logged as you run them. Load to read the log for this session."
+                              ActionText="Load" ActionCommand="{Binding LoadCommand}"
+                              IsVisible="{Binding !FilteredAggregates.Count}"/>
+        </Grid>
+
+        <!-- Status bar -->
+        <Border Grid.Row="2" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}"
+                BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</UserControl>

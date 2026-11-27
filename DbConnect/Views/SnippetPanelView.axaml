@@ -1,0 +1,37 @@
+<!-- The Snippets section's body: a filter over the snippet list. Its actions are in the section header (MainWindow). -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             x:Class="DbConnect.Views.SnippetPanelView"
+             x:DataType="vm:SnippetPanelViewModel">
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="4">
+        <TextBox Grid.Row="0"
+                 Watermark="Filter snippets…"
+                 Text="{Binding FilterText}"/>
+
+        <ListBox Grid.Row="1"
+                 Name="SnippetList"
+                 ItemsSource="{Binding FilteredSnippets}"
+                 SelectedItem="{Binding SelectedSnippet, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="models:Snippet">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock x:CompileBindings="False" Classes="caption muted"
+                                       Text="{Binding Scope, StringFormat='[{0}]'}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Classes="caption muted"
+                                   Text="{Binding Description}"
+                                   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

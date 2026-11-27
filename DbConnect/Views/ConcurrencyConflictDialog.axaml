@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.ConcurrencyConflictDialog"
+        Title="Row Changed"
+        Width="480"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- Keep Editing changes nothing, so it is both the default and the cancel action. -->
+    <StackPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap"/>
+        <Border Classes="dialog-footer">
+            <StackPanel>
+                <Button x:Name="ReloadButton" Content="Reload Row"/>
+                <Button x:Name="OverwriteButton" Classes="danger" Content="Overwrite"/>
+                <Button x:Name="CancelButton" Content="Keep Editing" IsCancel="True" IsDefault="True"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:models="using:DbConnect.Models"
+             x:Class="DbConnect.Views.DependencyAnalysisView"
+             x:DataType="vm:DependencyAnalysisViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal" ItemSpacing="12">
+                <TextBlock Classes="section-header" Text="{Binding Title}"/>
+                <TextBlock Classes="caption muted" Text="{Binding AnalysisStatus}" VerticalAlignment="Center"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Two panels: depends on / depended on by -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="8" Margin="8">
+            <!-- Depends On (outgoing) -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0" Classes="section-header" Text="This object depends on:"/>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding DependsOn}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name"  Binding="{Binding DependsOnName}" Width="*"/>
+                        <DataGridTextColumn Header="Type"  Binding="{Binding DependsOnType}" Width="80"/>
+                        <DataGridTextColumn Header="Kind"  Binding="{Binding DependencyKind}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <views:EmptyState Grid.Row="1" Icon="BranchFork" Title="No dependencies"
+                                  Message="This object doesn't reference other tables, views or routines."
+                                  IsVisible="{Binding !DependsOn.Count}"/>
+            </Grid>
+
+            <!-- Depended On By (incoming) -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0" Classes="section-header" Text="Objects that depend on this:"/>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding DependedOnBy}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name"  Binding="{Binding ObjectName}" Width="*"/>
+                        <DataGridTextColumn Header="Type"  Binding="{Binding ObjectType}" Width="80"/>
+                        <DataGridTextColumn Header="Kind"  Binding="{Binding DependencyKind}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <views:EmptyState Grid.Row="1" Icon="BranchFork" Title="No dependents"
+                                  Message="No tables, views or routines reference this object."
+                                  IsVisible="{Binding !DependedOnBy.Count}"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

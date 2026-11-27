@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:fi="using:FluentIcons.Avalonia"
+        x:Class="DbConnect.Views.ForeignKeyLookupDialog"
+        x:DataType="vm:ForeignKeyLookupViewModel"
+        Title="{Binding Title}"
+        Width="520" Height="420" MinWidth="380" MinHeight="300"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="Use selected value" Command="{Binding ChooseCommand}" IsDefault="True"/>
+                <Button Content="Cancel" Click="Cancel_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+        <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="8">
+            <TextBlock Classes="muted" Text="{Binding KeyColumns}"/>
+            <ListBox Grid.Row="1" ItemsSource="{Binding Values}" SelectedItem="{Binding SelectedValue}"/>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4">
+                <Button Classes="toolbar icon" Command="{Binding PreviousCommand}" ToolTip.Tip="Previous page">
+                    <fi:SymbolIcon Symbol="ChevronLeft"/>
+                </Button>
+                <Button Classes="toolbar icon" Command="{Binding NextCommand}" ToolTip.Tip="Next page">
+                    <fi:SymbolIcon Symbol="ChevronRight"/>
+                </Button>
+            </StackPanel>
+            <TextBlock Grid.Row="3" Text="{Binding Message}" TextWrapping="Wrap"/>
+        </Grid>
+    </DockPanel>
+</Window>

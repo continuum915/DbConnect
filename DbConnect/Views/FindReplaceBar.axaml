@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.FindReplaceBar"
+             x:DataType="vm:FindReplaceViewModel">
+    <!-- Find row: text, Find Next | options. Replace row: text, Replace, Replace All | status. Close sits top right. -->
+    <Border IsVisible="{Binding IsOpen}" Classes="toolbar">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+            <WrapPanel Grid.Row="0" ItemSpacing="4" LineSpacing="4">
+                <TextBox Name="FindBox" Text="{Binding SearchText}" Watermark="Find text" Width="220"
+                         ToolTip.Tip="Find literal text. Enter finds the next match."/>
+                <Button Classes="toolbar" Command="{Binding FindNextCommand}" ToolTip.Tip="Find next (F3)">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowDown"/>
+                        <TextBlock Text="Find Next"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <CheckBox Content="Match case" IsChecked="{Binding MatchCase}"/>
+                <CheckBox Content="In selection" IsChecked="{Binding InSelection}" IsEnabled="{Binding CanUseSelection}"
+                          ToolTip.Tip="Search and replace only within the selection captured when this bar opened."/>
+            </WrapPanel>
+            <Button Grid.Row="0" Grid.Column="1" Classes="toolbar icon" VerticalAlignment="Top"
+                    Command="{Binding CloseCommand}"
+                    ToolTip.Tip="Close find/replace (Escape)" AutomationProperties.Name="Close find/replace">
+                <fi:SymbolIcon Symbol="Dismiss"/>
+            </Button>
+            <WrapPanel Grid.Row="1" ItemSpacing="4" LineSpacing="4">
+                <TextBox Name="ReplaceBox" Text="{Binding ReplacementText}" Watermark="Replace with" Width="220"/>
+                <Button Classes="toolbar" Command="{Binding ReplaceCommand}" ToolTip.Tip="Replace this match and find the next">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowSwap"/>
+                        <TextBlock Text="Replace"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding ReplaceAllCommand}" ToolTip.Tip="Replace every match">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowRepeatAll"/>
+                        <TextBlock Text="Replace All"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <TextBlock Classes="caption muted" Text="{Binding Status}" VerticalAlignment="Center"/>
+            </WrapPanel>
+        </Grid>
+    </Border>
+</UserControl>

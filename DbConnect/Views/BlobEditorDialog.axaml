@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.BlobEditorDialog"
+        Title="Binary Data"
+        Width="700" Height="520" MinWidth="440" MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <!-- File actions on the left; OK (when editing) and Close/Cancel on the right. -->
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <DockPanel>
+                <StackPanel Classes="start">
+                    <Button Name="ExportButton" Content="Export to File…"/>
+                    <Button Name="ImportButton" Content="Import from File…" IsVisible="False"/>
+                    <Button Name="SetNullButton" Content="Set NULL" IsVisible="False"/>
+                    <Button Name="ClearButton" Content="Clear" IsVisible="False"/>
+                </StackPanel>
+                <StackPanel>
+                    <Button Name="OkButton" Classes="primary" Content="OK" IsDefault="True" IsVisible="False"/>
+                    <Button Name="CloseButton" Content="Close" IsCancel="True"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <TextBlock DockPanel.Dock="Top" Name="InfoBlock" Classes="muted" Margin="0,0,0,8"/>
+
+        <TabControl Name="TabControl">
+            <TabItem Header="Hex Dump">
+                <Border BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <TextBlock Name="HexBlock" Classes="code"
+                                   Foreground="{DynamicResource DbConnectCodeFgBrush}"
+                                   Background="{DynamicResource DbConnectCodeBgBrush}"
+                                   Padding="8"
+                                   TextWrapping="NoWrap"/>
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+
+            <TabItem Name="ImageTab" Header="Image Preview" IsVisible="False">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                              Background="{DynamicResource DbConnectCodeBgBrush}">
+                    <Image Name="PreviewImage" Stretch="Uniform"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8"/>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

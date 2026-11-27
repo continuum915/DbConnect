@@ -1,0 +1,73 @@
+<!-- App-wide styles: compact expanders and check boxes, thin splitters, flat inactive tabs, compact rows and trimmed grid headers. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Compact expanders: Fluent's 48 px header and 16 px content inset are twice the app's control density. -->
+    <Styles.Resources>
+        <x:Double x:Key="ExpanderMinHeight">24</x:Double>
+        <Thickness x:Key="ExpanderContentPadding">8</Thickness>
+    </Styles.Resources>
+
+    <!-- Check boxes and radio buttons are one control row tall, so stacked options sit 8 px apart, not 40. -->
+    <Style Selector="CheckBox">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+    </Style>
+    <!-- Fluent draws the box in a 32 px row set in its template. Template values beat plain style setters,
+         so the selector uses :nth-child, which makes it a style trigger (a higher priority than the template). -->
+    <Style Selector="CheckBox /template/ Grid#RootGrid > Grid:nth-child(2)">
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+    </Style>
+    <Style Selector="RadioButton">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+    </Style>
+    <Style Selector="RadioButton /template/ Border#RootBorder > Grid > Grid:nth-child(1)">
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+    </Style>
+    <!-- The expander's chevron sits in a fixed 32 px box, which sets the header height. -->
+    <Style Selector="Expander /template/ ToggleButton#ExpanderHeader /template/ Border#ExpandCollapseChevronBorder:nth-child(2)">
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+        <Setter Property="Width" Value="{DynamicResource DbConnect.Size.ControlMinHeight}"/>
+    </Style>
+
+    <!-- Splitters (the design's ".split"): a 5 px splitter-coloured bar with separator-coloured 1 px edges along its
+         length. A local Background is ignored. -->
+    <Style Selector="GridSplitter">
+        <Setter Property="MinWidth" Value="5"/>
+        <Setter Property="MinHeight" Value="5"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="PART_Bar" Background="{DynamicResource DbConnect.Brush.Splitter}"
+                        BorderBrush="{DynamicResource DbConnect.Brush.Separator}"/>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="GridSplitter[ResizeDirection=Columns] /template/ Border#PART_Bar">
+        <Setter Property="BorderThickness" Value="1,0"/>
+    </Style>
+    <Style Selector="GridSplitter[ResizeDirection=Rows] /template/ Border#PART_Bar">
+        <Setter Property="BorderThickness" Value="0,1"/>
+    </Style>
+
+    <!-- Compact density: tree, list and grid rows are DbConnect.Size.RowHeight tall. -->
+    <Style Selector="TreeViewItem">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.RowHeight}"/>
+    </Style>
+    <!-- The expand chevron would take a button's minimum height and push tree rows past the row height. -->
+    <Style Selector="TreeViewItem /template/ ToggleButton#PART_ExpandCollapseChevron">
+        <Setter Property="MinHeight" Value="0"/>
+    </Style>
+    <Style Selector="ListBoxItem">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.RowHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <!-- A minimum, not a fixed RowHeight, so rows holding editors (combo boxes, text boxes) can grow. -->
+    <Style Selector="DataGridCell">
+        <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.RowHeight}"/>
+    </Style>
+
+    <!-- Column headers trim to their width and show the full text in a tooltip. -->
+    <Style Selector="DataGridColumnHeader TextBlock">
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="ToolTip.Tip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+    </Style>
+</Styles>

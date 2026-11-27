@@ -1,0 +1,116 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:svc="using:DbConnect.Services"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.ConnectionMonitorView"
+             x:DataType="vm:ConnectionMonitorViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="Session:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ActiveSessionOptions}"
+                          SelectedItem="{Binding Session, Mode=TwoWay}"
+                          MinWidth="200">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="svc:DatabaseSession">
+                            <TextBlock Text="{Binding DisplayName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="Refresh:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding RefreshIntervalChoices}"
+                          SelectedItem="{Binding RefreshIntervalSeconds, Mode=TwoWay}"
+                          Width="80"
+                          ToolTip.Tip="Auto-refresh interval in seconds (0 = manual)"/>
+
+                <Button Classes="toolbar"
+                        Command="{Binding RefreshCommand}"
+                        IsEnabled="{Binding !IsRefreshing}"
+                        ToolTip.Tip="Reload the active queries now">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                        <TextBlock Text="Refresh Now"/>
+                    </StackPanel>
+                </Button>
+
+                <Separator/>
+
+                <Button Classes="toolbar"
+                        Command="{Binding KillSelectedQueryCommand}"
+                        IsVisible="{Binding !IsEmbeddedProvider}"
+                        ToolTip.Tip="Stop the selected query's connection">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Prohibited" Foreground="{DynamicResource DbConnectDangerBrush}"/>
+                        <TextBlock Text="Kill Query"/>
+                    </StackPanel>
+                </Button>
+
+                <ProgressBar IsIndeterminate="True"
+                             IsVisible="{Binding IsRefreshing}"
+                             Width="80" Height="4"
+                             VerticalAlignment="Center"/>
+
+                <TextBlock Classes="muted" Text="{Binding LastRefreshed, StringFormat='Last: {0:HH:mm:ss}'}"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding LastRefreshed, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Embedded providers have nothing to monitor; the message is shown here only, not in the status bar. -->
+        <views:EmptyState Grid.Row="1" Icon="Info" Title="Embedded provider"
+                          Message="{Binding StatusMessage}"
+                          IsVisible="{Binding IsEmbeddedProvider}"/>
+
+        <!-- Active queries grid -->
+        <Grid Grid.Row="1" IsVisible="{Binding !IsEmbeddedProvider}">
+            <DataGrid Name="ActiveQueriesGrid"
+                      ItemsSource="{Binding ActiveQueries}"
+                      SelectedItem="{Binding SelectedQuery, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      GridLinesVisibility="All"
+                      BorderBrush="{DynamicResource DbConnectBorderBrush}"
+                      BorderThickness="1"
+                      Margin="8,4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID"       Width="80"  Binding="{Binding ConnectionId}"/>
+                    <DataGridTextColumn Header="User"     Width="120" Binding="{Binding UserName}"/>
+                    <DataGridTextColumn Header="Database" Width="120" Binding="{Binding Database}"/>
+                    <DataGridTextColumn Header="State"    Width="100" Binding="{Binding State}"/>
+                    <DataGridTextColumn Header="Duration" Width="100"
+                                        Binding="{Binding Duration, StringFormat='{}{0:mm\\:ss\\.f}'}"/>
+                    <DataGridTextColumn Header="Query"    Width="*"   Binding="{Binding QueryText}"/>
+                    <DataGridTemplateColumn Header="Blocking" Width="SizeToHeader" MinWidth="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ActiveQueryInfo">
+                                <fi:SymbolIcon Symbol="Prohibited" FontSize="{DynamicResource DbConnect.Icon.Inline}"
+                                               Foreground="{DynamicResource DbConnectDangerBrush}"
+                                               IsVisible="{Binding IsBlocking}"
+                                               HorizontalAlignment="Center"
+                                               ToolTip.Tip="Blocking other queries"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <views:EmptyState Icon="Pulse" Title="No active queries"
+                              Message="Nothing is running on this session. Refresh to check again, or set an auto-refresh interval."
+                              ActionText="Refresh Now" ActionCommand="{Binding RefreshCommand}"
+                              IsVisible="{Binding !ActiveQueries.Count}"/>
+        </Grid>
+
+        <!-- Status bar -->
+        <Border Grid.Row="2" Classes="summary" Background="{DynamicResource DbConnectStatusBarBrush}"
+                BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0"
+                IsVisible="{Binding !IsEmbeddedProvider}">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</UserControl>

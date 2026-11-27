@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <CornerRadius x:Key="Win7.CornerRadius.Control">3</CornerRadius>
+  <CornerRadius x:Key="Win7.CornerRadius.Panel">4</CornerRadius>
+  <Thickness x:Key="Win7.Thickness.ControlPadding">10,4</Thickness>
+  <Thickness x:Key="Win7.Thickness.CompactPadding">7,3</Thickness>
+  <Thickness x:Key="Win7.Thickness.InputPadding">6,3</Thickness>
+  <Thickness x:Key="Win7.Thickness.FocusBorder">1</Thickness>
+  <x:Double x:Key="Win7.Size.ControlMinHeight">24</x:Double>
+
+  <!-- DbConnect layout tokens: every margin, padding and spacing is a combination of this scale. -->
+  <x:Double x:Key="DbConnect.Space.XS">2</x:Double>
+  <x:Double x:Key="DbConnect.Space.S">4</x:Double>
+  <x:Double x:Key="DbConnect.Space.M">8</x:Double>
+  <x:Double x:Key="DbConnect.Space.L">12</x:Double>
+  <x:Double x:Key="DbConnect.Space.XL">16</x:Double>
+  <Thickness x:Key="DbConnect.Thickness.Toolbar">8,4</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.Dialog">16</Thickness>
+  <Thickness x:Key="DbConnect.Thickness.Section">8</Thickness>
+
+  <!-- Icon sizes (FontSize of a SymbolIcon) and row density. -->
+  <x:Double x:Key="DbConnect.Icon.Inline">14</x:Double>
+  <x:Double x:Key="DbConnect.Icon.Toolbar">16</x:Double>
+  <x:Double x:Key="DbConnect.Icon.EmptyState">40</x:Double>
+  <x:Double x:Key="DbConnect.Size.RowHeight">24</x:Double>
+  <!-- Main toolbar buttons (icon over a caption label) share this width. -->
+  <x:Double x:Key="DbConnect.Size.ToolbarButton">80</x:Double>
+
+  <!-- Form field widths: short for ports and timeouts, standard for the other fixed-width fields. -->
+  <x:Double x:Key="DbConnect.Size.FieldShort">120</x:Double>
+  <x:Double x:Key="DbConnect.Size.Field">200</x:Double>
+  <!-- Small status and label-colour dots. -->
+  <x:Double x:Key="DbConnect.Size.Dot">8</x:Double>
+</ResourceDictionary>

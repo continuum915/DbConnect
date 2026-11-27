@@ -1,0 +1,191 @@
+<!-- Shared button classes: flat toolbar buttons, square icon-only buttons and the one primary action. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fi="using:FluentIcons.Avalonia">
+
+    <!-- Toolbar buttons (and toggle buttons), the design's ".tbtn": transparent until hovered, 24 px high, 7 px sides,
+         16 px icon 5 px from an optional label. Give each a tooltip. For icon + label, the content is a StackPanel
+         holding the icon and a TextBlock. -->
+    <Style Selector=":is(Button).toolbar">
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.ToolbarButtonHeight}"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.CompactPadding}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}"/>
+    </Style>
+    <!-- Hover and checked faces go on the template's presenter: Fluent sets its own there, which would otherwise win
+         over the button's Background. -->
+    <Style Selector=":is(Button).toolbar:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.HoverBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.HoverBorder}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.PressedBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.HoverBorder}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}"/>
+    </Style>
+    <!-- Disabled toolbar buttons stay flat with the null-text colour (the base theme would draw a grey face). -->
+    <Style Selector=":is(Button).toolbar:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextNull}"/>
+    </Style>
+    <!-- Labels and icons are their own elements, so they are dimmed directly. Role-coloured icons dim too. -->
+    <Style Selector=":is(Button).toolbar:disabled TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextNull}"/>
+    </Style>
+    <Style Selector="ToggleButton.toolbar:checked /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.CheckedBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.CheckedBorder}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar fi|SymbolIcon">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.Icon.Toolbar}"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar > StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Spacing" Value="5"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar > StackPanel > TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The run action ("toolbar run"): a green tint that stays visible when not hovered. -->
+    <Style Selector=":is(Button).toolbar.run">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.RunBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.RunBorder}"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar.run:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.RunHoverBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.RunHoverBorder}"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar.run fi|SymbolIcon">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.IconGreen}"/>
+    </Style>
+
+    <!-- Main toolbar buttons: icon over a caption label, all the same width ("toolbar stacked"). -->
+    <Style Selector=":is(Button).toolbar.stacked">
+        <Setter Property="Height" Value="NaN"/>
+        <Setter Property="Width" Value="{DynamicResource DbConnect.Size.ToolbarButton}"/>
+        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar.stacked > StackPanel">
+        <Setter Property="Orientation" Value="Vertical"/>
+        <Setter Property="Spacing" Value="{DynamicResource DbConnect.Space.XS}"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar.stacked > StackPanel > fi|SymbolIcon">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector=":is(Button).toolbar.stacked > StackPanel > TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Caption}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- Main toolbar tiles (the design's ".big"): at least 58 x 58, a 26 px icon over a label, transparent until hovered;
+         "checked" marks the object type the Objects tab shows. -->
+    <Style Selector="Button.tile">
+        <Setter Property="MinWidth" Value="{DynamicResource DbConnect.Size.ToolTile}"/>
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.ToolTile}"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}"/>
+    </Style>
+    <Style Selector="Button.tile > StackPanel">
+        <Setter Property="Spacing" Value="3"/>
+    </Style>
+    <Style Selector="Button.tile > StackPanel > fi|SymbolIcon">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.Icon.Tile}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.tile TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}"/>
+    </Style>
+    <Style Selector="Button.tile:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.HoverBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.HoverBorder}"/>
+    </Style>
+    <Style Selector="Button.tile:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.PressedBg}"/>
+    </Style>
+    <Style Selector="Button.tile.checked">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.CheckedBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.CheckedBorder}"/>
+    </Style>
+    <Style Selector="Button.tile:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.tile:disabled TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextNull}"/>
+    </Style>
+    <!-- The small drop-down caret after a tile label. -->
+    <Style Selector="fi|SymbolIcon.caret">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.Icon.Caret}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextMuted}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Icon-only buttons (the design's ".ib"): 24 wide, 22 high. -->
+    <Style Selector=":is(Button).icon">
+        <Setter Property="Width" Value="{DynamicResource DbConnect.Size.IconButtonWidth}"/>
+        <Setter Property="Height" Value="{DynamicResource DbConnect.Size.IconButtonHeight}"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- A button that reads as a hyperlink (open a URL, jump to an error). -->
+    <Style Selector="Button.link">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectLinkBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectLinkBrush}"/>
+    </Style>
+
+    <!-- A destructive action (Drop, Overwrite, Replace key): danger colours. Not the default button; Cancel is. -->
+    <Style Selector="Button.danger">
+        <Setter Property="Background" Value="{DynamicResource DbConnectDangerFillBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectOnAccentBrush}"/>
+    </Style>
+    <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbConnectDangerFillBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectOnAccentBrush}"/>
+        <Setter Property="Opacity" Value="0.9"/>
+    </Style>
+
+    <!-- Row delete/remove buttons ("toolbar icon delete"): one danger-coloured delete icon everywhere. -->
+    <Style Selector="Button.delete fi|SymbolIcon">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectDangerBrush}"/>
+    </Style>
+
+    <!-- The one default action in a dialog or toolbar (the design's ".btn.pri"): an ordinary button face with an accent
+         border and a 1 px inner accent ring, drawn here as a 2 px accent border. -->
+    <Style Selector="Button.primary">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Accent}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Accent}"/>
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Accent}"/>
+    </Style>
+</Styles>

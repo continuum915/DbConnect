@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DbConnect/DbConnect.csproj" />
+    <PackageReference Include="Avalonia.Headless" Version="11.3.12" />
+  </ItemGroup>
+  <Target Name="CapturePerformanceBuildIdentity" BeforeTargets="GetAssemblyAttributes">
+    <Exec Command="git rev-parse HEAD" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="PerformanceBuildCommit" />
+      <Output TaskParameter="ExitCode" PropertyName="PerformanceGitExitCode" />
+    </Exec>
+    <Exec Command="git status --porcelain" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="PerformanceBuildStatus" />
+      <Output TaskParameter="ExitCode" PropertyName="PerformanceStatusExitCode" />
+    </Exec>
+    <PropertyGroup>
+      <PerformanceBuildCommit Condition="'$(PerformanceGitExitCode)' != '0'">unavailable</PerformanceBuildCommit>
+      <PerformanceBuildDirty>clean</PerformanceBuildDirty>
+      <PerformanceBuildDirty Condition="'$(PerformanceBuildStatus)' != ''">dirty</PerformanceBuildDirty>
+      <PerformanceBuildDirty Condition="'$(PerformanceStatusExitCode)' != '0'">unavailable</PerformanceBuildDirty>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyMetadata Include="PerformanceBuildCommit" Value="$(PerformanceBuildCommit)" />
+      <AssemblyMetadata Include="PerformanceBuildDirty" Value="$(PerformanceBuildDirty)" />
+    </ItemGroup>
+  </Target>
+</Project>

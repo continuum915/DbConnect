@@ -1,0 +1,103 @@
+<!-- Shared text classes on the type ramp: section headers, captions, muted and code text. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ae="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:editing="clr-namespace:AvaloniaEdit.Editing;assembly=AvaloniaEdit"
+        xmlns:rendering="clr-namespace:AvaloniaEdit.Rendering;assembly=AvaloniaEdit"
+        xmlns:cc="clr-namespace:AvaloniaEdit.CodeCompletion;assembly=AvaloniaEdit">
+
+    <Style Selector="TextBlock.section-header">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Subheading}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource DbConnect.FontWeight.Subheading}"/>
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+    <Style Selector="TextBlock.heading">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Heading}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource DbConnect.FontWeight.Heading}"/>
+    </Style>
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Caption}"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectMutedBrush}"/>
+    </Style>
+
+    <!-- Inline validation and status text: a warning (amber) or an error (red). -->
+    <Style Selector="TextBlock.warning-text">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectWarningFgBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.error-text">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectDangerBrush}"/>
+    </Style>
+
+    <!-- SQL and DDL previews use the editor font (Preferences ▸ Editor). -->
+    <Style Selector="TextBlock.code">
+        <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.Code}"/>
+    </Style>
+    <Style Selector="TextBox.code">
+        <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.Code}"/>
+    </Style>
+    <!-- Read-only code viewers (the cell value viewer's text view): editor font on the code colours. -->
+    <Style Selector="ae|TextEditor.code">
+        <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.Code}"/>
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Body}"/>
+        <Setter Property="Background" Value="{DynamicResource DbConnectCodeBgBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnectCodeFgBrush}"/>
+    </Style>
+    <!-- SQL editors: line numbers in the null-text colour on a grid-header gutter with a splitter-coloured edge;
+         the current line (where enabled) in the current-line colour without a border. -->
+    <Style Selector="ae|TextEditor">
+        <Setter Property="LineNumbersForeground" Value="{DynamicResource DbConnect.Brush.TextNull}"/>
+    </Style>
+    <Style Selector="editing|TextArea /template/ ItemsControl">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.GridHeader}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Splitter}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        <Setter Property="Padding" Value="0,0,6,0"/>
+    </Style>
+    <Style Selector="rendering|TextView">
+        <Setter Property="CurrentLineBackground" Value="{DynamicResource DbConnect.Brush.CurrentLine}"/>
+        <Setter Property="CurrentLineBorder" Value="{x:Null}"/>
+    </Style>
+    <!-- The completion popup: surface list with an icon-disabled border, 20 px rows, light selection. -->
+    <Style Selector="cc|CompletionList">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Surface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.IconDisabled}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="cc|CompletionListBox ListBoxItem">
+        <Setter Property="MinHeight" Value="20"/>
+        <Setter Property="Padding" Value="8,0"/>
+    </Style>
+
+    <!-- SQL keywords used as labels (the filter bar's WHERE and ORDER BY): code font in the keyword colour. -->
+    <Style Selector="TextBlock.sql-keyword">
+        <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.Code}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.SqlKeyword}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- NULL in a grid cell or form field: "(Null)" in the null colour, italic. Edited values sit on the dirty colour. -->
+    <Style Selector="TextBlock.null-cell">
+        <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextNull}"/>
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+    <Style Selector="Border.dirty-cell">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.DirtyBg}"/>
+    </Style>
+    <Style Selector="TextBox.dirty">
+        <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.DirtyBg}"/>
+    </Style>
+    <Style Selector="TextBox.null">
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+
+    <!-- The search box at the top of the command palette and global search. -->
+    <Style Selector="TextBox.search">
+        <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Subheading}"/>
+    </Style>
+    <!-- The theme gives the TextBox's inner ScrollViewer the UI font, which its text would inherit. -->
+    <Style Selector="TextBox.code /template/ ScrollViewer">
+        <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.Code}"/>
+    </Style>
+</Styles>

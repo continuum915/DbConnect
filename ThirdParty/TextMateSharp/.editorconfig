@@ -1,0 +1,4 @@
+# Imported dependency sources are maintained through the pinned upstream patch.
+# Keep solution-wide format commands from rewriting their original formatting.
+[*.cs]
+generated_code = true

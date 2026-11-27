@@ -1,0 +1,131 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.BackupRestoreView"
+             x:DataType="vm:BackupRestoreViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Toolbar: mode and the action -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <RadioButton Content="Backup"  IsChecked="{Binding IsBackupMode, Mode=TwoWay}"  GroupName="BackupMode" VerticalAlignment="Center"/>
+                <RadioButton Content="Restore" IsChecked="{Binding !IsBackupMode, Mode=TwoWay}" GroupName="BackupMode" VerticalAlignment="Center"
+                             Margin="8,0,0,0"/>
+                <Separator/>
+                <Button Classes="toolbar"
+                        Command="{Binding StartBackupCommand}"
+                        IsVisible="{Binding IsBackupMode}"
+                        IsEnabled="{Binding !IsRunning}"
+                        ToolTip.Tip="Back up the session's database to the file">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="DatabaseArrowDown"/>
+                        <TextBlock Text="Start Backup"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar"
+                        Command="{Binding StartRestoreCommand}"
+                        IsVisible="{Binding !IsBackupMode}"
+                        IsEnabled="{Binding !IsRunning}"
+                        ToolTip.Tip="Restore the session's database from the file">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="DatabaseArrowUp"/>
+                        <TextBlock Text="Start Restore"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar"
+                        Command="{Binding CancelCommand}"
+                        IsVisible="{Binding CanCancel}"
+                        IsEnabled="{Binding IsRunning}"
+                        ToolTip.Tip="Stop the backup or restore">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Stop"/>
+                        <TextBlock Text="Cancel"/>
+                    </StackPanel>
+                </Button>
+                <ProgressBar IsIndeterminate="True"
+                             IsVisible="{Binding IsRunning}"
+                             Width="120" VerticalAlignment="Center"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Options -->
+        <StackPanel Grid.Row="1" Spacing="8" Margin="12">
+            <!-- pg_dump warning -->
+            <Border Classes="banner warning"
+                    IsVisible="{Binding PgDumpWarning, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBlock Text="{Binding PgDumpWarning}" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- What a failed or cancelled restore leaves behind -->
+            <Border Classes="banner warning">
+                <Border.IsVisible>
+                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <Binding Path="!IsBackupMode"/>
+                        <Binding Path="RestoreNote" Converter="{x:Static StringConverters.IsNotNullOrEmpty}"/>
+                    </MultiBinding>
+                </Border.IsVisible>
+                <TextBlock Text="{Binding RestoreNote}" TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                <TextBlock Grid.Row="0" Text="Session:"/>
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                          ItemsSource="{Binding AvailableSessions}"
+                          SelectedItem="{Binding TargetSession, Mode=TwoWay}"
+                          DisplayMemberBinding="{Binding DisplayName}"
+                          Width="260"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="1" Classes="muted" TextWrapping="Wrap" MaxWidth="560"
+                           HorizontalAlignment="Left"
+                           Text="{Binding StrategyDescription}"
+                           IsVisible="{Binding StrategyDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                <TextBlock Grid.Row="2" Text="File path:"/>
+                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <TextBox Text="{Binding OutputPath, Mode=TwoWay}" Width="300" Watermark="output / input file path"/>
+                    <Button Content="Browse…" Command="{Binding BrowseOutputPathCommand}"/>
+                </StackPanel>
+
+                <TextBlock Grid.Row="3" Text="Profile:"/>
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <ComboBox ItemsSource="{Binding Profiles}"
+                              SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                              DisplayMemberBinding="{Binding Name}"
+                              Width="220"/>
+                    <Button Classes="toolbar" Command="{Binding SaveProfileCommand}" ToolTip.Tip="Save these settings as a profile">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="Save"/>
+                            <TextBlock Text="Save Profile"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Command="{Binding DeleteProfileCommand}" ToolTip.Tip="Delete the selected profile">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="Delete"/>
+                            <TextBlock Text="Delete Profile"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
+        <!-- Log output -->
+        <Border Grid.Row="2" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <ScrollViewer Margin="8" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding LogLines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Classes="code" Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <views:EmptyState Icon="Archive" Title="No backup or restore run yet"
+                                  Message="Choose a session and a file, then Start Backup or Start Restore. Progress is logged here."
+                                  IsVisible="{Binding !LogLines.Count}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

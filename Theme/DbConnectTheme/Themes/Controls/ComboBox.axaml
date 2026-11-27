@@ -1,0 +1,14 @@
+<!-- Combo boxes look like text boxes; the drop-down list uses the row colours (FluentOverrides.axaml). -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="ComboBox">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.InputHeight}" />
+    <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.InputPadding}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ComboBoxItem">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.RowHeight}" />
+    <Setter Property="Padding" Value="6,2" />
+  </Style>
+</Styles>

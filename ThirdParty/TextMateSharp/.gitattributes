@@ -1,0 +1,5 @@
+# Preserve pinned upstream source bytes and unified-diff context lines.
+*.cs text eol=lf whitespace=-blank-at-eol
+*.patch text eol=lf whitespace=-blank-at-eol
+LICENSE.md text eol=lf
+*.snk -text

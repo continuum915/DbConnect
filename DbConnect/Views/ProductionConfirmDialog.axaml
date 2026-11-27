@@ -1,0 +1,35 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.ProductionConfirmDialog"
+        x:DataType="vm:ProductionConfirmViewModel"
+        Title="Confirm Destructive Action"
+        Width="560" Height="420" MinWidth="440" MinHeight="380"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <!-- Cancel is the default: Enter never runs a destructive statement by accident. -->
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="danger" Content="Confirm" Click="Confirm_Click" IsEnabled="{Binding CanConfirm}"/>
+                <Button Content="Cancel" Click="Cancel_Click" IsDefault="True" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="8">
+            <Border Classes="banner error">
+                <TextBlock Text="{Binding WarningText}" FontWeight="{DynamicResource DbConnect.FontWeight.Subheading}" TextWrapping="Wrap"/>
+            </Border>
+            <TextBlock Text="{Binding TargetText}" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding ActionText}" TextWrapping="Wrap"/>
+            <TextBlock Classes="section-header" Text="Generated SQL"/>
+            <Border BorderBrush="{DynamicResource DbConnectBorderBrush}" BorderThickness="1" Padding="8" MaxHeight="110">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <TextBlock Classes="code" Text="{Binding SqlPreview}" TextWrapping="Wrap"/>
+                </ScrollViewer>
+            </Border>
+            <TextBlock Text="{Binding PromptText}" TextWrapping="Wrap"/>
+            <TextBox Text="{Binding TypedName}" Watermark="Type the name to confirm"/>
+        </StackPanel>
+    </DockPanel>
+</Window>

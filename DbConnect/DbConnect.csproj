@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <AssemblyTitle>DbConnect</AssemblyTitle>
+    <Product>DbConnect</Product>
+    <ApplicationIcon>Assets\dbconnect.ico</ApplicationIcon>
+    <Version Condition="'$(AppVersion)' != ''">$(AppVersion)</Version>
+    <Version Condition="'$(AppVersion)' == ''">0.0.1</Version>
+    <AssemblyVersion Condition="'$(AppVersion)' != ''">$(AppVersion)</AssemblyVersion>
+    <AssemblyVersion Condition="'$(AppVersion)' == ''">0.0.1</AssemblyVersion>
+    <InformationalVersion Condition="'$(AppVersion)' != ''">$(AppVersion)</InformationalVersion>
+    <InformationalVersion Condition="'$(AppVersion)' == ''">0.0.1-dev</InformationalVersion>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Theme\DbConnectTheme\DbConnectTheme.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.12" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.4.1" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <ProjectReference Include="../ThirdParty/AvaloniaEdit.TextMate/AvaloniaEdit.TextMate.csproj" />
+    <PackageReference Include="ClosedXML" Version="0.102.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="DuckDB.NET.Bindings.Full" Version="1.3.0" />
+    <PackageReference Include="DuckDB.NET.Data" Version="1.3.0" />
+    <PackageReference Include="FluentIcons.Avalonia" Version="1.1.312" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <PackageReference Include="MySqlConnector" Version="2.4.0" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <!-- Direct pin: ClosedXML/DocumentFormat.OpenXml otherwise resolve the vulnerable 6.0.0 package. -->
+    <PackageReference Include="System.IO.Packaging" Version="10.0.11" />
+    <!-- Direct pin: SqlClient otherwise resolves 9.0.4, affected by the October 2026 PKCS advisories. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.5" />
+    <PackageReference Include="TextMateSharp.Grammars" Version="2.0.3" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,176 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.SchemaDiffView"
+             x:DataType="vm:SchemaDiffViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+        <!-- Toolbar: sessions, compare, cross-provider translation -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="Source:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableSessions}"
+                          SelectedItem="{Binding SourceSession, Mode=TwoWay}"
+                          DisplayMemberBinding="{Binding DisplayName}"
+                          Width="200" VerticalAlignment="Center"/>
+                <TextBlock Text="Target:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableSessions}"
+                          SelectedItem="{Binding TargetSession, Mode=TwoWay}"
+                          DisplayMemberBinding="{Binding DisplayName}"
+                          Width="200" VerticalAlignment="Center"/>
+                <Button Classes="toolbar"
+                        Command="{Binding RunCompareCommand}"
+                        IsEnabled="{Binding !IsComparing}"
+                        VerticalAlignment="Center"
+                        ToolTip.Tip="Compare the source schema with the target">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="BranchCompare"/>
+                        <TextBlock Text="Compare"/>
+                    </StackPanel>
+                </Button>
+                <CheckBox Content="Cross-Provider Translation"
+                          IsChecked="{Binding EnableCrossProviderTranslation, Mode=TwoWay}"
+                          IsVisible="{Binding SourceSession, Converter={x:Static ObjectConverters.IsNotNull}}"
+                          VerticalAlignment="Center"/>
+                <ProgressBar IsIndeterminate="True"
+                             IsVisible="{Binding IsComparing}"
+                             Width="80" VerticalAlignment="Center"/>
+                <TextBlock Classes="muted" Text="{Binding CompareStatus}"
+                           VerticalAlignment="Center"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Diff results DataGrid -->
+        <Grid Grid.Row="1">
+            <DataGrid Name="DiffGrid"
+                      Margin="8,4"
+                      ItemsSource="{Binding DiffItems}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="False"
+                      GridLinesVisibility="Horizontal"
+                      x:CompileBindings="False">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Header="Include" Binding="{Binding IsSelected}" Width="SizeToHeader" MinWidth="80"/>
+                    <DataGridTextColumn    Header="Type"    Binding="{Binding ObjectType}"  Width="80" IsReadOnly="True"/>
+                    <DataGridTextColumn    Header="Name"    Binding="{Binding ObjectName}"  Width="*"  IsReadOnly="True"/>
+                    <DataGridTextColumn    Header="Status"  Binding="{Binding Status}"      Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn    Header="Notes"   Binding="{Binding SourceDdl}"   Width="*"  IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <views:EmptyState Icon="BranchCompare" Title="Nothing compared yet"
+                              Message="Pick a source and a target session, then Compare to list the differences."
+                              ActionText="Compare" ActionCommand="{Binding RunCompareCommand}"
+                              IsVisible="{Binding !DiffItems.Count}"/>
+        </Grid>
+
+        <!-- Selection and script actions -->
+        <Border Grid.Row="2" Classes="toolbar" BorderThickness="0,1,0,1">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar" Command="{Binding SelectAllCommand}" ToolTip.Tip="Include every difference">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="SelectAllOn"/>
+                        <TextBlock Text="Select All"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding SelectNoneCommand}" ToolTip.Tip="Include no differences">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="SelectAllOff"/>
+                        <TextBlock Text="Select None"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding GenerateScriptCommand}" ToolTip.Tip="Write the migration script for the included differences">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Code"/>
+                        <TextBlock Text="Generate Script"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding OpenScriptInNewTabCommand}" ToolTip.Tip="Open the script in a query tab">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="WindowNew"/>
+                        <TextBlock Text="Open in New Tab"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <Button Classes="toolbar" Command="{Binding Apply.PreviewCommand}" ToolTip.Tip="Show exactly what Apply runs on the target for the ticked differences">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Eye"/>
+                        <TextBlock Text="Preview Sync"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.ApplyCommand}" ToolTip.Tip="Run the previewed changes on the target, after confirming them">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Play"/>
+                        <TextBlock Text="Apply"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.RecompareCommand}" ToolTip.Tip="Compare the two schemas again">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowSync"/>
+                        <TextBlock Text="Re-compare"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.SaveLogCommand}" ToolTip.Tip="Save what each step did, as SQL with the results as comments or as text">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Save"/>
+                        <TextBlock Text="Save Log"/>
+                    </StackPanel>
+                </Button>
+                <CheckBox Content="Continue on error" IsChecked="{Binding Apply.ContinueOnError}"
+                          IsVisible="{Binding Apply.CanContinueOnError}" VerticalAlignment="Center" Margin="8,0"
+                          ToolTip.Tip="This engine commits each change as it runs: go on after a failed step instead of stopping; the log lists what failed"/>
+                <CheckBox Content="I understand data may be lost" IsChecked="{Binding Apply.AcknowledgeDataLoss}"
+                          IsVisible="{Binding Apply.HasDestructive}" VerticalAlignment="Center" Margin="8,0"
+                          ToolTip.Tip="The ticked differences drop objects; they run only once this is ticked"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Migration script -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto,100,Auto,140,Auto" RowSpacing="4" Margin="8">
+            <Border Grid.Row="0" Classes="banner info"
+                    IsVisible="{Binding HasImpactAnalysis}">
+                <TextBlock Text="{Binding ImpactAnalysis}" TextWrapping="Wrap"/>
+            </Border>
+            <!-- Script warnings panel -->
+            <Border Grid.Row="1" Classes="banner warning"
+                    IsVisible="{Binding HasScriptWarnings}">
+                <ItemsControl ItemsSource="{Binding ScriptWarnings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Classes="caption" Text="{Binding}" TextWrapping="Wrap"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+            <TextBox Grid.Row="2" Classes="code"
+                     Text="{Binding MigrationScript}"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <!-- Apply: the previewed plan and what each step did -->
+            <TextBlock Grid.Row="3" Classes="muted" Text="{Binding Apply.Status}" TextWrapping="Wrap"/>
+            <Grid Grid.Row="4" ColumnDefinitions="*,*">
+                <TextBox Classes="code" Margin="0,0,4,0" Text="{Binding Apply.Script}" Watermark="Preview Sync shows what Apply runs here"
+                         IsReadOnly="True" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                <TextBox Grid.Column="1" Classes="code" Margin="4,0,0,0" Text="{Binding Apply.Log}" Watermark="Apply lists each step's outcome here"
+                         IsReadOnly="True" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            </Grid>
+            <!-- Compatibility report -->
+            <Expander Grid.Row="5"
+                      Header="Compatibility Report"
+                      IsVisible="{Binding CompatibilityReport, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBox Classes="code"
+                         Text="{Binding CompatibilityReport}"
+                         IsReadOnly="True"
+                         FontSize="{DynamicResource DbConnect.FontSize.Caption}"
+                         Foreground="{DynamicResource DbConnectWarningFgBrush}"
+                         AcceptsReturn="True"
+                         MaxHeight="80"/>
+            </Expander>
+        </Grid>
+    </Grid>
+</UserControl>

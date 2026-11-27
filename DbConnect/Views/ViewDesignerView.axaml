@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:ae="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.ViewDesignerView"
+             x:DataType="vm:ViewDesignerViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto,*">
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="View Name:" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding ViewName}" Width="200" VerticalAlignment="Center"/>
+
+                <Separator/>
+
+                <Button Classes="toolbar" Command="{Binding RunPreviewCommand}" IsEnabled="{Binding !IsPreviewing}"
+                        ToolTip.Tip="Run the SELECT and show its rows below">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Play"/>
+                        <TextBlock Text="Preview"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar primary" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsSaving}"
+                        ToolTip.Tip="Create or replace the view">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Save"/>
+                        <TextBlock Text="Create View"/>
+                    </StackPanel>
+                </Button>
+                <TextBlock Classes="caption muted" Text="{Binding ViewOperationHint}" VerticalAlignment="Center"/>
+
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" Width="80" VerticalAlignment="Center" Margin="4,0"/>
+                <TextBlock Classes="muted" Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="8,0"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- SQL Editor -->
+        <Border Grid.Row="1" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,0,0,1">
+             <ae:TextEditor Name="SqlEditor"
+                            ShowLineNumbers="True"
+                            TextChanged="SqlEditor_TextChanged"/>
+        </Border>
+
+        <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
+
+        <!-- Preview Results -->
+        <Grid Grid.Row="3">
+            <views:QueryResultView DataContext="{Binding PreviewResult}"/>
+
+            <Border Background="{DynamicResource DbConnectOverlayBrush}" Opacity="0.8" IsVisible="{Binding IsPreviewing}">
+                <ProgressBar IsIndeterminate="True" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

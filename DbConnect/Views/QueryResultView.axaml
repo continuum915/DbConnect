@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:DbConnect.Models"
+             x:Class="DbConnect.Views.QueryResultView"
+             x:DataType="models:QueryResult">
+    <Grid>
+        <DataGrid Name="MainGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                  GridLinesVisibility="All" BorderBrush="{DynamicResource DbConnectBorderBrush}" BorderThickness="1"
+                  CanUserResizeColumns="True"
+                  IsVisible="{Binding !HasError}"/>
+        
+        <TextBlock Text="{Binding ErrorMessage}" 
+                   Foreground="{DynamicResource DbConnectDangerBrush}"
+                   IsVisible="{Binding HasError}"
+                   TextWrapping="Wrap" Margin="8"/>
+    </Grid>
+</UserControl>

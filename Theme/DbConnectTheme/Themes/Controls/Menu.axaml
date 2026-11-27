@@ -1,0 +1,18 @@
+<!-- The menu bar: 24 px on the window colour with a soft rule below; items are 22 px. -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="Menu">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Window}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.ControlMinHeight}" />
+  </Style>
+  <Style Selector="Menu > MenuItem">
+    <Setter Property="Padding" Value="8,2" />
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.RowHeight}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+  </Style>
+  <Style Selector="MenuItem">
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+  </Style>
+</Styles>

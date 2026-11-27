@@ -1,0 +1,425 @@
+<!-- The table data tab (the design's TableData artboard): toolbar, the export options, the filter bar (Builder or
+     SQL), the grid (or Form View) with the record pane beside it, and a footer with the row actions, pending changes,
+     paging and table options. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.TableDataTabView"
+             x:DataType="vm:TableDataTabViewModel">
+
+    <UserControl.Styles>
+        <!-- Row state colours applied via Tag set in code-behind -->
+        <Style Selector="DataGridRow[Tag=Modified]">
+            <Setter Property="Background" Value="{DynamicResource DbConnectModifiedRowBrush}"/>
+        </Style>
+        <Style Selector="DataGridRow[Tag=Inserted]">
+            <Setter Property="Background" Value="{DynamicResource DbConnectInsertedRowBrush}"/>
+        </Style>
+        <Style Selector="DataGridRow[Tag=Deleted]">
+            <Setter Property="Background" Value="{DynamicResource DbConnectDeletedRowBrush}"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- Toolbar: transaction | text | filter, sort, columns | import, export | grid / form, record pane. -->
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal">
+                    <Button Name="BeginTransactionButton" Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True"
+                            ToolTip.Tip="{DynamicResource DbConnect.Text.NotAvailableYet}">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="DatabaseLink"/>
+                            <TextBlock Text="Begin Transaction"/>
+                        </StackPanel>
+                    </Button>
+                    <Separator/>
+                    <Button Classes="toolbar" ToolTip.Tip="Copy rows as text">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="DocumentText"/>
+                            <TextBlock Text="Text"/>
+                            <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                        </StackPanel>
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                <MenuItem Header="Copy Rows (with headers)" Click="OnCopyRowsClicked"/>
+                                <MenuItem Header="Copy as INSERT" Click="OnCopyAsInsertClicked"/>
+                                <MenuItem Header="Paste Rows" Click="OnPasteRowsClicked"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Separator/>
+                    <ToggleButton Name="FilterToggle" Classes="toolbar" IsChecked="{Binding FilterBar.IsVisible}"
+                                  IsVisible="{Binding CanUseColumnFilters}" ToolTip.Tip="Show or hide the filter bar">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="Filter"/>
+                            <TextBlock Text="Filter"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <Button Classes="toolbar" ToolTip.Tip="Sort: click a column header; Shift+click adds a key">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="ArrowSort"/>
+                            <TextBlock Text="Sort"/>
+                            <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                        </StackPanel>
+                        <Button.Flyout>
+                            <Flyout Placement="Bottom">
+                                <StackPanel Classes="flyout-panel">
+                                    <TextBlock Classes="section-header" Text="Sort"/>
+                                    <TextBlock Text="{Binding SortSummary, TargetNullValue='Not sorted', FallbackValue='Not sorted'}" TextWrapping="Wrap"/>
+                                    <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                                               Text="Click a column header to sort by it; Shift+click adds a second key. The filter bar's SQL mode takes an ORDER BY."/>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Button Classes="toolbar" ToolTip.Tip="Show, hide, freeze and reorder columns; drag a header to reorder">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="ColumnTriple"/>
+                            <TextBlock Text="Columns"/>
+                            <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                        </StackPanel>
+                        <Button.Flyout>
+                            <MenuFlyout Opening="OnColumnsFlyoutOpening"/>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Separator/>
+                    <Button Classes="toolbar" IsEnabled="False" ToolTip.ShowOnDisabled="True"
+                            ToolTip.Tip="Import CSV into this table from the navigator (Import CSV into Table…). Importing from this toolbar is not available yet.">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="ArrowImport"/>
+                            <TextBlock Text="Import"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Command="{Binding ToggleExportPanelCommand}" ToolTip.Tip="Export options">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconTeal" Symbol="ArrowExport"/>
+                            <TextBlock Text="Export"/>
+                        </StackPanel>
+                    </Button>
+                    <Separator/>
+                    <StackPanel Name="GridFormSwitch" Classes="segmented" Orientation="Horizontal">
+                        <ToggleButton Classes="toolbar" IsChecked="{Binding !Record.IsActive, Mode=OneWay}"
+                                      Command="{Binding Record.ToggleCommand}" IsEnabled="{Binding Record.IsActive}"
+                                      ToolTip.Tip="Grid: all rows">
+                            <StackPanel>
+                                <fi:SymbolIcon Symbol="Grid"/>
+                                <TextBlock Text="Grid"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Name="FormToggle" Classes="toolbar" IsChecked="{Binding Record.IsActive, Mode=OneWay}"
+                                      Command="{Binding Record.ToggleCommand}" IsEnabled="{Binding !Record.IsActive}"
+                                      ToolTip.Tip="Form: one row at a time as name/value pairs">
+                            <StackPanel>
+                                <fi:SymbolIcon Symbol="Form"/>
+                                <TextBlock Text="Form"/>
+                            </StackPanel>
+                        </ToggleButton>
+                    </StackPanel>
+                    <ToggleButton Name="RecordPaneToggle" Classes="toolbar" IsChecked="{Binding RecordPane.IsVisible}"
+                                  ToolTip.Tip="Show the current record beside the grid">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="PanelRight"/>
+                            <TextBlock Text="Record"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsCommitting}" Width="80"/>
+                    <TextBlock Classes="section-header" Text="{Binding TableName}"/>
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <Border Grid.Row="1" Name="ConnectionLostBanner" Classes="banner notice" IsVisible="{Binding ConnectionLoss.IsLost}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Reconnect"
+                        IsEnabled="{Binding !ConnectionLoss.IsReconnecting}"
+                        Command="{Binding ConnectionLoss.ReconnectCommand}"/>
+                <fi:SymbolIcon Classes="inline" Symbol="PlugDisconnected"/>
+                <TextBlock Text="{Binding ConnectionLoss.Message}"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Export Panel -->
+        <Border Grid.Row="2" Classes="toolbar"
+                IsVisible="{Binding ShowExportPanel}">
+            <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="4">
+                <TextBlock Text="Format:" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding ExportFormatOptions}"
+                          SelectedItem="{Binding ExportOptions.Format}"
+                          Width="80"/>
+                <TextBlock IsVisible="{Binding ExportOptions.UsesTextOptions}" Text="Delimiter:" VerticalAlignment="Center"/>
+                <ComboBox Name="ExportDelimiterPicker" IsVisible="{Binding ExportOptions.UsesTextOptions}" ItemsSource="{Binding DelimiterOptions}"
+                          SelectedItem="{Binding ExportOptions.Delimiter}"
+                          Width="90"/>
+                <TextBlock IsVisible="{Binding ExportOptions.UsesTextOptions}" Text="Nulls:" VerticalAlignment="Center"/>
+                <ComboBox IsVisible="{Binding ExportOptions.UsesTextOptions}" ItemsSource="{Binding NullRepOptions}"
+                          SelectedItem="{Binding ExportOptions.NullRepresentation}"
+                          Width="100"/>
+                <TextBlock IsVisible="{Binding ExportOptions.IsSqlInsert}" Text="Table:" VerticalAlignment="Center"/>
+                <TextBox Name="SqlInsertTableName" IsVisible="{Binding ExportOptions.IsSqlInsert}" Text="{Binding ExportOptions.SqlTableName}"
+                         Watermark="Source table" Width="200"
+                         ToolTip.Tip="Written into the script as typed; leave blank for this table, which Include CREATE TABLE requires"/>
+                <TextBlock IsVisible="{Binding ExportOptions.IsSqlInsert}" Text="Rows per INSERT:" VerticalAlignment="Center"/>
+                <NumericUpDown Name="SqlInsertRowsPerStatement" IsVisible="{Binding ExportOptions.IsSqlInsert}" Value="{Binding ExportOptions.RowsPerStatement}"
+                               Minimum="1" Maximum="100000" Increment="1" FormatString="0" Width="120"
+                               ToolTip.Tip="1 writes one INSERT per row; more writes multi-row VALUES lists, capped where the database limits their size"/>
+                <CheckBox Name="SqlInsertColumnList" IsVisible="{Binding ExportOptions.IsSqlInsert}" Content="Column list"
+                          IsChecked="{Binding ExportOptions.IncludeColumnList}" VerticalAlignment="Center"/>
+                <CheckBox Name="SqlInsertCreateTable" IsVisible="{Binding ExportOptions.IsSqlInsert}" Content="Include CREATE TABLE"
+                          IsChecked="{Binding ExportOptions.IncludeCreateTable}" VerticalAlignment="Center"
+                          ToolTip.Tip="Write this table's CREATE script before the inserts, as Script as CREATE does; the export fails if the table cannot be scripted"/>
+                <ComboBox Name="ExportScopePicker" ItemsSource="{Binding ExportScopes}" SelectedItem="{Binding ExportScope}" MinWidth="180"/>
+                <TextBlock Text="{Binding ExportScopeExplanation}" MaxWidth="340" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                <TextBlock Name="ExportOutcomeText" Text="{Binding ExportState.Message}" MaxWidth="400" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                <ProgressBar Name="ExportProgress" IsIndeterminate="True" Width="60" IsVisible="{Binding ExportState.IsRunning}"/>
+                <Button Name="CancelExportButton" Content="Cancel export" Command="{Binding ExportState.CancelCommand}" IsVisible="{Binding ExportState.IsRunning}"/>
+                <CheckBox IsVisible="{Binding ExportOptions.UsesTextOptions}" Content="Include Headers" IsChecked="{Binding ExportOptions.IncludeHeaders}" VerticalAlignment="Center"/>
+                <Button Classes="toolbar" Command="{Binding ExportCommand}" ToolTip.Tip="Export the table with these options">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowDownload"/>
+                        <TextBlock Text="Export…"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- Filter bar, then the grid with the record pane beside it. -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,5,280" views:SidePaneColumns.IsOpen="{Binding RecordPane.IsVisible}">
+            <DockPanel Grid.Column="0">
+                <Border DockPanel.Dock="Top" Name="FilterBarPanel" Classes="filter-bar">
+                    <Border.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="CanUseColumnFilters"/>
+                            <Binding Path="FilterBar.IsVisible"/>
+                        </MultiBinding>
+                    </Border.IsVisible>
+                    <StackPanel>
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Classes="toolbar" Command="{Binding FilterBar.ApplyCommand}" ToolTip.Tip="Reload the table with this filter">
+                                    <StackPanel>
+                                        <fi:SymbolIcon Classes="role" Tag="IconGreen" Symbol="Checkmark"/>
+                                        <TextBlock Text="Apply"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Classes="toolbar" Command="{Binding FilterBar.ClearCommand}" ToolTip.Tip="Remove every filter">
+                                    <StackPanel>
+                                        <fi:SymbolIcon Symbol="Dismiss"/>
+                                        <TextBlock Text="Clear all"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel Name="FilterModeSwitch" Classes="segmented" Orientation="Horizontal">
+                                    <ToggleButton Name="BuilderModeButton" Classes="toolbar" Content="Builder"
+                                                  IsChecked="{Binding !FilterBar.IsSqlMode, Mode=OneWay}"
+                                                  Command="{Binding FilterBar.ShowBuilderCommand}"/>
+                                    <ToggleButton Name="SqlModeButton" Classes="toolbar" Content="SQL"
+                                                  IsChecked="{Binding FilterBar.IsSqlMode, Mode=OneWay}"
+                                                  Command="{Binding FilterBar.ShowSqlCommand}"/>
+                                </StackPanel>
+                                <TextBlock Classes="caption muted" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           Text="Rules and WHERE are combined with AND."/>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <!-- Builder: one row per rule, "+ Add filter", and the raw WHERE box. -->
+                        <StackPanel Name="BuilderPanel" IsVisible="{Binding !FilterBar.IsSqlMode}">
+                            <ItemsControl ItemsSource="{Binding FilterRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TableFilterRowViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,0,2">
+                                            <ComboBox Width="160"
+                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.Columns}"
+                                                      SelectedItem="{Binding Column, Mode=TwoWay}"/>
+                                            <ComboBox Width="140"
+                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.FilterOperators}"
+                                                      SelectedItem="{Binding Operator, Mode=TwoWay}"/>
+                                            <TextBox Width="200"
+                                                     Text="{Binding Value, Mode=TwoWay}"
+                                                     IsVisible="{Binding NeedsValue}"
+                                                     Watermark="Value"/>
+                                            <Button Classes="toolbar icon"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.RemoveFilterRowCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip.Tip="Remove this filter">
+                                                <fi:SymbolIcon Symbol="Dismiss"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Classes="toolbar" Command="{Binding AddEmptyFilterRowCommand}" ToolTip.Tip="Add a column filter"
+                                    HorizontalAlignment="Left">
+                                <StackPanel>
+                                    <fi:SymbolIcon Symbol="Add"/>
+                                    <TextBlock Text="Add filter"/>
+                                </StackPanel>
+                            </Button>
+                            <TextBox Name="RawWhereBox" Classes="code" Text="{Binding RawWhere, Mode=TwoWay}"
+                                     Watermark="Raw WHERE, e.g. total &gt; 100 OR status = 'x' (combined with the filters above using AND)"
+                                     AcceptsReturn="False">
+                                <TextBox.KeyBindings>
+                                    <KeyBinding Gesture="Enter" Command="{Binding ApplyFiltersCommand}"/>
+                                </TextBox.KeyBindings>
+                            </TextBox>
+                        </StackPanel>
+
+                        <!-- SQL: WHERE and ORDER BY. -->
+                        <Grid Name="SqlPanel" Classes="sql-filter" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto"
+                              IsVisible="{Binding FilterBar.IsSqlMode}">
+                            <TextBlock Classes="sql-keyword" Text="WHERE"/>
+                            <TextBox Grid.Column="1" Name="SqlWhereBox" Classes="code" Text="{Binding FilterBar.Where}"
+                                     Watermark="status = 'pending' AND total &gt; 100">
+                                <TextBox.KeyBindings>
+                                    <KeyBinding Gesture="Enter" Command="{Binding FilterBar.ApplyCommand}"/>
+                                </TextBox.KeyBindings>
+                            </TextBox>
+                            <TextBlock Grid.Row="1" Classes="sql-keyword" Text="ORDER BY"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Name="SqlOrderByBox" Classes="code" Text="{Binding FilterBar.OrderBy}"
+                                     Watermark="created_at DESC, id">
+                                <TextBox.KeyBindings>
+                                    <KeyBinding Gesture="Enter" Command="{Binding FilterBar.ApplyCommand}"/>
+                                </TextBox.KeyBindings>
+                            </TextBox>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Classes="error-text" Text="{Binding FilterBar.Error}"
+                                       IsVisible="{Binding FilterBar.Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Grid>
+                        <views:RecordView DataContext="{Binding Record}" IsVisible="{Binding IsActive}"/>
+                        <DataGrid Name="DataGrid"
+                                  views:RecordPaneTracking.State="{Binding RecordPane}"
+                                  views:GridEditMenu.Mode="Table"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="False"
+                                  GridLinesVisibility="All"
+                                  BorderThickness="0"
+                                  CanUserSortColumns="True"
+                                  CanUserResizeColumns="True"
+                                  CanUserReorderColumns="True"
+                                  SelectionMode="Extended"
+                                  ItemsSource="{Binding Rows}"
+                                  >
+                            <DataGrid.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="!IsLoading"/>
+                                    <Binding Path="!Record.IsActive"/>
+                                </MultiBinding>
+                            </DataGrid.IsVisible>
+                            <DataGrid.ContextMenu>
+                                <!-- Grouped as on the TableData artboard: copy and paste | row edits | values | foreign keys |
+                                     columns. Set Cell to NULL, Copy and Delete Row come from the grid's edit menu. -->
+                                <ContextMenu>
+                                    <MenuItem Header="Copy Row"        Click="OnCopyRowsClicked"/>
+                                    <MenuItem Header="Copy as INSERT"  Click="OnCopyAsInsertClicked"/>
+                                    <MenuItem Header="Paste Rows"      Click="OnPasteRowsClicked"/>
+                                    <Separator/>
+                                    <MenuItem x:Name="RevertCellMenuItem" Header="Revert Cell" Click="OnRevertCellClicked"/>
+                                    <MenuItem x:Name="RevertRowMenuItem"  Header="Revert Row"  Click="OnRevertRowClicked"/>
+                                    <MenuItem Header="Duplicate Row"   Click="OnDuplicateRowClicked"/>
+                                    <Separator/>
+                                    <MenuItem x:Name="ViewValueMenuItem"  Header="View Value…"  Click="OnViewValueClicked"/>
+                                    <MenuItem x:Name="ViewBinaryMenuItem" Header="View Binary…" Click="OnViewValueClicked"/>
+                                    <Separator/>
+                                    <MenuItem x:Name="ForeignKeyLookupMenuItem" Header="Look up referenced value…"/>
+                                    <MenuItem x:Name="ReferencedRowMenuItem" Header="Open referenced row"/>
+                                    <MenuItem x:Name="ReferencingRowsMenuItem" Header="Open referencing rows"/>
+                                    <Separator/>
+                                    <MenuItem x:Name="HideColumnMenuItem"      Header="Hide Column"                Click="OnHideColumnClicked"/>
+                                    <MenuItem x:Name="FreezeColumnsMenuItem"   Header="Freeze Up To This Column"   Click="OnFreezeColumnsClicked"/>
+                                    <MenuItem x:Name="UnfreezeColumnsMenuItem" Header="Unfreeze Columns"           Click="OnUnfreezeColumnsClicked"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+
+                        <!-- Loading overlay -->
+                        <Border Background="{DynamicResource DbConnectOverlayBrush}" IsVisible="{Binding IsLoading}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                                <ProgressBar IsIndeterminate="True" Width="200"/>
+                                <TextBlock Classes="muted" Text="Loading table data…" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                </Grid>
+            </DockPanel>
+
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+            <views:RecordPaneView Grid.Column="2" Name="RecordPane" DataContext="{Binding RecordPane}"/>
+        </Grid>
+
+        <!-- Footer: row actions | pending changes | status | rows per page, skip exact count | paging. -->
+        <Border Grid.Row="4" Name="TableFooter" Classes="result-footer">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button Classes="toolbar icon" Command="{Binding AddRowCommand}" IsEnabled="{Binding CanAddRows}"
+                            ToolTip.Tip="Add a row" AutomationProperties.Name="Add a row">
+                        <fi:SymbolIcon Classes="role" Tag="IconGreen" Symbol="Add"/>
+                    </Button>
+                    <Button Name="DeleteRowButton" Classes="toolbar icon" IsEnabled="{Binding CanDeleteSelectedRow}"
+                            ToolTip.Tip="Mark the selected row for deletion" AutomationProperties.Name="Delete row">
+                        <fi:SymbolIcon Classes="role" Tag="IconRed" Symbol="Subtract"/>
+                    </Button>
+                    <Button Classes="toolbar icon" Command="{Binding CommitCommand}" IsEnabled="{Binding CanCommit}"
+                            ToolTip.Tip="Apply: preview and commit all unsaved changes" AutomationProperties.Name="Apply changes">
+                        <fi:SymbolIcon Classes="role" Tag="IconGreen" Symbol="Checkmark"/>
+                    </Button>
+                    <Button Classes="toolbar icon" Command="{Binding RevertCommand}" IsEnabled="{Binding CanRevert}"
+                            ToolTip.Tip="Discard all unsaved changes" AutomationProperties.Name="Discard changes">
+                        <fi:SymbolIcon Classes="role" Tag="IconRed" Symbol="Dismiss"/>
+                    </Button>
+                    <Button Classes="toolbar icon" Command="{Binding ReloadCurrentPageCommand}" IsEnabled="{Binding CanRefresh}"
+                            ToolTip.Tip="Refresh: reload the current page when there are no unsaved changes" AutomationProperties.Name="Refresh">
+                        <fi:SymbolIcon Symbol="ArrowClockwise"/>
+                    </Button>
+                    <Button Classes="toolbar icon" Click="OnDuplicateRowClicked" IsEnabled="{Binding CanDuplicateSelectedRow}"
+                            ToolTip.Tip="Duplicate the selected row as a new row" AutomationProperties.Name="Duplicate row">
+                        <fi:SymbolIcon Symbol="DocumentCopy"/>
+                    </Button>
+                    <Button Classes="toolbar icon" Click="OnPasteRowsClicked"
+                            ToolTip.Tip="Paste tab-separated rows as new rows" AutomationProperties.Name="Paste rows">
+                        <fi:SymbolIcon Symbol="ClipboardPaste"/>
+                    </Button>
+                    <Border Name="PendingChip" Classes="chip dirty" IsVisible="{Binding HasDirtyRows}">
+                        <TextBlock Text="{Binding DirtyRowCount, StringFormat='{}{0} pending changes'}"/>
+                    </Border>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Text="{Binding SortSummary, StringFormat='Sorted by: {0}'}"
+                               IsVisible="{Binding SortSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               ToolTip.Tip="Shift+click a header to add a secondary sort key"/>
+                    <TextBlock Text="{Binding CommitModeLabel}" ToolTip.Tip="{Binding CommitModeSummary}"/>
+                    <CheckBox Content="Allow all-column identity fallback"
+                              IsChecked="{Binding AllowAllColumnIdentityFallback}"
+                              IsVisible="{Binding !HasReliableIdentity}"
+                              ToolTip.Tip="{Binding IdentityModeSummary}"/>
+                    <TextBlock Text="Rows per page"/>
+                    <ComboBox ItemsSource="{Binding PageSizeChoices}" SelectedItem="{Binding PageSize}"
+                              ToolTip.Tip="Rows loaded per page"/>
+                    <CheckBox Content="Skip exact count"
+                              IsChecked="{Binding SkipExactCount}"
+                              IsVisible="{Binding SupportsExactCount}"
+                              ToolTip.Tip="Skip the exact COUNT(*) query for large tables; the total shows as unknown"/>
+                    <Button Classes="toolbar icon" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanMovePrevious}"
+                            ToolTip.Tip="Previous page" AutomationProperties.Name="Previous page">
+                        <fi:SymbolIcon Symbol="ChevronLeft"/>
+                    </Button>
+                    <Button Classes="toolbar icon" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanMoveNext}"
+                            ToolTip.Tip="Next page" AutomationProperties.Name="Next page">
+                        <fi:SymbolIcon Symbol="ChevronRight"/>
+                    </Button>
+                </StackPanel>
+                <TextBlock Name="StatusText" Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis"
+                           ToolTip.Tip="{Binding StatusMessage}"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

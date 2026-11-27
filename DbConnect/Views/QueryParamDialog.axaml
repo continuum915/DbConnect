@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.QueryParamDialog"
+        x:DataType="vm:QueryParamDialogViewModel"
+        Title="Query Parameters"
+        Width="560" Height="500" MinWidth="440" MinHeight="380"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="Execute" Click="OnExecuteClick" IsDefault="True"/>
+                <Button Content="Cancel" Click="OnCancelClick" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,8">
+            <TextBlock Text="{Binding InstructionText}" TextWrapping="Wrap"/>
+            <TextBlock Classes="caption muted" Text="{Binding ProviderHint, StringFormat='Provider hint: {0}'}"/>
+        </StackPanel>
+
+        <!-- Saved contexts and save options -->
+        <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,8,0,0">
+            <Grid Classes="form" ColumnDefinitions="Auto,*">
+                <TextBlock Text="Load saved context:"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding SavedContexts}" SelectedItem="{Binding SelectedContext}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <CheckBox Content="Save as Snippet" IsChecked="{Binding SaveAsSnippet}"/>
+                <CheckBox Content="Save Param Context" IsChecked="{Binding SaveParamContext}" x:Name="SaveContextCheckBox"/>
+                <TextBox Text="{Binding ContextName}" IsVisible="{Binding #SaveContextCheckBox.IsChecked}"
+                         Watermark="Context name…" Width="160"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Parameters -->
+        <DataGrid ItemsSource="{Binding Parameters}" AutoGenerateColumns="False" CanUserResizeColumns="True"
+                  BorderThickness="1" BorderBrush="{DynamicResource DbConnectDividerBrush}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Parameter" Binding="{Binding Placeholder}" IsReadOnly="True" Width="120"/>
+                <DataGridTemplateColumn Header="Type" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataTypeOptions}" SelectedItem="{Binding DataType}" HorizontalAlignment="Stretch"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Value" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Value, Mode=TwoWay}" Watermark="Enter value…" HorizontalAlignment="Stretch"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>

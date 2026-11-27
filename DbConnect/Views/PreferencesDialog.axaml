@@ -1,0 +1,118 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.PreferencesDialog"
+        x:DataType="vm:PreferencesViewModel"
+        Title="Preferences"
+        Width="660" Height="460"
+        MinWidth="540" MinHeight="380"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- Every page lays out as a form: labels left with a colon, fields one shared width, options 8 px apart. -->
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <!-- Reset Page only resets the visible page, so it sits apart, bottom-left. -->
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <DockPanel>
+                <StackPanel Classes="start">
+                    <Button Content="Reset Page" Command="{Binding ResetPageCommand}"/>
+                </StackPanel>
+                <StackPanel>
+                    <Button Classes="primary" Content="OK" IsDefault="True" Command="{Binding OkCommand}" IsEnabled="{Binding IsValid}"/>
+                    <Button Content="Apply" Command="{Binding ApplyCommand}" IsEnabled="{Binding IsValid}"/>
+                    <Button Content="Cancel" IsCancel="True" Command="{Binding CancelCommand}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid ColumnDefinitions="150,*" ColumnSpacing="16">
+            <ListBox Name="PageList"
+                     ItemsSource="{Binding Pages}"
+                     SelectedItem="{Binding SelectedPage, Mode=TwoWay}"/>
+
+            <ScrollViewer Grid.Column="1">
+                <StackPanel Spacing="8">
+                    <!-- Editor -->
+                    <StackPanel Spacing="8" IsVisible="{Binding IsEditorPage}">
+                        <TextBlock Classes="section-header" Text="Editor"/>
+                        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Text="Font family:"/>
+                            <TextBox Grid.Column="1" Name="FontFamilyBox" Text="{Binding FontFamily, Mode=TwoWay}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Classes="caption muted hint" Text="Comma-separated; later names are fallbacks."/>
+                            <TextBlock Grid.Row="2" Text="Font size:"/>
+                            <NumericUpDown Grid.Row="2" Grid.Column="1" Classes="field" Value="{Binding FontSize, Mode=TwoWay}"
+                                           Minimum="6" Maximum="48" Increment="1" FormatString="0"/>
+                            <TextBlock Grid.Row="3" Text="Tab width:"/>
+                            <NumericUpDown Grid.Row="3" Grid.Column="1" Classes="field" Value="{Binding TabWidth, Mode=TwoWay}"
+                                           Minimum="1" Maximum="16" Increment="1" FormatString="0"/>
+                            <StackPanel Grid.Row="4" Grid.Column="1" Spacing="8">
+                                <CheckBox Content="Insert spaces when pressing Tab" IsChecked="{Binding InsertSpaces, Mode=TwoWay}"/>
+                                <CheckBox Content="Word wrap" IsChecked="{Binding WordWrap, Mode=TwoWay}"/>
+                                <CheckBox Content="Open completion while typing (Ctrl+Space always opens it)" IsChecked="{Binding AutoOpenCompletion, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Results -->
+                    <StackPanel Spacing="8" IsVisible="{Binding IsResultsPage}">
+                        <TextBlock Classes="section-header" Text="Results"/>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="These change how result grids show values. Copy and export are not affected."/>
+                        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Text="NULL shown as:"/>
+                            <TextBox Grid.Column="1" Classes="field" Text="{Binding NullText, Mode=TwoWay}"/>
+                            <TextBlock Grid.Row="1" Text="Date/time format:"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                                <TextBox Classes="field" Text="{Binding DateTimeFormat, Mode=TwoWay}" ToolTip.Tip=".NET format string"/>
+                                <TextBlock Classes="muted" Text="{Binding DateTimeSample}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="2" Text="Binary values:"/>
+                            <ComboBox Grid.Row="2" Grid.Column="1" Classes="field" ItemsSource="{Binding BinaryDisplayModes}" SelectedItem="{Binding BinaryDisplay, Mode=TwoWay}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Classes="caption muted hint"
+                                       Text="Size shows &lt;N bytes&gt;; Hex shows 0x followed by the first bytes."/>
+                            <TextBlock Grid.Row="4" Text="Rows kept past the cap:" ToolTip.Tip="Most rows kept when fetching past the row cap"/>
+                            <NumericUpDown Grid.Row="4" Grid.Column="1" Classes="field" Value="{Binding MaxResultRows, Mode=TwoWay}"
+                                           Minimum="1000" Maximum="100000000" Increment="100000" FormatString="N0"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Execution -->
+                    <StackPanel Spacing="8" IsVisible="{Binding IsExecutionPage}">
+                        <TextBlock Classes="section-header" Text="Execution"/>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Defaults for new query tabs. Each tab can still change its own values."/>
+                        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                            <TextBlock Text="Timeout (seconds):"/>
+                            <ComboBox Grid.Column="1" Classes="field" ItemsSource="{Binding TimeoutChoices}" SelectedItem="{Binding DefaultTimeoutSeconds, Mode=TwoWay}"/>
+                            <TextBlock Grid.Row="1" Text="Row limit:"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" Classes="field" ItemsSource="{Binding RowCapChoices}" SelectedItem="{Binding DefaultRowCap, Mode=TwoWay}"/>
+                            <CheckBox Grid.Row="2" Grid.Column="1" Content="Start new query tabs in manual-commit mode" IsChecked="{Binding NewTabsManualCommit, Mode=TwoWay}"/>
+                            <TextBlock Grid.Row="3" Text="Confirm changes on:" VerticalAlignment="Top"
+                                       ToolTip.Tip="Confirm before running SQL that changes data on these connections"/>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Spacing="8">
+                                <CheckBox Content="Development connections" IsChecked="{Binding ConfirmOnDevelopment, Mode=TwoWay}"/>
+                                <CheckBox Content="Staging connections" IsChecked="{Binding ConfirmOnStaging, Mode=TwoWay}"/>
+                                <CheckBox Content="Production connections" IsChecked="{Binding ConfirmOnProduction, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- General -->
+                    <StackPanel Spacing="8" IsVisible="{Binding IsGeneralPage}">
+                        <TextBlock Classes="section-header" Text="General"/>
+                        <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                            <TextBlock Text="Theme:"/>
+                            <ComboBox Grid.Column="1" Classes="field" ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding Theme, Mode=TwoWay}"/>
+                            <CheckBox Grid.Row="1" Grid.Column="1" Content="Restore the previous session's tabs on startup" IsChecked="{Binding RestorePreviousSession, Mode=TwoWay}"/>
+                            <TextBlock Grid.Row="2" Text="Update check URL:"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding UpdateCheckUrl, Mode=TwoWay}" Watermark="https://…"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Classes="caption muted hint" Text="Leave empty to turn update checks off."/>
+                        </Grid>
+                    </StackPanel>
+
+                    <TextBlock Classes="error-text" Text="{Binding ValidationError}" TextWrapping="Wrap"
+                               IsVisible="{Binding ValidationError, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</Window>

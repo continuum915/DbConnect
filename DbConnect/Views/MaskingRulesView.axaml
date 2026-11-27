@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             xmlns:models="using:DbConnect.Models"
+             x:Class="DbConnect.Views.MaskingRulesView"
+             x:DataType="vm:MaskingRulesViewModel">
+    <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar" Command="{Binding AddRuleCommand}" ToolTip.Tip="Add a masking rule">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Add"/>
+                        <TextBlock Text="Add Rule"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding RemoveRuleCommand}" ToolTip.Tip="Remove the selected rule">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Delete"/>
+                        <TextBlock Text="Remove"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <ComboBox ItemsSource="{Binding BuiltInTemplateNames}"
+                          PlaceholderText="Load Template…"
+                          SelectionChanged="TemplateCombo_SelectionChanged"
+                          x:Name="TemplateCombo"
+                          Width="150"
+                          ToolTip.Tip="Replace the rules with a built-in template"/>
+            </WrapPanel>
+        </Border>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Rules}"
+                  AutoGenerateColumns="False"
+                  Margin="4">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Column" Binding="{Binding ColumnName}" Width="120"/>
+                <DataGridTextColumn Header="Method" Binding="{Binding Method}" Width="110"/>
+                <DataGridTextColumn Header="Constant/Replacement" Binding="{Binding ConstantValue}" Width="140"/>
+                <DataGridTextColumn Header="Pattern" Binding="{Binding RegexPattern}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <views:EmptyState Grid.Row="1" Icon="EyeOff" Title="No masking rules"
+                          Message="Add Rule, or load a template, to mask a column's values."
+                          ActionText="Add Rule" ActionCommand="{Binding AddRuleCommand}"
+                          IsVisible="{Binding !Rules.Count}"/>
+    </Grid>
+</UserControl>

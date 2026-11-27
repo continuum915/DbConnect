@@ -1,0 +1,156 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:m="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.DataCompareView"
+             x:DataType="vm:DataCompareViewModel">
+
+    <Grid RowDefinitions="Auto,*,Auto,200">
+        <Border Grid.Row="0" Classes="toolbar">
+            <StackPanel Spacing="4">
+                <WrapPanel Orientation="Horizontal" ItemSpacing="4" LineSpacing="4">
+                    <TextBlock Text="Source:" VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding AvailableSessions}"
+                              SelectedItem="{Binding SourceSession, Mode=TwoWay}"
+                              DisplayMemberBinding="{Binding DisplayName}"
+                              Width="180" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock Text="Table:" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding SourceTableName, Mode=TwoWay}"
+                             Width="140" VerticalAlignment="Center"
+                             Watermark="source table" Margin="0,0,8,0"/>
+                    <TextBlock Text="Target:" VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding AvailableSessions}"
+                              SelectedItem="{Binding TargetSession, Mode=TwoWay}"
+                              DisplayMemberBinding="{Binding DisplayName}"
+                              Width="180" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock Text="Table:" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding TargetTableName, Mode=TwoWay}"
+                             Width="140" VerticalAlignment="Center"
+                             Watermark="target table" Margin="0,0,8,0"/>
+                    <CheckBox Content="Show Identical"
+                              IsChecked="{Binding ShowIdentical, Mode=TwoWay}"
+                              VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <Button Classes="toolbar"
+                            Command="{Binding RunCompareCommand}"
+                            IsEnabled="{Binding !IsComparing}"
+                            VerticalAlignment="Center"
+                            ToolTip.Tip="Compare the two tables' rows">
+                        <StackPanel>
+                            <fi:SymbolIcon Symbol="BranchCompare"/>
+                            <TextBlock Text="Compare"/>
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
+
+                <WrapPanel Orientation="Horizontal" ItemSpacing="4" LineSpacing="4">
+                    <TextBlock Text="WHERE:" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding WhereFilter, Mode=TwoWay}"
+                             Width="320" VerticalAlignment="Center"
+                             Watermark="optional filter expression" Margin="0,0,8,0"/>
+                    <TextBlock Text="Max Rows:" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding MaxRows, Mode=TwoWay}"
+                             Width="90" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="Conflict:" VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding ConflictPolicies}"
+                              SelectedItem="{Binding ConflictPolicy, Mode=TwoWay}"
+                              Width="140" VerticalAlignment="Center"/>
+                </WrapPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <ProgressBar Minimum="0"
+                                 Maximum="{Binding MaxRows}"
+                                 Value="{Binding Progress.RowsCompared}"
+                                 IsVisible="{Binding IsComparing}"
+                                 Width="180"
+                                 VerticalAlignment="Center"/>
+                    <TextBlock Classes="muted" Text="{Binding CompareStatus}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="Results were truncated at Max Rows."
+                               IsVisible="{Binding IsTruncated}"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource DbConnectWarningFgBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <DataGrid Margin="8,4"
+                      ItemsSource="{Binding DiffRows}"
+                      AutoGenerateColumns="False"
+                      GridLinesVisibility="Horizontal">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Apply" Width="SizeToHeader">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="m:DataDiffRow">
+                                <CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"
+                                          ToolTip.Tip="Include this difference when applying"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Changed Columns" Binding="{Binding ChangedColumns.Count}" Width="SizeToHeader" MinWidth="140" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <views:EmptyState Icon="TableSimple" Title="Nothing compared yet"
+                              Message="Pick the source and target tables, then Compare to list the rows that differ."
+                              ActionText="Compare" ActionCommand="{Binding RunCompareCommand}"
+                              IsVisible="{Binding !DiffRows.Count}"/>
+        </Grid>
+
+        <Border Grid.Row="2" Classes="toolbar" BorderThickness="0,1,0,1">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar" Command="{Binding Apply.PreviewCommand}" ToolTip.Tip="Show the script that makes the target match the source for the ticked differences">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Eye"/>
+                        <TextBlock Text="Preview Sync"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.ApplyCommand}" ToolTip.Tip="Run the previewed script on the target, after confirming it">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Play"/>
+                        <TextBlock Text="Apply"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.RecompareCommand}" ToolTip.Tip="Compare the two tables again">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="ArrowSync"/>
+                        <TextBlock Text="Re-compare"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.OpenScriptInTabCommand}" ToolTip.Tip="Open the script in a query tab">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="WindowNew"/>
+                        <TextBlock Text="Open in New Tab"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" Command="{Binding Apply.SaveLogCommand}" ToolTip.Tip="Save what each step did, as SQL with the results as comments or as text">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Save"/>
+                        <TextBlock Text="Save Log"/>
+                    </StackPanel>
+                </Button>
+                <CheckBox Content="I understand data may be lost" IsChecked="{Binding Apply.AcknowledgeDataLoss}"
+                          IsVisible="{Binding Apply.HasDestructive}" VerticalAlignment="Center" Margin="8,0"
+                          ToolTip.Tip="The ticked differences delete target rows; they run only once this is ticked"/>
+                <TextBlock Classes="muted" Text="{Binding Apply.Status}" VerticalAlignment="Center" Margin="8,0" TextWrapping="Wrap"/>
+            </WrapPanel>
+        </Border>
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,*" Margin="8">
+            <TextBox Classes="code" Margin="0,0,4,0"
+                     Text="{Binding Apply.Script}"
+                     Watermark="Preview Sync shows the script here"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <TextBox Grid.Column="1" Classes="code" Margin="4,0,0,0"
+                     Text="{Binding Apply.Log}"
+                     Watermark="Apply lists each step's outcome here"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        </Grid>
+    </Grid>
+</UserControl>

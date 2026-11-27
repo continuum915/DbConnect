@@ -1,0 +1,10 @@
+<!-- Toggle buttons share the button shape; checked is the accent tint (FluentOverrides.axaml). -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="ToggleButton">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.ControlMinHeight}" />
+    <Setter Property="Padding" Value="{DynamicResource DbConnect.Thickness.ControlPadding}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Panel}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+</Styles>

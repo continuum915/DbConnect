@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.SaveChangesDialog"
+        Title="Unsaved changes"
+        Width="460"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}" Spacing="8">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap"/>
+        <ItemsControl x:Name="TabList" IsVisible="False" Margin="12,0,0,0" MaxHeight="200">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding StringFormat='• {0}'}" TextTrimming="CharacterEllipsis"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Border Classes="dialog-footer">
+            <StackPanel>
+                <Button x:Name="SaveButton" Classes="primary" Content="Save" Click="Save_Click" IsDefault="True"/>
+                <Button x:Name="DiscardButton" Content="Don't Save" Click="Discard_Click"/>
+                <Button x:Name="CancelButton" Content="Cancel" Click="Cancel_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

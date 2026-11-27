@@ -1,0 +1,6 @@
+<!-- Flat check boxes: an input-bordered box, an accent box with a surface tick when checked (FluentOverrides.axaml). -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="CheckBox /template/ Border#NormalRectangle">
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+  </Style>
+</Styles>

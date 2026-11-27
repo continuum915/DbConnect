@@ -1,0 +1,47 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="avares://DbConnectTheme/Themes/Resources/Colors.axaml" />
+        <MergeResourceInclude Source="avares://DbConnectTheme/Themes/Resources/Brushes.axaml" />
+        <MergeResourceInclude Source="avares://DbConnectTheme/Themes/Resources/Metrics.axaml" />
+        <MergeResourceInclude Source="avares://DbConnectTheme/Themes/Resources/Typography.axaml" />
+        <MergeResourceInclude Source="avares://DbConnectTheme/Themes/Resources/FluentOverrides.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/Button.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ToggleButton.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/TextBox.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ComboBox.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/CheckBox.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/RadioButton.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ProgressBar.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/Slider.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/TabControl.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ListBox.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/TreeView.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/Menu.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ContextMenu.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ToolTip.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/ScrollBar.axaml" />
+  <StyleInclude Source="avares://DbConnectTheme/Themes/Controls/DataGrid.axaml" />
+
+  <Style Selector=":is(TemplatedControl)">
+    <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.UI}" />
+    <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Body}" />
+  </Style>
+
+  <Style Selector="TextBlock">
+    <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.UI}" />
+    <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Body}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+  </Style>
+
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Window}" />
+    <Setter Property="FontFamily" Value="{DynamicResource DbConnect.FontFamily.UI}" />
+  </Style>
+</Styles>

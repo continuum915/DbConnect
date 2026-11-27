@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        xmlns:views="using:DbConnect.Views"
+        x:Class="DbConnect.Views.DumpTablesDialog"
+        x:DataType="vm:DumpTablesViewModel"
+        Title="Dump SQL File"
+        Width="520" Height="480" MinWidth="400" MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Name="DumpTables" Classes="primary" Content="Dump…" Command="{Binding DumpCommand}" IsDefault="True"/>
+                <Button Name="CancelDumpTables" Content="Cancel" Click="Cancel_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <Grid DockPanel.Dock="Bottom" Classes="form" ColumnDefinitions="Auto,*" Margin="0,8,0,0">
+            <TextBlock Text="Dump:"/>
+            <ComboBox Name="DumpModeChoice" Grid.Column="1" ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}"
+                      HorizontalAlignment="Stretch"/>
+        </Grid>
+
+        <views:TableChoiceList/>
+    </DockPanel>
+</Window>

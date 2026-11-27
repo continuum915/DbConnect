@@ -1,0 +1,134 @@
+<!-- The Objects tab (the design's Main artboard): a toolbar of actions for the current object type with a search box
+     and List / Detail / ER toggles, the objects as a detail grid or a list of names, and a footer with the counts. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.ObjectsTabView"
+             x:DataType="vm:ObjectsTabViewModel">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="toolbar">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBox Name="ObjectSearch" Classes="field" Watermark="{Binding KindLabel, StringFormat='Search {0}'}"
+                             Text="{Binding SearchText}" AutomationProperties.Name="Search objects">
+                        <TextBox.InnerLeftContent>
+                            <fi:SymbolIcon Classes="inline muted" Symbol="Search"/>
+                        </TextBox.InnerLeftContent>
+                    </TextBox>
+                    <Separator/>
+                    <ToggleButton Classes="toolbar icon" IsChecked="{Binding IsListView, Mode=OneWay}"
+                                  Command="{Binding ShowListCommand}" ToolTip.Tip="List view" AutomationProperties.Name="List view">
+                        <fi:SymbolIcon Symbol="Grid"/>
+                    </ToggleButton>
+                    <ToggleButton Classes="toolbar icon" IsChecked="{Binding IsDetailView, Mode=OneWay}"
+                                  Command="{Binding ShowDetailCommand}" ToolTip.Tip="Detail view" AutomationProperties.Name="Detail view">
+                        <fi:SymbolIcon Symbol="TextBulletList"/>
+                    </ToggleButton>
+                    <Button Classes="toolbar icon" Command="{Binding ShowDiagramCommand}"
+                            ToolTip.Tip="ER diagram view" AutomationProperties.Name="ER diagram view">
+                        <fi:SymbolIcon Symbol="Flowchart"/>
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" ClipToBounds="True">
+                    <Button Classes="toolbar" Command="{Binding OpenCommand}" IsEnabled="{Binding HasSelection}"
+                            ToolTip.Tip="{Binding KindSingular, StringFormat='Open {0}'}">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconBlue" Symbol="Table"/>
+                            <TextBlock Text="{Binding KindSingular, StringFormat='Open {0}'}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Command="{Binding DesignCommand}" IsVisible="{Binding CanDesign}"
+                            IsEnabled="{Binding HasSelection}" ToolTip.Tip="{Binding KindSingular, StringFormat='Design {0}'}">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconOrange" Symbol="Edit"/>
+                            <TextBlock Text="{Binding KindSingular, StringFormat='Design {0}'}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Command="{Binding CreateCommand}" IsVisible="{Binding CanCreate}"
+                            ToolTip.Tip="{Binding KindSingular, StringFormat='New {0}'}">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconGreen" Symbol="Add"/>
+                            <TextBlock Text="{Binding KindSingular, StringFormat='New {0}'}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Command="{Binding DeleteCommand}" IsEnabled="{Binding HasSelection}"
+                            ToolTip.Tip="{Binding KindSingular, StringFormat='Delete {0}'}">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconRed" Symbol="Delete"/>
+                            <TextBlock Text="{Binding KindSingular, StringFormat='Delete {0}'}"/>
+                        </StackPanel>
+                    </Button>
+                    <Separator IsVisible="{Binding IsTables}"/>
+                    <Button Classes="toolbar" Command="{Binding ImportCommand}" IsVisible="{Binding IsTables}"
+                            ToolTip.Tip="Import CSV">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconTeal" Symbol="ArrowImport"/>
+                            <TextBlock Text="Import Wizard"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="toolbar" Command="{Binding ExportCommand}" IsVisible="{Binding IsTables}"
+                            IsEnabled="{Binding HasSelection}" ToolTip.Tip="Export data">
+                        <StackPanel>
+                            <fi:SymbolIcon Classes="role" Tag="IconTeal" Symbol="ArrowExport"/>
+                            <TextBlock Text="Export Wizard"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom" Classes="footer-strip">
+            <TextBlock Name="ObjectsFooter" Text="{Binding FooterText}"/>
+        </Border>
+
+        <Panel>
+            <DataGrid Name="ObjectsGrid" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow}"
+                      IsVisible="{Binding IsDetailView}" IsReadOnly="True" BorderThickness="0"
+                      CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True"
+                      DoubleTapped="Grid_DoubleTapped">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Name" Width="2*" SortMemberPath="Name">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:ObjectRow">
+                                <StackPanel Classes="object-name" Orientation="Horizontal">
+                                    <fi:SymbolIcon Classes="node-icon" Tag="{Binding IconRole}" Symbol="{Binding Icon}"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Rows" Binding="{Binding Rows}" Width="Auto" CellStyleClasses="number"/>
+                    <DataGridTextColumn Header="Data Length" Binding="{Binding DataLength}" Width="Auto" CellStyleClasses="number"/>
+                    <DataGridTextColumn Header="Engine" Binding="{Binding Engine}" Width="Auto"/>
+                    <DataGridTextColumn Header="Modified" Binding="{Binding Modified}" Width="Auto"/>
+                    <DataGridTextColumn Header="Collation" Binding="{Binding Collation}" Width="Auto"/>
+                    <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="2*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <ListBox Name="ObjectsList" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow}"
+                     IsVisible="{Binding IsListView}" BorderThickness="0" DoubleTapped="Grid_DoubleTapped">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ObjectRow">
+                        <StackPanel Classes="object-name" Orientation="Horizontal" Width="{DynamicResource DbConnect.Size.Field}">
+                            <fi:SymbolIcon Classes="node-icon" Tag="{Binding IconRole}" Symbol="{Binding Icon}"/>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <views:EmptyState IsVisible="{Binding IsEmpty}"
+                              Icon="Grid"
+                              Title="{Binding KindLabel, StringFormat='No {0}'}"
+                              Message="Connect to a database, or choose another object type in the toolbar or the navigator."/>
+        </Panel>
+    </DockPanel>
+</UserControl>

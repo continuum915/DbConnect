@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DbConnect.ViewModels"
+        x:Class="DbConnect.Views.JobEditorDialog"
+        x:DataType="vm:JobEditorDialogViewModel"
+        Title="Edit Job"
+        Width="520" Height="420" MinWidth="420" MinHeight="340"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Name="OkButton" Classes="primary" Content="OK" IsDefault="True" IsEnabled="{Binding CanSave}"/>
+                <Button Name="CancelButton" Content="Cancel" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer>
+            <Grid Classes="form" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                <TextBlock Text="Job name:"/>
+                <TextBox Grid.Column="1" Text="{Binding Name, Mode=TwoWay}" Watermark="Job name"/>
+
+                <TextBlock Grid.Row="1" Text="Type:"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding JobTypes}"
+                          SelectedItem="{Binding Type, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="error-text" Text="{Binding TypeWarning}" TextWrapping="Wrap"
+                           IsVisible="{Binding TypeWarning, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+
+                <TextBlock Grid.Row="3" Text="Connection:" IsVisible="{Binding NeedsConnection}"/>
+                <AutoCompleteBox Grid.Row="3" Grid.Column="1" Text="{Binding ConnectionName, Mode=TwoWay}" IsVisible="{Binding NeedsConnection}"
+                                 ItemsSource="{Binding AvailableConnections}"
+                                 FilterMode="ContainsOrdinal"
+                                 MinimumPrefixLength="0"
+                                 Watermark="Name of a saved connection"/>
+
+                <TextBlock Grid.Row="4" Text="{Binding DetailLabel, StringFormat='{}{0}:'}" VerticalAlignment="Top"/>
+                <TextBox Grid.Row="4" Grid.Column="1" Classes="code" Text="{Binding SqlOrFilePath, Mode=TwoWay}"
+                         Watermark="{Binding DetailWatermark}" AcceptsReturn="True" Height="100"/>
+
+                <TextBlock Grid.Row="5" Grid.Column="1" Classes="caption muted" TextWrapping="Wrap"
+                           Text="Jobs run only when you click Run Now. Scheduled runs are not available yet."/>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

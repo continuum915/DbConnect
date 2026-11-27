@@ -1,0 +1,492 @@
+[
+  {
+    "File": "LICENSE.md",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/LICENSE.md",
+    "UpstreamSha256": "096BA61F14D930AB7728A53FE891150E4356D2614AD7C341EEEDCFA36B99E3B4"
+  },
+  {
+    "File": "TextMateSharp.snk",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp.snk",
+    "UpstreamSha256": "1C78C93769D3BB2E75FBC8439F6E59E6F3BFA3E33939E4B31B8B8FAE8B425342"
+  },
+  {
+    "File": "Grammar/GrammarHelper.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/GrammarHelper.cs",
+    "UpstreamSha256": "3E9F112A379A8DE3256BDAFA662026DF3DAB8E0BB2C14201268BA67100E7678C"
+  },
+  {
+    "File": "Grammar/IGrammar.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/IGrammar.cs",
+    "UpstreamSha256": "3541F8E7FDB0887A986CA66DF712ECE495CAFD8C93E6FEFCEA913666FBC18868"
+  },
+  {
+    "File": "Grammar/IGrammarRepository.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/IGrammarRepository.cs",
+    "UpstreamSha256": "965518FDD5678D972C4D0373CB47C6718931BA0507B9404233A367424A780560"
+  },
+  {
+    "File": "Grammar/IToken.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/IToken.cs",
+    "UpstreamSha256": "CBEC4FDB39E85C1E984F973FFCFA418AE715C28674DF8015977C2A16E1E12673"
+  },
+  {
+    "File": "Grammar/ITokenizeLineResult.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/ITokenizeLineResult.cs",
+    "UpstreamSha256": "6DC204006F107476165C65B990C2519C80A8A611059AA1BB4A4EF38934362A27"
+  },
+  {
+    "File": "Grammar/ITokenizeLineResult2.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/ITokenizeLineResult2.cs",
+    "UpstreamSha256": "6F9BBD8D2183960A18E15FF03BFDEFD6CA3AA502F967EC802E93C2489D5E7F46"
+  },
+  {
+    "File": "Grammar/Injection.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/Injection.cs",
+    "UpstreamSha256": "80A00FAB05F57B34D976F7926F4E898466D68BEF9AD571D0F4C1D548BD74599E"
+  },
+  {
+    "File": "Grammar/LineText.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/LineText.cs",
+    "UpstreamSha256": "E9D9AC46305E2B3CF6C1144E7FF6F69FF3A3604FE39E2041DA68F08511359C73"
+  },
+  {
+    "File": "Grammar/StateStack.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Grammar/StateStack.cs",
+    "UpstreamSha256": "4A86CF203F9BF5D2FE102FE964E1CB0D30F0CBA80997EF7E09B0FFD25E8A1ACC"
+  },
+  {
+    "File": "Internal/Grammars/AttributedScopeStack.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/AttributedScopeStack.cs",
+    "UpstreamSha256": "7FE4909F095E72BA2DBE6D954A3C519426F7B96719489EEFA62A2C835A8F622F"
+  },
+  {
+    "File": "Internal/Grammars/BalancedBracketSelectors.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/BalancedBracketSelectors.cs",
+    "UpstreamSha256": "00FD7EC681BD84434CB82D7287E52DC0CF88A90FD6E280C2A1025A42FBA672BC"
+  },
+  {
+    "File": "Internal/Grammars/BasicScopeAttributes.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/BasicScopeAttributes.cs",
+    "UpstreamSha256": "D8AB57414C8C9613B6F22728DE6ADC5A816AE6CDA4B8AFF5240EEB45FB236730"
+  },
+  {
+    "File": "Internal/Grammars/BasicScopeAttributesProvider.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/BasicScopeAttributesProvider.cs",
+    "UpstreamSha256": "17BFF051A3FDD973C1129EC57A103EB867B3BF061F07EC62A7CA8CEFBA3C2028"
+  },
+  {
+    "File": "Internal/Grammars/EncodedTokenAttributes.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/EncodedTokenAttributes.cs",
+    "UpstreamSha256": "7B1A69B2D9E27060EF5A325926668771AF085D8D7419AB0567B9A51459B3ABE7"
+  },
+  {
+    "File": "Internal/Grammars/Grammar.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/Grammar.cs",
+    "UpstreamSha256": "68EC3ACB82C83D110EFCFB4767649AFCBC85067EF111294445E5F66516842D79"
+  },
+  {
+    "File": "Internal/Grammars/LineTokenizer.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/LineTokenizer.cs",
+    "UpstreamSha256": "A5F52FAD4DCFDE56CD43D2CF4528CCAC5C009DD24DFEBC9B84F43D435B2607AD"
+  },
+  {
+    "File": "Internal/Grammars/LineTokens.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/LineTokens.cs",
+    "UpstreamSha256": "B44888133977C8D583C07882D6DF2B9D352B74F7DB44AD5D71195059F3AAFF0D"
+  },
+  {
+    "File": "Internal/Grammars/LocalStackElement.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/LocalStackElement.cs",
+    "UpstreamSha256": "30C30C1474775D201E1068A160C6FC9AC4A64B31959B5CC19030448AAF669323"
+  },
+  {
+    "File": "Internal/Grammars/MetadataConsts.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/MetadataConsts.cs",
+    "UpstreamSha256": "9FE88C477249BCD5E4E5F5358AD30693B607BE196F0189D1441049D119641BC6"
+  },
+  {
+    "File": "Internal/Grammars/OptionalStandardTokenType.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/OptionalStandardTokenType.cs",
+    "UpstreamSha256": "711E9A8FFA84AEFE0391D35C3BDFB59EF37C43546439479A6012C6C66C6386AE"
+  },
+  {
+    "File": "Internal/Grammars/StandardTokenType.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/StandardTokenType.cs",
+    "UpstreamSha256": "A299C5B012CE348E48CDD8F24B727D55CEE4DC4E3ACF7FE070F957005912B81A"
+  },
+  {
+    "File": "Internal/Grammars/SyncRegistry.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/SyncRegistry.cs",
+    "UpstreamSha256": "5B9D8274B6C4AD242E9342F2AD6FD119244F04790BC6623AA7D60E89ED55AA2E"
+  },
+  {
+    "File": "Internal/Grammars/Token.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/Token.cs",
+    "UpstreamSha256": "B42B7EA168319F299835A5B4C7EACEAE106FF492BB7309D0538FD379E6F9865C"
+  },
+  {
+    "File": "Internal/Grammars/TokenTypeMatcher.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/TokenTypeMatcher.cs",
+    "UpstreamSha256": "6E67A9365B94A35F876E230AE7DA5470F8DEB80D10C97EB9C47120C7B84F20FE"
+  },
+  {
+    "File": "Internal/Grammars/TokenizeLineResult.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/TokenizeLineResult.cs",
+    "UpstreamSha256": "09C8D9CEA0F4113C33351ABB51B068163E71BAA0B81F711E3C987134E6897DFF"
+  },
+  {
+    "File": "Internal/Grammars/TokenizeLineResult2.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/TokenizeLineResult2.cs",
+    "UpstreamSha256": "786232D89298F179543A630634C4B99B7A240FA4F2E0CEEF2035AD3C5986BF19"
+  },
+  {
+    "File": "Internal/Grammars/TokenizeStringResult.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/TokenizeStringResult.cs",
+    "UpstreamSha256": "8A2A07DDA8A5CA73E1E8A9BE618CBA2DAC96C7327C63E96AD1273C36A933B81B"
+  },
+  {
+    "File": "Internal/Grammars/parser/PListGrammar.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/parser/PListGrammar.cs",
+    "UpstreamSha256": "D76FF41EE3983FD5E4C5EA31C08AA888BF24548EFCEDB49FB9B1A69AF3FE38D9"
+  },
+  {
+    "File": "Internal/Grammars/parser/Raw.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/parser/Raw.cs",
+    "UpstreamSha256": "385BD794F15177B109B474560BA35F4A6EE3A46D64EE35AD57C1DDABC5CC8D9B"
+  },
+  {
+    "File": "Internal/Grammars/reader/GrammarReader.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Grammars/reader/GrammarReader.cs",
+    "UpstreamSha256": "24AA7A0BC2303BA528858727AA46420F9D39E799DB7DF770B2375D566C5099F6"
+  },
+  {
+    "File": "Internal/Matcher/IMatchesName.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Matcher/IMatchesName.cs",
+    "UpstreamSha256": "06DCD0C0E077A19873A44154328B589FA72714EF5A7F6E26BAB0710D038DF6C2"
+  },
+  {
+    "File": "Internal/Matcher/MatchInjectionResult.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Matcher/MatchInjectionResult.cs",
+    "UpstreamSha256": "FFB6134ECCF1993AD8EDEBE00792E57C63419F056FE755779F14A411C59B352A"
+  },
+  {
+    "File": "Internal/Matcher/MatchResult.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Matcher/MatchResult.cs",
+    "UpstreamSha256": "3213AF7BA623F2B1F25DF46C049BFFC9C70E34AF427B3132361E1482ED94147D"
+  },
+  {
+    "File": "Internal/Matcher/Matcher.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Matcher/Matcher.cs",
+    "UpstreamSha256": "C73D2982C4108DF3AA05E782209DDD5C41CA0ED2AD5D3C4B6DEF98BC1E49C810"
+  },
+  {
+    "File": "Internal/Matcher/MatcherBuilder.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Matcher/MatcherBuilder.cs",
+    "UpstreamSha256": "D83C9131A67796823C9948AF4E718622566D184FEB975BBFB15D5C7C452FDE34"
+  },
+  {
+    "File": "Internal/Matcher/MatcherWithPriority.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Matcher/MatcherWithPriority.cs",
+    "UpstreamSha256": "1BE817CD267783C47D5CB4F8E146119D26BCFDE933990CBD6BBDC6C602FEC41D"
+  },
+  {
+    "File": "Internal/Parser/Json/JSONPListParser.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Parser/Json/JSONPListParser.cs",
+    "UpstreamSha256": "005D055E2A8FF1174481929EC75883E8E37A9F96911747BF214C8DE049B1C257"
+  },
+  {
+    "File": "Internal/Parser/Json/SimpleJSON.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Parser/Json/SimpleJSON.cs",
+    "UpstreamSha256": "7DBFF5A04DAF2683A492C46784410179481768EA791906F2FBFDBF3353DBEDF4"
+  },
+  {
+    "File": "Internal/Parser/PList.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Parser/PList.cs",
+    "UpstreamSha256": "438E0A41422AFF828C45A8924589B25068DAC6CE2B3E2C5C24D7DFF40BD33263"
+  },
+  {
+    "File": "Internal/Parser/PListObject.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Parser/PListObject.cs",
+    "UpstreamSha256": "F181615EB62451FCDD7F59C8B56CB3547A677B794005C307504C8B4E178A9B79"
+  },
+  {
+    "File": "Internal/Rules/BeginEndRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/BeginEndRule.cs",
+    "UpstreamSha256": "3BD2D52EE3811808CAA2DC0637BAF04E61740261C6C9975ECB0A9A00D203F06A"
+  },
+  {
+    "File": "Internal/Rules/BeginWhileRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/BeginWhileRule.cs",
+    "UpstreamSha256": "298BF8E26EC66D1391EEC4C094589B6A2DD79AF9886E360B3372404E242E14A0"
+  },
+  {
+    "File": "Internal/Rules/CaptureRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/CaptureRule.cs",
+    "UpstreamSha256": "7BF23BF803ABEA3C0A13C647BDEC0B0DB761D850FCB2E3B82EAA5E8724CBF7DC"
+  },
+  {
+    "File": "Internal/Rules/ICompilePatternsResult.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/ICompilePatternsResult.cs",
+    "UpstreamSha256": "E485AA9120CD606023E490FCBFB4B32D2F2266C0CA6FBDF8DAEECEE24BFB5937"
+  },
+  {
+    "File": "Internal/Rules/ICompiledRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/ICompiledRule.cs",
+    "UpstreamSha256": "C65993E5FC2361264BDB71EB7404070DEF01C292E43E8950441E04D5BE347839"
+  },
+  {
+    "File": "Internal/Rules/IGrammarRegistry.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/IGrammarRegistry.cs",
+    "UpstreamSha256": "96E48E2A39C770B37BC37DD6D61DBD7AA76A7AC54EC4624F6F40C2F0F262F406"
+  },
+  {
+    "File": "Internal/Rules/IRegExpSourceAnchorCache.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/IRegExpSourceAnchorCache.cs",
+    "UpstreamSha256": "655F3CB02C2BB5540BFD8412C94B7BF99F597AE2D72089D3136B41C0323D76CA"
+  },
+  {
+    "File": "Internal/Rules/IRuleFactoryHelper.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/IRuleFactoryHelper.cs",
+    "UpstreamSha256": "8BDBE18B7E924C62BA6418B74E396EB37EB5C187C665F8BF69422DE97CEBBE1E"
+  },
+  {
+    "File": "Internal/Rules/IRuleRegistry.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/IRuleRegistry.cs",
+    "UpstreamSha256": "1A2E638F5C5D85F65B16A50D18EC4381630D25B77A8987CFABDB8404A6EA87A7"
+  },
+  {
+    "File": "Internal/Rules/IncludeOnlyRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/IncludeOnlyRule.cs",
+    "UpstreamSha256": "C38080144BB30DD72C3BA779E7BF7D85E5DD7F1EFDFDE73AF837C945E23DA66D"
+  },
+  {
+    "File": "Internal/Rules/MatchRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/MatchRule.cs",
+    "UpstreamSha256": "F39265A009E965D150F9191D4480D4097D80D375001CABCF92E2AF3272BCEB3E"
+  },
+  {
+    "File": "Internal/Rules/RegExpSource.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/RegExpSource.cs",
+    "UpstreamSha256": "EB61E8A479475E538E319193F9278B0AC95A6D41DF6277043BE349B51FFEF1EB"
+  },
+  {
+    "File": "Internal/Rules/RegExpSourceList.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/RegExpSourceList.cs",
+    "UpstreamSha256": "76396ACFDB78E8B4DFDFC4DEAFE3CE875404F635C2490C553F4E420733432A1E"
+  },
+  {
+    "File": "Internal/Rules/Rule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/Rule.cs",
+    "UpstreamSha256": "F44A92D0C03601A4E53BF20F88D114585318BF05A07A69A3F49B75B5D8DEDEA4"
+  },
+  {
+    "File": "Internal/Rules/RuleFactory.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/RuleFactory.cs",
+    "UpstreamSha256": "5938408782466AB144B02E65CE91F977F9A3AC89192C864C3EB85A11DE505821"
+  },
+  {
+    "File": "Internal/Rules/RuleId.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Rules/RuleId.cs",
+    "UpstreamSha256": "E479726FFE8DB246651109998D90C917609A2EE7211820D55301D0B8DA5F5A5D"
+  },
+  {
+    "File": "Internal/Themes/PListTheme.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Themes/PListTheme.cs",
+    "UpstreamSha256": "DB8BEB47681F22616A5098B06D9C58F882CA1404F66C29B412401E6D8C88C029"
+  },
+  {
+    "File": "Internal/Themes/ThemeRaw.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Themes/ThemeRaw.cs",
+    "UpstreamSha256": "5FBD2B8DFE27E866037DADFB980272DB87DF178E4962A80363EAEEB18A676F38"
+  },
+  {
+    "File": "Internal/Themes/reader/ThemeReader.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Themes/reader/ThemeReader.cs",
+    "UpstreamSha256": "F9EF029918FCA4CC405C98E5F9F7345A8A1ACD5C6D4D42872D3AA73B51247DE8"
+  },
+  {
+    "File": "Internal/Types/IRawCaptures.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Types/IRawCaptures.cs",
+    "UpstreamSha256": "1171306437F6F704F00D49F263D1B864AC8B17B425BA6CB19A9E869DDD76655C"
+  },
+  {
+    "File": "Internal/Types/IRawGrammar.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Types/IRawGrammar.cs",
+    "UpstreamSha256": "8C2E8D1CE2C2B8FFADE1EF889779CF2BCC040DB1487BEB212993A036B49836AD"
+  },
+  {
+    "File": "Internal/Types/IRawRepository.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Types/IRawRepository.cs",
+    "UpstreamSha256": "EF8C2AB69AA8CF9A4E4DE132375856A009EF4E6D8BBEC4CBFEC7281CD1457EC5"
+  },
+  {
+    "File": "Internal/Types/IRawRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Types/IRawRule.cs",
+    "UpstreamSha256": "F30B2502BCAF46E2BDC52E400FB33B3CEBFC83F0C5DB8EA1B7CA58CF90F70653"
+  },
+  {
+    "File": "Internal/Utils/RegexSource.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Utils/RegexSource.cs",
+    "UpstreamSha256": "454392807015A20FE325C011467857B8679061799B6759ACC9CD9DB65BF9F9BA"
+  },
+  {
+    "File": "Internal/Utils/StringUtils.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Internal/Utils/StringUtils.cs",
+    "UpstreamSha256": "EC61F916EFEB9C3D4FCFDC04A5A8B87A3BAC2ED5F106CE1C4EEF07AC24D718ED"
+  },
+  {
+    "File": "Model/AbstractLineList.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/AbstractLineList.cs",
+    "UpstreamSha256": "E2B8F3BD65FDFED328F2C01255B6CB0A50E3B3FA705A4908490749611177BDAB"
+  },
+  {
+    "File": "Model/DecodeMap.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/DecodeMap.cs",
+    "UpstreamSha256": "0BA816D39F6A139F56723BD2B384FB2BB1B9F01F9F8F0709E74D42F7E92C8F93"
+  },
+  {
+    "File": "Model/IModelLines.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/IModelLines.cs",
+    "UpstreamSha256": "1E6B63BF88981C134245665222A7849E814BB5BF12530BBD0C7740A15CBC608B"
+  },
+  {
+    "File": "Model/IModelTokensChangedListener.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/IModelTokensChangedListener.cs",
+    "UpstreamSha256": "9A795230537A5F1413CBDD5D812EC9BA5BDB37D90E88F7E5A00144A3814DD7B2"
+  },
+  {
+    "File": "Model/ITMModel.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/ITMModel.cs",
+    "UpstreamSha256": "6DB0BA5195C15CA623D66B2DAAD3E19DEAE41155E42D4784FCE2D88F645FEE1B"
+  },
+  {
+    "File": "Model/ITokenizationSupport.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/ITokenizationSupport.cs",
+    "UpstreamSha256": "B9AEBDD58B39083994EF487B4F0F380360623D6B1CD914D9D828270FA05DFC6C"
+  },
+  {
+    "File": "Model/LineTokens.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/LineTokens.cs",
+    "UpstreamSha256": "2568C9CB39D58E4A2840A5127E22B737A938321FFB47DE9959A271755A8FF085"
+  },
+  {
+    "File": "Model/ModelLine.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/ModelLine.cs",
+    "UpstreamSha256": "BB87C10C5142CC016B2047FA1BBC610FCA54E0509084677A6163DCD452DE52BF"
+  },
+  {
+    "File": "Model/ModelTokensChangedEvent.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/ModelTokensChangedEvent.cs",
+    "UpstreamSha256": "0F95EA822AA33047C3A3FEF6947532800DE89DCAAE63EB4BA6CDD2907291F659"
+  },
+  {
+    "File": "Model/ModelTokensChangedEventBuilder.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/ModelTokensChangedEventBuilder.cs",
+    "UpstreamSha256": "4F3E64DC48317C3E070A2531FE4443035495DAA0BE02DAA6E2E3CE96A6E7D63C"
+  },
+  {
+    "File": "Model/Range.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/Range.cs",
+    "UpstreamSha256": "9822314C159028804CCDAE41C762C628451D46C4B110B2F7613C4B7054D474B5"
+  },
+  {
+    "File": "Model/TMModel.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/TMModel.cs",
+    "UpstreamSha256": "867727C71475103838B70F8BDF07D4A5BE8E539E829CB7A876331F60DF636901"
+  },
+  {
+    "File": "Model/TMState.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/TMState.cs",
+    "UpstreamSha256": "857BA648E4A57EF6E1121D04F2C68CC9C240CB065CD4F3EE23B824902461E87D"
+  },
+  {
+    "File": "Model/TMToken.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/TMToken.cs",
+    "UpstreamSha256": "84CF9B7359B2F492326DFB481FF92739E5D6C2EF4EF4FFC5D446B6C5B1CD6652"
+  },
+  {
+    "File": "Model/TMTokenDecodeData.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/TMTokenDecodeData.cs",
+    "UpstreamSha256": "6BA040D0BB6F828A30E122E323241D9EFF78AE3CDF0F9789299C4F99CB1F9282"
+  },
+  {
+    "File": "Model/Tokenizer.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Model/Tokenizer.cs",
+    "UpstreamSha256": "1830046FA65D6AB4ED146397F25BBA10AF1E127B4F235A4FB0CE751A2463672C"
+  },
+  {
+    "File": "Properties/AssemblyInfo.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Properties/AssemblyInfo.cs",
+    "UpstreamSha256": "966A63A4C73768965C38859BDB54A230D481128585EACE575E9D1D034BD0348A"
+  },
+  {
+    "File": "Registry/IRegistryOptions.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Registry/IRegistryOptions.cs",
+    "UpstreamSha256": "B697BDD0C6B550AEF9BD50CC6F06CA83E0C18DE05B50AB5AF3F9B16B38B82973"
+  },
+  {
+    "File": "Registry/Registry.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Registry/Registry.cs",
+    "UpstreamSha256": "FCB91004D589E02195064031280A51170096B830F6976C42D12388AC7355EAFE"
+  },
+  {
+    "File": "TMException.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/TMException.cs",
+    "UpstreamSha256": "3F6CE1867E20BA36F0A5EFB3C326A248C8F0FC7666ACB6985762CE437A98577D"
+  },
+  {
+    "File": "TextMateSharp.csproj",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/TextMateSharp.csproj",
+    "UpstreamSha256": "2C9283703B6C262F1BAA533F288B898F9919F0C2AAD37D665F1E4228117BEA8B"
+  },
+  {
+    "File": "Themes/ColorMap.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/ColorMap.cs",
+    "UpstreamSha256": "CD401C8AFBF424823C59842D79AA058B676F4E8A42C8291B06C8FBEB6D0F9DF6"
+  },
+  {
+    "File": "Themes/FontStyle.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/FontStyle.cs",
+    "UpstreamSha256": "4ACA65B0E6E3EAFCDF2441ED8D7C79F4E9910ACB90233BFCEB709823DE6B3124"
+  },
+  {
+    "File": "Themes/IRawTheme.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/IRawTheme.cs",
+    "UpstreamSha256": "50F60139D860DC1E93A65F1A659C6D3A13AC42002639270F881346DD6F488206"
+  },
+  {
+    "File": "Themes/IRawThemeSetting.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/IRawThemeSetting.cs",
+    "UpstreamSha256": "58EF80A08383914456509BF67BE1742C3305B6B4486490099D10B1AD0794642B"
+  },
+  {
+    "File": "Themes/IThemeProvider.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/IThemeProvider.cs",
+    "UpstreamSha256": "16126F83B4B9820C02C67FFC1125D9277CDC3A9812375D401D2E8167C8D6A81C"
+  },
+  {
+    "File": "Themes/IThemeSetting.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/IThemeSetting.cs",
+    "UpstreamSha256": "2DA8C0A5DC10E9495F3619DCE6ED8E0557CB4A134935DEA5E431E447504D9401"
+  },
+  {
+    "File": "Themes/ParsedThemeRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/ParsedThemeRule.cs",
+    "UpstreamSha256": "7B9966775E2BB3D5C66961738BE7CDE86C671FB342DBAE1EB8880722BA06A9AA"
+  },
+  {
+    "File": "Themes/Theme.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/Theme.cs",
+    "UpstreamSha256": "B9DA4FD9A98EEA4361BD7E199149AB99AD936B972F4F9E60B7DDA39E8E58C615"
+  },
+  {
+    "File": "Themes/ThemeTrieElement.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/ThemeTrieElement.cs",
+    "UpstreamSha256": "A75ED35E8A010370095C66B689469C85BCAF3C3FB8DDD551539B2F42B5956E3E"
+  },
+  {
+    "File": "Themes/ThemeTrieElementRule.cs",
+    "Url": "https://raw.githubusercontent.com/danipen/TextMateSharp/4532112f6ee96c8d7847ee66a79719dfe58e9f43/src/TextMateSharp/Themes/ThemeTrieElementRule.cs",
+    "UpstreamSha256": "FF9C9CFC56E7D0000F89CB2A1A98F9189F908A344366BD72334BF53E7BAF443F"
+  }
+]

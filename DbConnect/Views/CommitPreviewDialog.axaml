@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.CommitPreviewDialog"
+        Title="Preview Changes"
+        Width="640" Height="420" MinWidth="440" MinHeight="300"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Name="CommitButton" Content="Commit" Classes="primary" IsDefault="True"/>
+                <Button Name="CancelButton" Content="Cancel" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock DockPanel.Dock="Top" Name="SummaryBlock" Classes="muted" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+        <Border BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="1"
+                CornerRadius="{DynamicResource DbConnect.CornerRadius.Panel}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <TextBlock Name="SqlPreviewBlock" Classes="code"
+                           Foreground="{DynamicResource DbConnectCodeFgBrush}"
+                           Background="{DynamicResource DbConnectCodeBgBrush}"
+                           Padding="8"
+                           TextWrapping="NoWrap"/>
+            </ScrollViewer>
+        </Border>
+    </DockPanel>
+</Window>

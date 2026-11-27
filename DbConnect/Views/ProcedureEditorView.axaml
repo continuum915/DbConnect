@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:ae="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.ProcedureEditorView"
+             x:DataType="vm:ProcedureEditorViewModel">
+    <Grid RowDefinitions="Auto,*,5,Auto,5,*">
+        <Border Grid.Row="0" Classes="toolbar">
+            <WrapPanel Orientation="Horizontal">
+                <Button Classes="toolbar icon" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsSaving}" ToolTip.Tip="Save (Ctrl+S)">
+                    <fi:SymbolIcon Symbol="Save"/>
+                </Button>
+                <Button Classes="toolbar icon" Command="{Binding ExecuteCommand}" IsEnabled="{Binding !IsLoading}" ToolTip.Tip="Execute (F5)">
+                    <fi:SymbolIcon Symbol="Play"/>
+                </Button>
+                <Button Classes="toolbar icon" Command="{Binding RunCommand}" IsEnabled="{Binding !IsLoading}" ToolTip.Tip="Run with parameters…">
+                    <fi:SymbolIcon Symbol="PlayCircle"/>
+                </Button>
+                <Separator/>
+                <ProgressBar IsIndeterminate="True"
+                             IsVisible="{Binding IsLoading}"
+                             Width="80"
+                             VerticalAlignment="Center"/>
+                <ProgressBar IsIndeterminate="True"
+                             IsVisible="{Binding IsSaving}"
+                             Width="80"
+                             VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{DynamicResource DbConnectDangerBrush}"
+                           IsVisible="{Binding HasError}"
+                           VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{DynamicResource DbConnectSuccessBrush}"
+                           IsVisible="{Binding !HasError}"
+                           VerticalAlignment="Center"/>
+            </WrapPanel>
+        </Border>
+
+        <Border Grid.Row="1" BorderBrush="{DynamicResource DbConnectDividerBrush}" BorderThickness="0,0,0,1">
+            <ae:TextEditor Name="DefinitionEditor"
+                           Background="{DynamicResource DbConnectCodeBgBrush}"
+                           Foreground="{DynamicResource DbConnectCodeFgBrush}"
+                           ShowLineNumbers="True"
+                           HorizontalScrollBarVisibility="Auto"
+                           VerticalScrollBarVisibility="Auto"/>
+        </Border>
+
+        <GridSplitter Grid.Row="2" ResizeDirection="Rows"/>
+
+        <Border Grid.Row="3"
+                IsVisible="{Binding ShowParameters}"
+                BorderBrush="{DynamicResource DbConnectSubtleBorderBrush}"
+                BorderThickness="0,0,0,1"
+                MaxHeight="160">
+            <DataGrid ItemsSource="{Binding Parameters}"
+                      AutoGenerateColumns="False"
+                      CanUserResizeColumns="True"
+                      GridLinesVisibility="All">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Parameter" Binding="{Binding Name}" Width="140" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding DataType}" Width="140" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="90" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Default" Binding="{Binding DefaultValue}" Width="140" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding RuntimeValue}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <GridSplitter Grid.Row="4" ResizeDirection="Rows" IsVisible="{Binding ExecutionResult, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+
+        <Border Grid.Row="5" IsVisible="{Binding ExecutionResult, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <views:QueryResultView DataContext="{Binding ExecutionResult}"/>
+        </Border>
+    </Grid>
+</UserControl>

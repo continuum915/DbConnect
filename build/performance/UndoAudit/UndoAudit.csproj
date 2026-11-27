@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DbConnectRoot Condition="'$(DbConnectRoot)' == ''">$(MSBuildThisFileDirectory)../../..</DbConnectRoot>
+    <OutputPath Condition="'$(AuditOutputDirectory)' != ''">$(AuditOutputDirectory)/</OutputPath>
+    <AppendTargetFrameworkToOutputPath Condition="'$(AuditOutputDirectory)' != ''">false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(DbConnectRoot)/DbConnect.PerformanceTests/DbConnect.PerformanceTests.csproj" />
+    <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.510501" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.21" />
+  </ItemGroup>
+</Project>

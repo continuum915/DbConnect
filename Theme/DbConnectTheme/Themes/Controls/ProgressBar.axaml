@@ -1,0 +1,10 @@
+<!-- A thin flat bar: accent fill on the disabled grey. -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="ProgressBar">
+    <Setter Property="MinHeight" Value="6" />
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Disabled}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Accent}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource DbConnect.CornerRadius.Control}" />
+  </Style>
+</Styles>

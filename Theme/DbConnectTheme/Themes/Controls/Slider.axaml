@@ -1,0 +1,10 @@
+<!-- Sliders: accent value on a disabled-grey track. -->
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="Slider">
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Accent}" />
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Disabled}" />
+  </Style>
+  <Style Selector="Slider:disabled">
+    <Setter Property="Opacity" Value="0.65" />
+  </Style>
+</Styles>

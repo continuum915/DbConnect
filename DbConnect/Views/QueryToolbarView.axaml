@@ -1,0 +1,172 @@
+<!-- The query tab's toolbar (the design's QueryEditor artboard): Save | connection and database | Run, Run Current, Stop,
+     Explain | Beautify, Comment, Find, More | Auto-commit, Commit, Rollback | Timeout, Limit. Every action is an
+     existing command; the window's commands act on this (the active) tab. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DbConnect.ViewModels"
+             xmlns:views="using:DbConnect.Views"
+             xmlns:svc="using:DbConnect.Services"
+             xmlns:models="using:DbConnect.Models"
+             xmlns:fi="using:FluentIcons.Avalonia"
+             x:Class="DbConnect.Views.QueryToolbarView"
+             x:DataType="vm:QueryTabViewModel">
+    <Border Classes="toolbar">
+        <!-- Wraps onto a second row in a narrow window rather than hiding commands. -->
+        <WrapPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
+                <Button Classes="toolbar icon" ToolTip.Tip="Save (Ctrl+S)" AutomationProperties.Name="Save"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Files.SaveActiveCommand}">
+                    <fi:SymbolIcon Symbol="Save"/>
+                </Button>
+                <Separator/>
+                <fi:SymbolIcon Classes="inline role" Tag="IconGreen" Symbol="PlugConnected"/>
+                <ComboBox Name="ConnectionPicker" ItemsSource="{Binding AvailableSessions}"
+                          SelectedItem="{Binding SelectedSession}"
+                          PlaceholderText="{Binding ConnectionPlaceholder}"
+                          MinWidth="{DynamicResource DbConnect.Size.Field}"
+                          ToolTip.Tip="Connection used by this query tab. It cannot change while a transaction is open or result edits are pending.">
+                    <!-- CanChangeConnection also checks ResultEditor.HasChanges, which it isn't notified about. -->
+                    <ComboBox.IsEnabled>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="CanChangeConnection"/>
+                            <Binding Path="!ResultEditor.HasChanges"/>
+                        </MultiBinding>
+                    </ComboBox.IsEnabled>
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="svc:DatabaseSession">
+                            <TextBlock Text="{Binding DisplayName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <fi:SymbolIcon Classes="inline role" Tag="IconGold" Symbol="Database" IsVisible="{Binding DatabasePicker.IsAvailable}"/>
+                <ComboBox Name="DatabasePicker" ItemsSource="{Binding DatabasePicker.Databases}"
+                          SelectedItem="{Binding DatabasePicker.SelectedDatabase}"
+                          IsVisible="{Binding DatabasePicker.IsAvailable}"
+                          MinWidth="{DynamicResource DbConnect.Size.FieldShort}"
+                          ToolTip.Tip="Database this tab runs in. Switching opens that database's session; it is refused while a transaction is open."/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Separator/>
+                <Button Name="RunButton" Classes="toolbar run" ToolTip.Tip="Run (F5)"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ExecuteQueryCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Play"/>
+                        <TextBlock Text="Run"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" ToolTip.Tip="Run the selection, or the statement at the cursor (Ctrl+Enter)"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ExecuteSelectionCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Classes="role" Tag="IconGreen" Symbol="PlayCircle"/>
+                        <TextBlock Text="Run Current"/>
+                    </StackPanel>
+                </Button>
+                <Button Name="StopButton" Classes="toolbar" ToolTip.Tip="Stop (Ctrl+Escape)" IsEnabled="{Binding CanCancel}"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CancelQueryCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Stop"/>
+                        <TextBlock Text="Stop"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" ToolTip.Tip="{Binding ExplainButtonToolTip}"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ExplainQueryCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Classes="role" Tag="IconOrange" Symbol="Organization"/>
+                        <TextBlock Text="Explain"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Separator/>
+                <Button Classes="toolbar" ToolTip.Tip="Beautify SQL (Ctrl+Shift+F)" Command="{Binding FormatSqlCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Classes="role" Tag="IconPurple" Symbol="Wand"/>
+                        <TextBlock Text="Beautify SQL"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="toolbar" ToolTip.Tip="Comment or uncomment the selection (Ctrl+Shift+/)"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ToggleCommentActiveTabCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Classes="role" Tag="TextMuted" Symbol="Comment"/>
+                        <TextBlock Text="Comment"/>
+                    </StackPanel>
+                </Button>
+                <Button Name="FindButton" Classes="toolbar" ToolTip.Tip="Find / Replace (Ctrl+F)"
+                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).FindReplaceActiveTabCommand}">
+                    <StackPanel>
+                        <fi:SymbolIcon Symbol="Search"/>
+                        <TextBlock Text="Find"/>
+                    </StackPanel>
+                </Button>
+                <Button Name="MoreButton" Classes="toolbar" ToolTip.Tip="Favorites, recent queries, snippets, files">
+                    <StackPanel>
+                        <TextBlock Text="More"/>
+                        <fi:SymbolIcon Classes="caret" Symbol="ChevronDown"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                            <MenuItem Header="Add to Favorites…" Command="{Binding SaveCurrentQueryCommand}"/>
+                            <MenuItem Header="Favorites" Name="FavoritesMenu" ItemsSource="{Binding SavedQueries}">
+                                <MenuItem.Styles>
+                                    <Style Selector="MenuItem" x:DataType="models:SavedQueryDefinition">
+                                        <Setter Property="Header" Value="{Binding DisplayName}"/>
+                                    </Style>
+                                </MenuItem.Styles>
+                            </MenuItem>
+                            <MenuItem Header="Recent Queries" Name="RecentMenu" ItemsSource="{Binding RecentQueries}">
+                                <MenuItem.Styles>
+                                    <Style Selector="MenuItem" x:DataType="models:QueryHistoryEntry">
+                                        <Setter Property="Header" Value="{Binding DisplayName}"/>
+                                    </Style>
+                                </MenuItem.Styles>
+                            </MenuItem>
+                            <MenuItem Header="Insert Snippet" Name="SnippetMenu" ItemsSource="{Binding AvailableSnippets}">
+                                <MenuItem.Styles>
+                                    <Style Selector="MenuItem" x:DataType="models:SqlSnippetDefinition">
+                                        <Setter Property="Header" Value="{Binding DisplayName}"/>
+                                    </Style>
+                                </MenuItem.Styles>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="Open SQL File…" InputGesture="Ctrl+O"
+                                      Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Files.OpenCommand}"/>
+                            <MenuItem Header="Save As…" InputGesture="Ctrl+Shift+S"
+                                      Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Files.SaveActiveAsCommand}"/>
+                            <MenuItem Header="Go to Line…" InputGesture="Ctrl+G"
+                                      Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).GoToLineActiveTabCommand}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <Separator/>
+                <CheckBox Name="AutoCommit" Content="Auto-commit"
+                          IsChecked="{Binding AutoCommit}"
+                          IsEnabled="{Binding CanChangeCommitMode}"
+                          ToolTip.Tip="Untick to run statements in a transaction that stays open until you commit or roll back. Commit or roll back before ticking it again."/>
+                <Button Name="CommitButton" Classes="toolbar" Classes.active="{Binding IsInTransaction}"
+                        Command="{Binding CommitCommand}" ToolTip.Tip="Commit the open transaction">
+                    <StackPanel>
+                        <fi:SymbolIcon Classes="role commit" Tag="IconDisabled" Symbol="Checkmark"/>
+                        <TextBlock Text="Commit"/>
+                    </StackPanel>
+                </Button>
+                <Button Name="RollbackButton" Classes="toolbar" Classes.active="{Binding IsInTransaction}"
+                        Command="{Binding RollbackCommand}" ToolTip.Tip="Roll back the open transaction">
+                    <StackPanel>
+                        <fi:SymbolIcon Classes="role rollback" Tag="IconDisabled" Symbol="ArrowUndo"/>
+                        <TextBlock Text="Rollback"/>
+                    </StackPanel>
+                </Button>
+                <Separator/>
+                <TextBlock Classes="muted" Text="Timeout" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding TimeoutChoices}" SelectedItem="{Binding TimeoutSeconds}"
+                          ToolTip.Tip="Query timeout in seconds"/>
+                <TextBlock Classes="muted" Text="Limit" VerticalAlignment="Center"/>
+                <ComboBox Name="LimitPicker" ItemsSource="{Binding ResultRowCapChoices}" SelectedItem="{Binding ResultRowCap}"
+                          ToolTip.Tip="Maximum rows loaded per query result"/>
+            </StackPanel>
+        </WrapPanel>
+    </Border>
+</UserControl>

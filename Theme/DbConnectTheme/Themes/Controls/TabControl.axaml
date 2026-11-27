@@ -1,0 +1,127 @@
+<!-- Tab strips, flat, in three looks:
+     - default and "sub-tabs" (result, designer and other in-page tabs): a grid-line strip with a border below;
+       the selected tab is the surface colour with border sides, semibold.
+     - "document-tabs" (DbConnect/Styles/Tabs.axaml lays the strip out): the chrome strip, 26 px tabs, the selected tab
+       on the surface with border sides and a 2 px accent top.
+     - "dialog-tabs": tabs on the window colour joined to a bordered surface panel.
+     One TabItem template serves all three; the strip classes only change its colours and sizes. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="TabControl">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}" Background="{TemplateBinding Background}">
+          <DockPanel>
+            <Border Name="PART_Strip" DockPanel.Dock="Top">
+              <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+            </Border>
+            <Border Name="PART_ContentPanel">
+              <ContentPresenter Name="PART_SelectedContentHost"
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Content="{TemplateBinding SelectedContent}"
+                                ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+            </Border>
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <WrapPanel Orientation="Horizontal" />
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="TabControl /template/ Border#PART_Strip">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.GridLine}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="4,3,4,0" />
+  </Style>
+
+  <Style Selector="TabItem">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.SubTab}" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="Margin" Value="0,0,0,-1" />
+    <Setter Property="FontSize" Value="{DynamicResource DbConnect.FontSize.Body}" />
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.Text}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="1,1,1,0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="PART_LayoutRoot"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+          <DockPanel>
+            <Border Name="PART_SelectedPipe" DockPanel.Dock="Top" Height="2" Background="Transparent" IsVisible="False" />
+            <ContentPresenter Name="PART_ContentPresenter"
+                              Padding="{TemplateBinding Padding}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Content="{TemplateBinding Header}"
+                              ContentTemplate="{TemplateBinding HeaderTemplate}" />
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="TabItem:pointerover">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.GridLine}" />
+  </Style>
+  <Style Selector="TabItem:selected">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.Border}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TabItem:disabled">
+    <Setter Property="Foreground" Value="{DynamicResource DbConnect.Brush.TextNull}" />
+  </Style>
+
+  <!-- Document tabs: chrome strip, 26 px tabs, accent top on the selected tab, regular weight. -->
+  <Style Selector="TabControl.document-tabs /template/ Border#PART_Strip">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Chrome}" />
+    <Setter Property="Height" Value="{DynamicResource DbConnect.Size.TabStrip}" />
+    <Setter Property="Padding" Value="4,0" />
+  </Style>
+  <Style Selector="TabControl.document-tabs > TabItem">
+    <Setter Property="Height" Value="{DynamicResource DbConnect.Size.DocumentTab}" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="10,0,6,0" />
+    <Setter Property="VerticalAlignment" Value="Bottom" />
+  </Style>
+  <Style Selector="TabControl.document-tabs > TabItem:selected">
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="BorderThickness" Value="1,0,1,0" />
+  </Style>
+  <Style Selector="TabControl.document-tabs > TabItem:selected /template/ Border#PART_SelectedPipe">
+    <Setter Property="IsVisible" Value="True" />
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Accent}" />
+  </Style>
+
+  <!-- Dialog tabs: on the window colour, joined to a bordered surface panel. -->
+  <Style Selector="TabControl.dialog-tabs /template/ Border#PART_Strip">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.InputBorder}" />
+    <Setter Property="Padding" Value="12,0" />
+  </Style>
+  <Style Selector="TabControl.dialog-tabs /template/ Border#PART_ContentPanel">
+    <Setter Property="Background" Value="{DynamicResource DbConnect.Brush.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.InputBorder}" />
+    <Setter Property="BorderThickness" Value="1,0,1,1" />
+    <Setter Property="Margin" Value="12,0" />
+    <Setter Property="Padding" Value="20,18" />
+  </Style>
+  <Style Selector="TabControl.dialog-tabs > TabItem">
+    <Setter Property="MinHeight" Value="{DynamicResource DbConnect.Size.DialogTab}" />
+    <Setter Property="Padding" Value="14,0" />
+  </Style>
+  <Style Selector="TabControl.dialog-tabs > TabItem:selected">
+    <Setter Property="BorderBrush" Value="{DynamicResource DbConnect.Brush.InputBorder}" />
+  </Style>
+</Styles>

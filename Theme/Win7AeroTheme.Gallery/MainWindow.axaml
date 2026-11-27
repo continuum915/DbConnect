@@ -1,0 +1,193 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Win7AeroTheme.Gallery.MainWindow"
+        Title="Win7 Aero Theme Gallery"
+        Width="980"
+        Height="720"
+        MinWidth="760"
+        MinHeight="560">
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="New folder" />
+        <MenuItem Header="Properties" />
+        <Separator />
+        <MenuItem Header="Exit" />
+      </MenuItem>
+      <MenuItem Header="_View">
+        <MenuItem Header="Details" />
+        <MenuItem Header="Large icons" />
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="About Win7AeroTheme" />
+      </MenuItem>
+    </Menu>
+
+    <Border DockPanel.Dock="Top"
+            Background="{DynamicResource Win7.Brush.PanelChrome}"
+            BorderBrush="{DynamicResource Win7.Brush.ControlBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="10,8">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <Button Content="Organize" />
+        <TextBlock Grid.Column="1"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource Win7.Brush.TextMuted}"
+                   Text="Windows 7 Aero-inspired Avalonia controls" />
+        <TextBox Grid.Column="2" Width="230" Watermark="Search gallery" />
+      </Grid>
+    </Border>
+
+    <Grid ColumnDefinitions="220,*">
+      <Border Background="#E9F1F8"
+              BorderBrush="{DynamicResource Win7.Brush.ControlBorder}"
+              BorderThickness="0,0,1,0"
+              Padding="10">
+        <TreeView>
+          <TreeViewItem Header="Favorites" IsExpanded="True">
+            <TreeViewItem Header="Desktop" />
+            <TreeViewItem Header="Downloads" />
+            <TreeViewItem Header="Recent Places" />
+          </TreeViewItem>
+          <TreeViewItem Header="Libraries" IsExpanded="True">
+            <TreeViewItem Header="Documents" />
+            <TreeViewItem Header="Music" />
+            <TreeViewItem Header="Pictures" />
+          </TreeViewItem>
+          <TreeViewItem Header="Computer" IsExpanded="True">
+            <TreeViewItem Header="Local Disk (C:)" />
+            <TreeViewItem Header="Backup (D:)" />
+          </TreeViewItem>
+        </TreeView>
+      </Border>
+
+      <ScrollViewer Grid.Column="1">
+        <StackPanel Margin="18" Spacing="16">
+          <TextBlock FontSize="{DynamicResource Win7.FontSize.Heading}"
+                     FontWeight="SemiBold"
+                     Text="Control gallery" />
+
+          <TabControl>
+            <TabItem Header="Core">
+              <StackPanel Margin="12" Spacing="14">
+                <WrapPanel ItemHeight="32" ItemWidth="132">
+                  <Button Content="Normal" />
+                  <Button Content="Focused" />
+                  <Button Content="Disabled" IsEnabled="False" />
+                  <ToggleButton Content="Toggle" />
+                  <ToggleButton Content="Checked" IsChecked="True" />
+                </WrapPanel>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="Inputs" FontWeight="SemiBold" />
+                    <TextBox Text="Editable text" />
+                    <TextBox Watermark="Watermark" />
+                    <TextBox Text="Disabled input" IsEnabled="False" />
+                    <ComboBox SelectedIndex="0">
+                      <ComboBoxItem Content="Aero blue" />
+                      <ComboBoxItem Content="Explorer chrome" />
+                      <ComboBoxItem Content="Classic spacing" />
+                    </ComboBox>
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1" Spacing="8">
+                    <TextBlock Text="Choice controls" FontWeight="SemiBold" />
+                    <CheckBox Content="Show hidden files" IsChecked="True" />
+                    <CheckBox Content="Use compact toolbar" />
+                    <CheckBox Content="Disabled option" IsEnabled="False" />
+                    <RadioButton GroupName="Mode" Content="Details" IsChecked="True" />
+                    <RadioButton GroupName="Mode" Content="Large icons" />
+                  </StackPanel>
+                </Grid>
+
+                <StackPanel Spacing="8">
+                  <TextBlock Text="Progress and sliders" FontWeight="SemiBold" />
+                  <ProgressBar Value="64" Maximum="100" />
+                  <Slider Value="42" Maximum="100" />
+                </StackPanel>
+              </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Lists">
+              <Grid Margin="12" ColumnDefinitions="*,*" ColumnSpacing="14">
+                <ListBox SelectedIndex="1">
+                  <ListBoxItem Content="Documents" />
+                  <ListBoxItem Content="Pictures" />
+                  <ListBoxItem Content="Music" />
+                  <ListBoxItem Content="Videos" />
+                </ListBox>
+                <StackPanel Grid.Column="1" Spacing="10">
+                  <TextBlock Text="Explorer-style panel" FontWeight="SemiBold" />
+                  <Border Background="{DynamicResource Win7.Brush.Surface}"
+                          BorderBrush="{DynamicResource Win7.Brush.ControlBorder}"
+                          BorderThickness="1"
+                          CornerRadius="{DynamicResource Win7.CornerRadius.Panel}"
+                          Padding="12">
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="Hard Disk Drives" Foreground="#FF003C74" />
+                      <ProgressBar Value="72" Maximum="100" />
+                      <TextBlock Text="72 GB free of 250 GB" Foreground="{DynamicResource Win7.Brush.TextMuted}" />
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </Grid>
+            </TabItem>
+
+            <TabItem Header="Tables">
+              <StackPanel Margin="12" Spacing="14">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="File details" FontWeight="SemiBold" />
+                    <DataGrid Height="230"
+                              AutoGenerateColumns="False"
+                              CanUserReorderColumns="True"
+                              CanUserResizeColumns="True"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding Files}"
+                              SelectedIndex="1">
+                      <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Date modified" Binding="{Binding DateModified}" Width="140" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="110" />
+                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="80" />
+                      </DataGrid.Columns>
+                    </DataGrid>
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1" Spacing="8">
+                    <TextBlock Text="Transfer queue" FontWeight="SemiBold" />
+                    <DataGrid Height="230"
+                              AutoGenerateColumns="False"
+                              CanUserSortColumns="True"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding Transfers}">
+                      <DataGrid.Columns>
+                        <DataGridTextColumn Header="Item" Binding="{Binding Item}" Width="*" />
+                        <DataGridTextColumn Header="Progress" Binding="{Binding Progress}" Width="90" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110" />
+                      </DataGrid.Columns>
+                    </DataGrid>
+                  </StackPanel>
+                </Grid>
+
+                <Border Background="{DynamicResource Win7.Brush.PanelChrome}"
+                        BorderBrush="{DynamicResource Win7.Brush.ControlBorder}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource Win7.CornerRadius.Panel}"
+                        Padding="10">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <TextBlock VerticalAlignment="Center"
+                               Foreground="{DynamicResource Win7.Brush.TextMuted}"
+                               Text="Two table examples using Avalonia DataGrid with Win7AeroTheme styling." />
+                    <Button Grid.Column="1" Content="Refresh" />
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </TabItem>
+          </TabControl>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
+</Window>

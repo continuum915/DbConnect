@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.GroupInputDialog"
+        Title="Group Name"
+        Width="380"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}">
+        <Grid Classes="form" ColumnDefinitions="Auto,*">
+            <TextBlock Name="PromptLabel" Text="Group name:"/>
+            <TextBox Grid.Column="1" Name="InputBox"/>
+        </Grid>
+        <Border Classes="dialog-footer">
+            <StackPanel>
+                <Button Classes="primary" Content="OK" Name="OkButton" Click="OkButton_Click" IsDefault="True"/>
+                <Button Content="Cancel" Name="CancelButton" Click="CancelButton_Click" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

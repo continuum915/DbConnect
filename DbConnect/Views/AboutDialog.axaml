@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DbConnect.Views.AboutDialog"
+        Title="About DbConnect"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="{DynamicResource DbConnect.Thickness.Dialog}" MinWidth="340">
+        <!-- Close is both the default and the cancel button: Enter and Esc dismiss the window. -->
+        <Border DockPanel.Dock="Bottom" Classes="dialog-footer">
+            <StackPanel>
+                <Button Name="CloseButton" Classes="primary" Content="Close" IsDefault="True" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="8">
+            <TextBlock Classes="heading" Text="DbConnect" HorizontalAlignment="Center"/>
+            <TextBlock Name="VersionLabel" Classes="muted" HorizontalAlignment="Center"/>
+            <TextBlock Classes="muted" Text="A cross-platform SQL database management tool."
+                       HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="280"/>
+            <Button Name="RepoLinkButton" Classes="link" Content="View on GitHub" HorizontalAlignment="Center"/>
+
+            <!-- Third-party notices: fonts bundled in DbConnectTheme (licence texts ship in its Fonts folder). -->
+            <TextBlock Classes="section-header" Text="Third-party notices"/>
+            <TextBlock Name="FontNotice" Classes="caption muted" TextWrapping="Wrap" MaxWidth="280"
+                       Text="Inter, © The Inter Project Authors, and JetBrains Mono, © The JetBrains Mono Project Authors, are used under the SIL Open Font License 1.1."/>
+        </StackPanel>
+    </DockPanel>
+
+</Window>
